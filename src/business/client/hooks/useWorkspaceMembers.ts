@@ -1,3 +1,9 @@
 import type { WorkspaceMemberItem } from '@lobechat/database/schemas';
 
-export const useWorkspaceMembers = (): WorkspaceMemberItem[] => [];
+import { useFetchWorkspaceMembers } from './useFetchWorkspaceMembers';
+
+export const useWorkspaceMembers = (): WorkspaceMemberItem[] => {
+  const { data } = useFetchWorkspaceMembers();
+
+  return (data ?? []) as WorkspaceMemberItem[];
+};

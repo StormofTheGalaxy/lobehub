@@ -6,6 +6,7 @@ import { wsCompatProcedure } from '@/business/server/trpc-middlewares/workspaceA
 import { AgentModel } from '@/database/models/agent';
 import { AgentPresetModel } from '@/database/models/agentPreset';
 import { UserModel } from '@/database/models/user';
+import { WorkspaceAuditLogModel } from '@/database/models/workspaceAuditLog';
 import { router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 
@@ -31,10 +32,32 @@ const agentPresetProcedure = wsCompatProcedure.use(serverDatabase).use(async (op
     ctx: {
       agentModel: new AgentModel(ctx.serverDB, ctx.userId, wsId),
       agentPresetModel: new AgentPresetModel(ctx.serverDB, wsId),
+      auditModel: new WorkspaceAuditLogModel(ctx.serverDB),
       userId: ctx.userId,
+      workspaceId: wsId,
     },
   });
 });
+
+const createPresetAuditLog = async (
+  ctx: {
+    auditModel: WorkspaceAuditLogModel;
+    userId: string;
+    workspaceId?: string;
+  },
+  params: { action: string; metadata?: Record<string, unknown>; presetId?: string },
+) => {
+  if (!ctx.workspaceId) return;
+
+  await ctx.auditModel.create({
+    action: params.action as any,
+    metadata: params.metadata,
+    resourceId: params.presetId,
+    resourceType: 'agent_preset',
+    userId: ctx.userId,
+    workspaceId: ctx.workspaceId,
+  });
+};
 
 const presetConfigSchema = z
   .object({
@@ -83,6 +106,11 @@ export const agentPresetRouter = router({
         config: input.config,
         createdBy: ctx.userId,
       });
+      await createPresetAuditLog(ctx, {
+        action: 'agent_preset.created',
+        metadata: { identifier: input.identifier, title: input.title },
+        presetId: created.id,
+      });
       return { id: created.id };
     }),
 
@@ -93,6 +121,7 @@ export const agentPresetRouter = router({
     .mutation(async ({ input, ctx }) => {
       const ok = await ctx.agentPresetModel.delete(input.id);
       if (!ok) throw new TRPCError({ code: 'NOT_FOUND', message: 'Preset not found' });
+      await createPresetAuditLog(ctx, { action: 'agent_preset.deleted', presetId: input.id });
       return { ok: true };
     }),
 
@@ -126,6 +155,11 @@ export const agentPresetRouter = router({
         updatedBy: ctx.userId,
       });
       if (!updated) throw new TRPCError({ code: 'NOT_FOUND', message: 'Preset not found' });
+      await createPresetAuditLog(ctx, {
+        action: 'agent_preset.status_updated',
+        metadata: { status: input.status },
+        presetId: input.id,
+      });
       return { id: updated.id, status: updated.status };
     }),
 
@@ -139,6 +173,7 @@ export const agentPresetRouter = router({
         updatedBy: ctx.userId,
       });
       if (!updated) throw new TRPCError({ code: 'NOT_FOUND', message: 'Preset not found' });
+      await createPresetAuditLog(ctx, { action: 'agent_preset.updated', presetId: input.id });
       return { id: updated.id };
     }),
 

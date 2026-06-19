@@ -19,6 +19,7 @@ import { useWorkspaces } from '@/business/client/hooks/useWorkspaces';
 const RESERVED_FIRST_SEGMENTS = new Set([
   // Shared (mirrored under /:workspaceSlug too):
   'agent',
+  'agent-presets',
   'group',
   'community',
   'memory',

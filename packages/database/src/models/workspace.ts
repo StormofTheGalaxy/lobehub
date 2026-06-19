@@ -1,3 +1,4 @@
+import { WORKSPACE_SYSTEM_ROLES } from '@lobechat/const/rbac';
 import { and, count, desc, eq, isNull, ne } from 'drizzle-orm';
 
 import {
@@ -7,6 +8,7 @@ import {
   workspaces,
 } from '../schemas/workspace';
 import type { LobeChatDatabase } from '../type';
+import { assignWorkspaceRoleToUser, seedWorkspaceRoles } from '../utils/seedWorkspaceRoles';
 
 export class WorkspaceModel {
   protected readonly db: LobeChatDatabase;
@@ -23,7 +25,7 @@ export class WorkspaceModel {
     name: string;
     slug: string;
   }) => {
-    return this.db.transaction(async (tx) => {
+    const workspace = await this.db.transaction(async (tx) => {
       const [workspace] = await tx
         .insert(workspaces)
         .values({
@@ -43,6 +45,15 @@ export class WorkspaceModel {
 
       return workspace;
     });
+
+    await seedWorkspaceRoles(this.db, workspace.id);
+    await assignWorkspaceRoleToUser(this.db, {
+      roleName: WORKSPACE_SYSTEM_ROLES.OWNER,
+      userId: this.userId,
+      workspaceId: workspace.id,
+    });
+
+    return workspace;
   };
 
   delete = async (id: string) => {

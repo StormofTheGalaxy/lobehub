@@ -1,6 +1,11 @@
+import { WORKSPACE_SYSTEM_ROLES } from '@lobechat/const/rbac';
 import type { LobeChatDatabase } from '@lobechat/database';
 import { permissions, rolePermissions, roles, userRoles } from '@lobechat/database/schemas';
 import { and, eq, isNull } from 'drizzle-orm';
+
+import { WorkspaceModel } from '@/database/models/workspace';
+import { WorkspaceMemberModel } from '@/database/models/workspaceMember';
+import { assignWorkspaceRoleToUser, seedWorkspaceRoles } from '@/database/utils/seedWorkspaceRoles';
 
 /**
  * Email суперадмина. По умолчанию — основной владелец Acensus.
@@ -13,6 +18,8 @@ export const DEFAULT_SUPER_ADMIN_EMAILS = ['contact@r-artemev.ru'];
 
 const SUPER_ADMIN_ROLE_NAME = 'super_admin';
 const PRESET_MANAGE_PERMISSION_CODE = 'agent_preset:manage:all';
+const DEFAULT_WORKSPACE_SLUG = process.env.ACENSUS_DEFAULT_WORKSPACE_SLUG || 'acensus';
+const DEFAULT_WORKSPACE_NAME = process.env.ACENSUS_DEFAULT_WORKSPACE_NAME || 'Acensus';
 
 const PERMISSIONS_TO_SEED = [
   {
@@ -118,6 +125,32 @@ export const grantSuperAdminToUser = async (
     .onConflictDoNothing();
 };
 
+export const ensureDefaultWorkspaceForSuperAdmin = async (
+  db: LobeChatDatabase,
+  userId: string,
+): Promise<void> => {
+  const workspaceModel = new WorkspaceModel(db, userId);
+  const memberModel = new WorkspaceMemberModel(db, userId);
+  const existing = await workspaceModel.findBySlug(DEFAULT_WORKSPACE_SLUG);
+
+  if (!existing) {
+    await workspaceModel.create({
+      description: 'Корпоративное пространство Acensus по умолчанию',
+      name: DEFAULT_WORKSPACE_NAME,
+      slug: DEFAULT_WORKSPACE_SLUG,
+    });
+    return;
+  }
+
+  await seedWorkspaceRoles(db, existing.id);
+  await memberModel.addMember({ role: 'owner', userId, workspaceId: existing.id });
+  await assignWorkspaceRoleToUser(db, {
+    roleName: WORKSPACE_SYSTEM_ROLES.OWNER,
+    userId,
+    workspaceId: existing.id,
+  });
+};
+
 /**
  * Полный цикл: проверить email и выдать super_admin при совпадении.
  * Идемпотентно. Безопасно вызывать многократно (на каждом запросе).
@@ -129,6 +162,7 @@ export const maybeGrantSuperAdmin = async (
   if (!isSuperAdminEmail(params.email)) return false;
   try {
     await grantSuperAdminToUser(db, params.userId);
+    await ensureDefaultWorkspaceForSuperAdmin(db, params.userId);
     return true;
   } catch (error) {
     console.error('[acensus:super-admin] failed to grant super_admin', error);
