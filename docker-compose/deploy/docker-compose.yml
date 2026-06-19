@@ -1,7 +1,7 @@
 name: lobehub
 services:
   lobe:
-    image: lobehub/lobehub
+    image: ghcr.io/stormofthegalaxy/lobehub:latest
     container_name: lobehub
     ports:
       - '${LOBE_PORT}:3210'
