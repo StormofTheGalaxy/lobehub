@@ -8,7 +8,8 @@ import { AgentPresetModel } from '@/database/models/agentPreset';
 import { UserModel } from '@/database/models/user';
 import { router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
-import { maybeGrantSuperAdmin } from '@/services/rbac/superAdmin';
+
+import { maybeGrantSuperAdmin } from '../../services/rbac/superAdmin';
 
 const agentPresetProcedure = wsCompatProcedure.use(serverDatabase).use(async (opts) => {
   const { ctx } = opts;
