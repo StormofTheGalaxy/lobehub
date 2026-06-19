@@ -23,6 +23,7 @@ export interface NavLayout {
   footer: {
     hideGitHub: boolean;
     layout: 'expanded' | 'compact';
+    showChangelog: boolean;
     showEvalEntry: boolean;
     showSettingsEntry: boolean;
   };
@@ -36,7 +37,8 @@ export interface NavLayout {
 export const useNavLayout = (): NavLayout => {
   const { t } = useTranslation('common');
   const toggleCommandMenu = useGlobalStore((s) => s.toggleCommandMenu);
-  const { showMarket, hideGitHub } = useServerConfigStore(featureFlagsSelectors);
+  const { enableRAGEval, hideGitHub, showChangelog, showMarket } =
+    useServerConfigStore(featureFlagsSelectors);
   const activeWorkspaceSlug = useActiveWorkspaceSlug();
 
   const topNavItems = useMemo(
@@ -107,10 +109,11 @@ export const useNavLayout = (): NavLayout => {
     () => ({
       hideGitHub: !!hideGitHub,
       layout: 'compact' as const,
-      showEvalEntry: false,
+      showChangelog: showChangelog !== false,
+      showEvalEntry: !!enableRAGEval,
       showSettingsEntry: true,
     }),
-    [hideGitHub],
+    [enableRAGEval, hideGitHub, showChangelog],
   );
 
   const userPanel = useMemo(

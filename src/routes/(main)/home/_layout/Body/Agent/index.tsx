@@ -1,5 +1,6 @@
 'use client';
 
+import type { MenuProps } from '@lobehub/ui';
 import { AccordionItem, ContextMenuTrigger, Flexbox, Text } from '@lobehub/ui';
 import React, { memo, Suspense, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +45,7 @@ const Agent = memo<AgentProps>(({ itemKey }) => {
         ? [{ type: 'divider' as const }, ...heterogeneousItems]
         : []),
       ...(platformItem ? [{ type: 'divider' as const }, platformItem] : []),
-    ];
+    ].filter(Boolean) as MenuProps['items'];
   }, [
     createAgentMenuItem,
     createGroupChatMenuItem,

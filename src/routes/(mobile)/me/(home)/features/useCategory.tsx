@@ -13,7 +13,6 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import useBusinessMeCells from '@/business/client/features/User/useBusinessMeCells';
 import { type CellProps } from '@/components/Cell';
 import { openChangelogModal } from '@/components/ChangelogModal';
 import { DOCUMENTS, FEEDBACK } from '@/const/index';
@@ -25,10 +24,10 @@ import { authSelectors } from '@/store/user/selectors';
 export const useCategory = () => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common', 'setting', 'auth']);
-  const { showCloudPromotion, hideDocs } = useServerConfigStore(featureFlagsSelectors);
+  const { showChangelog, showCloudPromotion, hideDocs } =
+    useServerConfigStore(featureFlagsSelectors);
   const [isLoginWithAuth] = useUserStore((s) => [authSelectors.isLoginWithAuth(s)]);
   const { isIOS, isAndroid } = usePlatform();
-  const businessMeCells = useBusinessMeCells();
 
   const downloadUrl = useMemo(() => {
     if (isIOS) return DOWNLOAD_URL.ios;
@@ -88,7 +87,7 @@ export const useCategory = () => {
       label: t('feedback'),
       onClick: () => window.open(FEEDBACK, '__blank'),
     },
-    {
+    showChangelog && {
       icon: FileClockIcon,
       key: 'changelog',
       label: t('changelog'),
@@ -102,7 +101,6 @@ export const useCategory = () => {
     },
     ...(isLoginWithAuth ? profile : []),
     ...(isLoginWithAuth ? settings : []),
-    ...(isLoginWithAuth ? businessMeCells : []),
     ...getDesktopApp,
     ...(!hideDocs ? helps : []),
   ].filter(Boolean) as CellProps[];

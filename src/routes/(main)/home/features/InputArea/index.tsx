@@ -1,4 +1,5 @@
 import { Flexbox } from '@lobehub/ui';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import DragUploadZone, { useUploadFiles } from '@/components/DragUploadZone';
@@ -12,8 +13,15 @@ import { builtinAgentSelectors } from '@/store/agent/selectors/builtinAgentSelec
 import { useChatStore } from '@/store/chat';
 import { useGlobalStore } from '@/store/global';
 import { systemStatusSelectors } from '@/store/global/selectors';
-import { serverConfigSelectors, useServerConfigStore } from '@/store/serverConfig';
+import { useHomeStore } from '@/store/home';
+import {
+  featureFlagsSelectors,
+  serverConfigSelectors,
+  useServerConfigStore,
+} from '@/store/serverConfig';
 
+import CommunityRecommend from '../CommunityRecommend';
+import SuggestQuestions from '../SuggestQuestions';
 import BotIntegrationBanner, { BOT_INTEGRATION_BANNER_ID } from './BotIntegrationBanner';
 import { stripMarkdownLinks } from './hintFormat';
 import MessengerBanner, { MESSENGER_BANNER_ID } from './MessengerBanner';
@@ -40,6 +48,8 @@ const InputArea = () => {
     agentByIdSelectors.isAgentConfigLoadingById(agentId ?? '')(s),
   );
   const inboxAgentId = useAgentStore(builtinAgentSelectors.inboxAgentId);
+  const inputActiveMode = useHomeStore((s) => s.inputActiveMode);
+  const { showMarket, showWelcomeSuggest } = useServerConfigStore(featureFlagsSelectors);
   const isLobehubSkillEnabled = useServerConfigStore(serverConfigSelectors.enableLobehubSkill);
   const isComposioEnabled = useServerConfigStore(serverConfigSelectors.enableComposio);
   const serverConfigInit = useServerConfigStore((s) => s.serverConfigInit);
@@ -86,6 +96,15 @@ const InputArea = () => {
     serverConfigInit,
   ]);
 
+  useEffect(() => {
+    if (!inputActiveMode) return;
+
+    requestAnimationFrame(() => {
+      chatInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      useChatStore.getState().mainInputEditor?.focus();
+    });
+  }, [inputActiveMode]);
+
   const isActiveBannerDismissed =
     (activeBanner === 'skill' && isSkillBannerDismissed) ||
     (activeBanner === 'botIntegration' && isBotIntegrationBannerDismissed) ||
@@ -121,6 +140,14 @@ const InputArea = () => {
   // via the shared rotating index inside `useHomeDailyBrief`.
   const { currentPair } = useHomeDailyBrief();
   const dailyHint = currentPair?.hint ? stripMarkdownLinks(currentPair.hint) : undefined;
+
+  const hideStarterList =
+    !!inputActiveMode && ['agent', 'group', 'write'].includes(inputActiveMode);
+  const isSuggestionMode =
+    !inputActiveMode || ['agent', 'group', 'write'].includes(inputActiveMode);
+  const showSuggestQuestions = showWelcomeSuggest && isSuggestionMode;
+  const showCommunityRecommend =
+    !!inputActiveMode && ['agent', 'group', 'write'].includes(inputActiveMode) && showMarket;
 
   return (
     <Flexbox gap={16} style={{ marginBottom: 16 }}>
@@ -167,7 +194,30 @@ const InputArea = () => {
         </DragUploadZone>
       </Flexbox>
 
-      <StarterList />
+      {/* Keep StarterList mounted so returning to default mode preserves its local UI state. */}
+      <div style={{ display: hideStarterList ? 'none' : undefined }}>
+        <StarterList />
+      </div>
+      <AnimatePresence mode="popLayout">
+        {(showSuggestQuestions || showCommunityRecommend) && (
+          <m.div
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            initial={{ opacity: 0, scale: 0.98, y: 8 }}
+            key={inputActiveMode ?? 'chat'}
+            style={{ marginTop: inputActiveMode ? 0 : 24 }}
+            transition={{
+              duration: 0.2,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          >
+            <Flexbox gap={24}>
+              {showSuggestQuestions && <SuggestQuestions mode={inputActiveMode} />}
+              {showCommunityRecommend && <CommunityRecommend mode={inputActiveMode} />}
+            </Flexbox>
+          </m.div>
+        )}
+      </AnimatePresence>
     </Flexbox>
   );
 };

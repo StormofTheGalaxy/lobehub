@@ -288,15 +288,19 @@ const Footer = memo(() => {
           </a>
         ),
       },
-      {
-        type: 'divider',
-      },
-      {
-        icon: <Icon icon={FileClockIcon} />,
-        key: 'changelog',
-        label: t('changelog'),
-        onClick: handleOpenChangelogModal,
-      },
+      ...(footer.showChangelog
+        ? [
+            {
+              type: 'divider' as const,
+            },
+            {
+              icon: <Icon icon={FileClockIcon} />,
+              key: 'changelog',
+              label: t('changelog'),
+              onClick: handleOpenChangelogModal,
+            },
+          ]
+        : []),
       ...(footer.layout === 'compact' && !footer.hideGitHub
         ? [
             {
@@ -335,6 +339,7 @@ const Footer = memo(() => {
     ],
     [
       footer.showSettingsEntry,
+      footer.showChangelog,
       footer.layout,
       footer.hideGitHub,
       footer.showEvalEntry,
@@ -367,9 +372,11 @@ const Footer = memo(() => {
                 <ActionIcon icon={GithubIcon} size={16} title={'GitHub'} />
               </a>
             )}
-            <WorkspaceLink to="/eval">
-              <ActionIcon icon={FlaskConical} size={16} title="Evaluation Lab" />
-            </WorkspaceLink>
+            {footer.showEvalEntry && (
+              <WorkspaceLink to="/eval">
+                <ActionIcon icon={FlaskConical} size={16} title="Evaluation Lab" />
+              </WorkspaceLink>
+            )}
           </Flexbox>
           <ThemeButton placement={'topCenter'} size={16} />
         </Flexbox>

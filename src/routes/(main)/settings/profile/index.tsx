@@ -20,20 +20,36 @@ import EmailRow from './features/EmailRow';
 import FullNameRow from './features/FullNameRow';
 import InterestsRow from './features/InterestsRow';
 import PasswordRow from './features/PasswordRow';
-import ProfileRow from './features/ProfileRow';
+import ProfileRow, { labelStyle, rowStyle } from './features/ProfileRow';
 import SSOProvidersList from './features/SSOProvidersList';
 import UsernameRow from './features/UsernameRow';
 
-const SkeletonRow = () => (
-  <ProfileRow
-    action={<Skeleton.Button active size="small" style={{ height: 22, width: 80 }} />}
-    labelSlot={<Skeleton.Button active size="small" style={{ height: 22, width: 80 }} />}
-  >
-    <Skeleton.Button active size="small" style={{ height: 22, width: 160 }} />
-  </ProfileRow>
-);
+const SkeletonRow = ({ mobile }: { mobile?: boolean }) => {
+  if (mobile) {
+    return (
+      <Flexbox gap={12} style={rowStyle}>
+        <Skeleton.Button active size="small" style={{ height: 22, width: 60 }} />
+        <Skeleton.Button active size="small" style={{ height: 22, width: 120 }} />
+      </Flexbox>
+    );
+  }
+  return (
+    <Flexbox horizontal align="center" gap={24} style={rowStyle}>
+      <Skeleton.Button active size="small" style={{ ...labelStyle, height: 22 }} />
+      <Skeleton.Button
+        active
+        size="small"
+        style={{ height: 22, marginInlineStart: 'auto', width: 120 }}
+      />
+    </Flexbox>
+  );
+};
 
-const ProfileSetting = () => {
+interface ProfileSettingProps {
+  mobile?: boolean;
+}
+
+const ProfileSetting = ({ mobile }: ProfileSettingProps) => {
   const isLogin = useUserStore(authSelectors.isLogin);
   const [userProfile, isUserLoaded] = useUserStore((s) => [
     userProfileSelectors.userProfile(s),
@@ -69,47 +85,54 @@ const ProfileSetting = () => {
       <SettingHeader title={t('profile.title')} />
       <FormGroup collapsible={false} gap={16} title={t('profile.account')} variant={'filled'}>
         <Flexbox style={{ display: isLoading ? 'flex' : 'none' }}>
-          <SkeletonRow />
+          <SkeletonRow mobile={mobile} />
           <Divider style={{ margin: 0 }} />
-          <SkeletonRow />
+          <SkeletonRow mobile={mobile} />
           <Divider style={{ margin: 0 }} />
-          <SkeletonRow />
+          <SkeletonRow mobile={mobile} />
           <Divider style={{ margin: 0 }} />
-          <SkeletonRow />
+          <SkeletonRow mobile={mobile} />
         </Flexbox>
         <Flexbox style={{ display: isLoading ? 'none' : 'flex' }}>
-          <AvatarRow />
+          {/* Avatar Row - Editable */}
+          <AvatarRow mobile={mobile} />
 
           <Divider style={{ margin: 0 }} />
 
-          <FullNameRow />
+          {/* Full Name Row - Editable */}
+          <FullNameRow mobile={mobile} />
 
           <Divider style={{ margin: 0 }} />
 
-          <UsernameRow />
+          {/* Username Row - Editable */}
+          <UsernameRow mobile={mobile} />
 
           <Divider style={{ margin: 0 }} />
 
-          <InterestsRow />
+          {/* Interests Row - Editable */}
+          <InterestsRow mobile={mobile} />
 
+          {/* Password Row - For logged in users to change or set password */}
           {!isDesktop && isLogin && !disableEmailPassword && (
             <>
               <Divider style={{ margin: 0 }} />
-              <PasswordRow />
+              <PasswordRow mobile={mobile} />
             </>
           )}
 
+          {/* Email Row - Editable */}
           {isLogin && userProfile?.email && (
             <>
               <Divider style={{ margin: 0 }} />
-              <EmailRow />
+              <EmailRow mobile={mobile} />
             </>
           )}
 
+          {/* SSO Providers Row */}
           {isLogin && !isDesktop && (
             <>
               <Divider style={{ margin: 0 }} />
-              <ProfileRow label={t('profile.sso.providers')}>
+              <ProfileRow label={t('profile.sso.providers')} mobile={mobile}>
                 <SSOProvidersList />
               </ProfileRow>
             </>
@@ -118,7 +141,7 @@ const ProfileSetting = () => {
           {enableComposio && connectedServers.length > 0 && (
             <>
               <Divider style={{ margin: 0 }} />
-              <ProfileRow label={t('profile.authorizations.title')}>
+              <ProfileRow label={t('profile.authorizations.title')} mobile={mobile}>
                 <ComposioAuthorizationList servers={connectedServers} />
               </ProfileRow>
             </>

@@ -10,11 +10,15 @@ import { changeEmail } from '@/libs/better-auth/auth-client';
 import { useUserStore } from '@/store/user';
 import { userProfileSelectors } from '@/store/user/selectors';
 
-import ProfileRow from './ProfileRow';
+import { labelStyle, rowStyle } from './ProfileRow';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 
-const EmailRow = () => {
+interface EmailRowProps {
+  mobile?: boolean;
+}
+
+const EmailRow = ({ mobile }: EmailRowProps) => {
   const { t } = useTranslation('auth');
   const email = useUserStore(userProfileSelectors.email);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,6 +74,7 @@ const EmailRow = () => {
       transition={{ duration: 0.2 }}
     >
       <Flexbox gap={12}>
+        {!mobile && <Text strong>{t('profile.emailInputHint')}</Text>}
         <Input
           autoFocus
           placeholder={t('profile.emailPlaceholder')}
@@ -106,23 +111,42 @@ const EmailRow = () => {
       key="display"
       transition={{ duration: 0.2 }}
     >
-      <Text>{email || '--'}</Text>
-    </m.div>
-  );
-
-  return (
-    <ProfileRow
-      label={t('profile.email')}
-      action={
-        !isEditing && (
+      {mobile ? (
+        <Text>{email || '--'}</Text>
+      ) : (
+        <Flexbox horizontal align="center" justify="space-between">
+          <Text>{email || '--'}</Text>
           <Text style={{ cursor: 'pointer', fontSize: 13 }} onClick={handleStartEdit}>
             {t('profile.updateEmail')}
           </Text>
-        )
-      }
-    >
-      <AnimatePresence mode="wait">{isEditing ? editingContent : displayContent}</AnimatePresence>
-    </ProfileRow>
+        </Flexbox>
+      )}
+    </m.div>
+  );
+
+  if (mobile) {
+    return (
+      <Flexbox gap={12} style={rowStyle}>
+        <Flexbox horizontal align="center" justify="space-between">
+          <Text strong>{t('profile.email')}</Text>
+          {!isEditing && (
+            <Text style={{ cursor: 'pointer', fontSize: 13 }} onClick={handleStartEdit}>
+              {t('profile.updateEmail')}
+            </Text>
+          )}
+        </Flexbox>
+        <AnimatePresence mode="wait">{isEditing ? editingContent : displayContent}</AnimatePresence>
+      </Flexbox>
+    );
+  }
+
+  return (
+    <Flexbox horizontal gap={24} style={rowStyle}>
+      <Text style={labelStyle}>{t('profile.email')}</Text>
+      <Flexbox style={{ flex: 1 }}>
+        <AnimatePresence mode="wait">{isEditing ? editingContent : displayContent}</AnimatePresence>
+      </Flexbox>
+    </Flexbox>
   );
 };
 

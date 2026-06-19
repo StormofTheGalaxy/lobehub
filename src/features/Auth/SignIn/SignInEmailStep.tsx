@@ -80,7 +80,10 @@ export const SignInEmailStep = ({
   };
 
   return (
-    <AuthCard title={t('signin.subtitle', { appName: BRANDING_NAME })}>
+    <AuthCard
+      subtitle={t('signin.subtitle', { appName: BRANDING_NAME })}
+      title={t('signin.title')}
+    >
       {!serverConfigInit && (
         <Flexbox gap={12}>
           <Skeleton.Button active block size="large" />

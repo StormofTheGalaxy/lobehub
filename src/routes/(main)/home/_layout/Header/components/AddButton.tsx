@@ -1,5 +1,6 @@
 import { ActionIcon, DropdownMenu, Flexbox, Tooltip } from '@lobehub/ui';
 import { CreateBotIcon } from '@lobehub/ui/icons';
+import type { ItemType } from 'antd/es/menu/interface';
 import { cssVar } from 'antd-style';
 import { ChevronDownIcon } from 'lucide-react';
 import React, { memo, useCallback, useMemo } from 'react';
@@ -9,6 +10,8 @@ import { DESKTOP_HEADER_ICON_SIZE } from '@/const/layoutTokens';
 import { usePermission } from '@/hooks/usePermission';
 
 import { useCreateMenuItems } from '../../hooks';
+
+const isMenuItem = (item: ItemType | null): item is ItemType => Boolean(item);
 
 const AddButton = memo(() => {
   const { t: tChat } = useTranslation('chat');
@@ -21,6 +24,7 @@ const AddButton = memo(() => {
     createHeterogeneousAgentMenuItems,
     createPageMenuItem,
     createPlatformAgentMenuItem,
+    isAgentEditable,
     openCreateModal,
     isMutatingAgent,
     isCreatingGroup,
@@ -30,10 +34,10 @@ const AddButton = memo(() => {
     (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
-      if (!canCreate) return;
+      if (!canCreate || !isAgentEditable) return;
       openCreateModal?.('agent');
     },
-    [canCreate, openCreateModal],
+    [canCreate, isAgentEditable, openCreateModal],
   );
 
   const dropdownItems = useMemo(() => {
@@ -48,7 +52,7 @@ const AddButton = memo(() => {
         ? [{ type: 'divider' as const }, ...heterogeneousItems]
         : []),
       ...(platformItem ? [{ type: 'divider' as const }, platformItem] : []),
-    ];
+    ].filter(isMenuItem);
   }, [
     createAgentMenuItem,
     createGroupChatMenuItem,
@@ -63,11 +67,11 @@ const AddButton = memo(() => {
   // surfaces the missing-permission reason.
   const mainIcon = (
     <ActionIcon
-      disabled={!canCreate}
+      disabled={!canCreate || !isAgentEditable}
       icon={CreateBotIcon}
       loading={isMutatingAgent || isCreatingGroup}
       size={DESKTOP_HEADER_ICON_SIZE}
-      title={canCreate ? tChat('newAgent') : undefined}
+      title={canCreate && isAgentEditable ? tChat('newAgent') : undefined}
       onClick={handleMainIconClick}
     />
   );
@@ -75,7 +79,7 @@ const AddButton = memo(() => {
   return (
     <Flexbox horizontal>
       {canCreate ? mainIcon : <Tooltip title={reason}>{mainIcon}</Tooltip>}
-      {canCreate && (
+      {canCreate && isAgentEditable && (
         <DropdownMenu items={dropdownItems}>
           <ActionIcon
             color={cssVar.colorTextQuaternary}

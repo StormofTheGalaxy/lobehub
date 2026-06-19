@@ -11,6 +11,11 @@ const wrapper: React.JSXElementConstructor<{ children: React.ReactNode }> = ({ c
   <ServerConfigStoreProvider>{children}</ServerConfigStoreProvider>
 );
 
+const createWrapper = (featureFlags?: { changelog?: boolean }) =>
+  (({ children }: { children: React.ReactNode }) => (
+    <ServerConfigStoreProvider featureFlags={featureFlags}>{children}</ServerConfigStoreProvider>
+  )) as React.JSXElementConstructor<{ children: React.ReactNode }>;
+
 // Mock dependencies
 const mockNavigate = vi.fn();
 vi.mock('react-router', () => ({
@@ -69,6 +74,22 @@ describe('useCategory', () => {
       expect(items.some((item) => item.key === 'docs')).toBe(true);
       expect(items.some((item) => item.key === 'feedback')).toBe(true);
       expect(items.some((item) => item.key === 'changelog')).toBe(true);
+    });
+  });
+
+  it('should hide changelog entry when the feature flag is disabled', () => {
+    act(() => {
+      useUserStore.setState({ isSignedIn: true });
+    });
+
+    const mockOpenChangelogModal = vi.fn();
+    const { result } = renderHook(() => useCategory(mockOpenChangelogModal), {
+      wrapper: createWrapper({ changelog: false }),
+    });
+
+    act(() => {
+      const items = result.current;
+      expect(items.some((item) => item.key === 'changelog')).toBe(false);
     });
   });
 });

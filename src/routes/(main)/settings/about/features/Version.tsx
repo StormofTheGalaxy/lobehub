@@ -15,6 +15,7 @@ import { CURRENT_VERSION } from '@/const/version';
 import { useNewVersion } from '@/features/User/UserPanel/useNewVersion';
 import { autoUpdateService } from '@/services/electron/autoUpdate';
 import { useGlobalStore } from '@/store/global';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 import { APP_VERSION } from './appVersion';
 
@@ -32,6 +33,7 @@ const Version = memo<{ mobile?: boolean }>(({ mobile }) => {
     s.useCheckServerVersion,
   ]);
   const { t } = useTranslation(['common', 'setting']);
+  const { showChangelog } = useServerConfigStore(featureFlagsSelectors);
 
   useCheckServerVersion();
 
@@ -156,9 +158,11 @@ const Version = memo<{ mobile?: boolean }>(({ mobile }) => {
         </Flexbox>
       </Flexbox>
       <Flexbox horizontal flex={mobile ? 1 : undefined} gap={8}>
-        <a href={CHANGELOG_URL} rel="noreferrer" style={{ flex: 1 }} target="_blank">
-          <Button block={mobile}>{t('changelog')}</Button>
-        </a>
+        {showChangelog && (
+          <a href={CHANGELOG_URL} rel="noreferrer" style={{ flex: 1 }} target="_blank">
+            <Button block={mobile}>{t('changelog')}</Button>
+          </a>
+        )}
         {renderUpdateButton()}
       </Flexbox>
     </Flexbox>

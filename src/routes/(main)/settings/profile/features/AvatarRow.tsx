@@ -1,7 +1,7 @@
 'use client';
 
 import { LoadingOutlined } from '@ant-design/icons';
-import { Icon } from '@lobehub/ui';
+import { Flexbox, Icon, Text } from '@lobehub/ui';
 import { Spin, Upload } from 'antd';
 import { createStaticStyles, cssVar } from 'antd-style';
 import { PencilIcon } from 'lucide-react';
@@ -15,7 +15,7 @@ import { authSelectors } from '@/store/user/selectors';
 import { imageToBase64 } from '@/utils/imageToBase64';
 import { createUploadImageHandler } from '@/utils/uploadFIle';
 
-import ProfileRow from './ProfileRow';
+import { labelStyle, rowStyle } from './ProfileRow';
 
 const styles = createStaticStyles(({ css }) => ({
   overlay: css`
@@ -48,7 +48,11 @@ const styles = createStaticStyles(({ css }) => ({
   `,
 }));
 
-const AvatarRow = () => {
+interface AvatarRowProps {
+  mobile?: boolean;
+}
+
+const AvatarRow = ({ mobile }: AvatarRowProps) => {
   const { t } = useTranslation('auth');
   const isLogin = useUserStore(authSelectors.isLogin);
   const updateAvatar = useUserStore((s) => s.updateAvatar);
@@ -100,7 +104,23 @@ const AvatarRow = () => {
     <UserAvatar size={40} />
   );
 
-  return <ProfileRow action={avatarContent} label={t('profile.avatar')} />;
+  if (mobile) {
+    return (
+      <Flexbox horizontal align="center" gap={12} justify="space-between" style={rowStyle}>
+        <Text strong>{t('profile.avatar')}</Text>
+        {avatarContent}
+      </Flexbox>
+    );
+  }
+
+  return (
+    <Flexbox horizontal align="center" gap={24} style={rowStyle}>
+      <Text style={labelStyle}>{t('profile.avatar')}</Text>
+      <Flexbox align="flex-end" style={{ flex: 1 }}>
+        {avatarContent}
+      </Flexbox>
+    </Flexbox>
+  );
 };
 
 export default AvatarRow;

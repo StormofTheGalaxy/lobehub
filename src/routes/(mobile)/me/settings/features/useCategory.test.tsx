@@ -22,8 +22,8 @@ vi.hoisted(() => {
 
 const navigate = vi.fn();
 
-vi.mock('react-router', () => ({
-  useNavigate: () => navigate,
+vi.mock('@/features/Workspace/useWorkspaceAwareNavigate', () => ({
+  useWorkspaceAwareNavigate: () => navigate,
 }));
 
 vi.mock('react-i18next', () => ({

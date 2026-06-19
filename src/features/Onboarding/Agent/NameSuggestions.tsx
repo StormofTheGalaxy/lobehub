@@ -5,6 +5,7 @@ import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useConversationStore } from '@/features/Conversation';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 import {
   type NameSuggestionItem,
@@ -64,6 +65,7 @@ const NameSuggestions = memo<NameSuggestionsProps>(({ variant = 'cards' }) => {
   const { t, i18n } = useTranslation('onboarding');
   const updateInputMessage = useConversationStore((s) => s.updateInputMessage);
   const editor = useConversationStore((s) => s.editor);
+  const { showWelcomeSuggest } = useServerConfigStore(featureFlagsSelectors);
   const [items, setItems] = useState<NameSuggestionItem[]>(() =>
     sampleSuggestions(SUGGESTIONS_PER_GROUP),
   );
@@ -88,6 +90,8 @@ const NameSuggestions = memo<NameSuggestionsProps>(({ variant = 'cards' }) => {
     },
     [t, updateInputMessage, editor],
   );
+
+  if (!showWelcomeSuggest) return null;
 
   if (variant === 'chips') {
     return (

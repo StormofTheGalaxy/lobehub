@@ -1,6 +1,7 @@
 'use client';
 
 import { ActionIcon, Block, Center, DropdownMenu, Flexbox, Icon, Text, Tooltip } from '@lobehub/ui';
+import type { MenuProps } from '@lobehub/ui';
 import { createStaticStyles, cssVar, cx } from 'antd-style';
 import { ChevronDownIcon, PlusIcon } from 'lucide-react';
 import { memo, useMemo } from 'react';
@@ -69,7 +70,7 @@ const CreateAgentButton = memo<CreateAgentButtonProps>(({ groupId, className }) 
       createGroupChatMenuItem(menuOptions),
       ...(heteroItems.length > 0 ? [{ type: 'divider' as const }, ...heteroItems] : []),
       ...(platformItem ? [{ type: 'divider' as const }, platformItem] : []),
-    ];
+    ].filter(Boolean) as MenuProps['items'];
   }, [
     createAgentMenuItem,
     createGroupChatMenuItem,

@@ -4,7 +4,13 @@ import { Icon } from '@lobehub/ui';
 import { GroupBotSquareIcon } from '@lobehub/ui/icons';
 import { App } from 'antd';
 import type { ItemType } from 'antd/es/menu/interface';
-import { BotIcon, FileTextIcon, FolderCogIcon, FolderPlus, MonitorSmartphone } from 'lucide-react';
+import {
+  BotIcon,
+  FileTextIcon,
+  FolderCogIcon,
+  FolderPlus,
+  MonitorSmartphone,
+} from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWRMutation from 'swr/mutation';
@@ -22,6 +28,7 @@ import { useAgentStore } from '@/store/agent';
 import { useAgentGroupStore } from '@/store/agentGroup';
 import { useHomeStore } from '@/store/home';
 import { usePageStore } from '@/store/page';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { useUserStore } from '@/store/user';
 import { labPreferSelectors } from '@/store/user/selectors';
 
@@ -40,6 +47,7 @@ export const useCreateMenuItems = () => {
   const { t: tFile } = useTranslation('file');
   const { message } = App.useApp();
   const navigate = useWorkspaceAwareNavigate();
+  const { isAgentEditable } = useServerConfigStore(featureFlagsSelectors);
   const groupTemplates = useGroupTemplates();
   const { allowed: canCreate } = usePermission('create_content');
 
@@ -216,23 +224,27 @@ export const useCreateMenuItems = () => {
    * Create agent menu item
    */
   const createAgentMenuItem = useCallback(
-    (options?: CreateAgentOptions): ItemType => ({
-      icon: <Icon icon={BotIcon} />,
-      disabled: !canCreate,
-      key: 'newAgent',
-      label: t('newAgent'),
-      onClick: async (info) => {
-        info.domEvent?.stopPropagation();
-        if (!canCreate) return;
+    (options?: CreateAgentOptions): ItemType | null => {
+      if (!isAgentEditable) return null;
 
-        if (openCreateModal) {
-          openCreateModal('agent', options?.groupId ? { groupId: options.groupId } : undefined);
-        } else {
-          await createAgent(options);
-        }
-      },
-    }),
-    [canCreate, t, createAgent, openCreateModal],
+      return {
+        icon: <Icon icon={BotIcon} />,
+        disabled: !canCreate,
+        key: 'newAgent',
+        label: t('newAgent'),
+        onClick: async (info) => {
+          info.domEvent?.stopPropagation();
+          if (!canCreate) return;
+
+          if (openCreateModal) {
+            openCreateModal('agent', options?.groupId ? { groupId: options.groupId } : undefined);
+          } else {
+            await createAgent(options);
+          }
+        },
+      };
+    },
+    [canCreate, t, createAgent, isAgentEditable, openCreateModal],
   );
 
   /**
@@ -265,9 +277,9 @@ export const useCreateMenuItems = () => {
   /**
    * Create platform agent menu item (openclaw / hermes — remote device agents)
    * Opens the 3-step creation modal
-   */
+  */
   const createPlatformAgentMenuItem = useCallback(
-    (options?: CreateAgentOptions): ItemType => {
+    (options?: CreateAgentOptions): ItemType | null => {
       if (!enablePlatformAgent) return null;
       return {
         icon: <Icon icon={MonitorSmartphone} />,
@@ -289,23 +301,27 @@ export const useCreateMenuItems = () => {
    * Creates an empty group and navigates to its profile page
    */
   const createGroupChatMenuItem = useCallback(
-    (options?: CreateAgentOptions): ItemType => ({
-      icon: <Icon icon={GroupBotSquareIcon} />,
-      disabled: !canCreate,
-      key: 'newGroupChat',
-      label: t('newGroupChat'),
-      onClick: async (info) => {
-        info.domEvent?.stopPropagation();
-        if (!canCreate) return;
+    (options?: CreateAgentOptions): ItemType | null => {
+      if (!isAgentEditable) return null;
 
-        if (openCreateModal) {
-          openCreateModal('group', options?.groupId ? { groupId: options.groupId } : undefined);
-        } else {
-          await createEmptyGroup(options);
-        }
-      },
-    }),
-    [canCreate, t, createEmptyGroup, openCreateModal],
+      return {
+        icon: <Icon icon={GroupBotSquareIcon} />,
+        disabled: !canCreate,
+        key: 'newGroupChat',
+        label: t('newGroupChat'),
+        onClick: async (info) => {
+          info.domEvent?.stopPropagation();
+          if (!canCreate) return;
+
+          if (openCreateModal) {
+            openCreateModal('group', options?.groupId ? { groupId: options.groupId } : undefined);
+          } else {
+            await createEmptyGroup(options);
+          }
+        },
+      };
+    },
+    [canCreate, t, createEmptyGroup, isAgentEditable, openCreateModal],
   );
 
   /**
@@ -394,6 +410,7 @@ export const useCreateMenuItems = () => {
     createPageMenuItem,
     createPlatformAgentMenuItem,
     createSessionGroupMenuItem,
+    isAgentEditable,
     openCreateModal,
 
     // Loading states

@@ -13,9 +13,13 @@ import { INTEREST_AREAS } from '@/routes/onboarding/config';
 import { useUserStore } from '@/store/user';
 import { userProfileSelectors } from '@/store/user/selectors';
 
-import ProfileRow from './ProfileRow';
+import { labelStyle, rowStyle } from './ProfileRow';
 
-const InterestsRow = () => {
+interface InterestsRowProps {
+  mobile?: boolean;
+}
+
+const InterestsRow = ({ mobile }: InterestsRowProps) => {
   const { t } = useTranslation('auth');
   const { t: tOnboarding } = useTranslation('onboarding');
   const interests = useUserStore(userProfileSelectors.interests);
@@ -78,87 +82,101 @@ const InterestsRow = () => {
     await saveInterests(updated);
   }, [customInput, normalizedInterests, saveInterests]);
 
-  return (
-    <ProfileRow label={t('profile.interests')}>
-      <Flexbox gap={12}>
-        <Flexbox horizontal align="center" gap={8} wrap="wrap">
-          {areas.map((item) => {
-            const isSelected = normalizedInterests.includes(item.key);
-            return (
-              <Block
-                clickable
-                horizontal
-                gap={8}
-                key={item.key}
-                padding={8}
-                variant="outlined"
-                style={
-                  isSelected
-                    ? {
-                        background: cssVar.colorFillSecondary,
-                        borderColor: cssVar.colorFillSecondary,
-                      }
-                    : undefined
-                }
-                onClick={() => toggleInterest(item.key)}
-              >
-                <Icon color={cssVar.colorTextSecondary} icon={item.icon} size={14} />
-                <Text fontSize={13} weight={500}>
-                  {item.label}
-                </Text>
-              </Block>
-            );
-          })}
-          {normalizedInterests
-            .filter((i) => !resolveInterestAreaKey(i))
-            .map((interest) => (
-              <Block
-                clickable
-                key={interest}
-                padding={8}
-                variant="outlined"
-                style={{
-                  background: cssVar.colorFillSecondary,
-                  borderColor: cssVar.colorFillSecondary,
-                }}
-                onClick={() => removeCustomInterest(interest)}
-              >
-                <Text fontSize={13} weight={500}>
-                  {interest}
-                </Text>
-              </Block>
-            ))}
-          <Block
-            clickable
-            horizontal
-            gap={8}
-            padding={8}
-            variant="outlined"
-            style={
-              showCustomInput
-                ? { background: cssVar.colorFillSecondary, borderColor: cssVar.colorFillSecondary }
-                : {}
-            }
-            onClick={() => setShowCustomInput(!showCustomInput)}
-          >
-            <Icon color={cssVar.colorTextSecondary} icon={BriefcaseIcon} size={14} />
-            <Text fontSize={13} weight={500}>
-              {tOnboarding('interests.area.other')}
-            </Text>
-          </Block>
-        </Flexbox>
-        {showCustomInput && (
-          <Input
-            placeholder={tOnboarding('interests.placeholder')}
-            size="small"
-            style={{ width: 200 }}
-            value={customInput}
-            onChange={(e) => setCustomInput(e.target.value)}
-            onPressEnter={handleAddCustom}
-          />
-        )}
+  const content = (
+    <Flexbox gap={12}>
+      <Flexbox horizontal align="center" gap={8} justify={mobile ? undefined : 'flex-end'} wrap="wrap">
+        {areas.map((item) => {
+          const isSelected = normalizedInterests.includes(item.key);
+          return (
+            <Block
+              clickable
+              horizontal
+              gap={8}
+              key={item.key}
+              padding={8}
+              variant="outlined"
+              style={
+                isSelected
+                  ? {
+                      background: cssVar.colorFillSecondary,
+                      borderColor: cssVar.colorFillSecondary,
+                    }
+                  : undefined
+              }
+              onClick={() => toggleInterest(item.key)}
+            >
+              <Icon color={cssVar.colorTextSecondary} icon={item.icon} size={14} />
+              <Text fontSize={13} weight={500}>
+                {item.label}
+              </Text>
+            </Block>
+          );
+        })}
+        {normalizedInterests
+          .filter((i) => !resolveInterestAreaKey(i))
+          .map((interest) => (
+            <Block
+              clickable
+              key={interest}
+              padding={8}
+              variant="outlined"
+              style={{
+                background: cssVar.colorFillSecondary,
+                borderColor: cssVar.colorFillSecondary,
+              }}
+              onClick={() => removeCustomInterest(interest)}
+            >
+              <Text fontSize={13} weight={500}>
+                {interest}
+              </Text>
+            </Block>
+          ))}
+        <Block
+          clickable
+          horizontal
+          gap={8}
+          padding={8}
+          variant="outlined"
+          style={
+            showCustomInput
+              ? { background: cssVar.colorFillSecondary, borderColor: cssVar.colorFillSecondary }
+              : {}
+          }
+          onClick={() => setShowCustomInput(!showCustomInput)}
+        >
+          <Icon color={cssVar.colorTextSecondary} icon={BriefcaseIcon} size={14} />
+          <Text fontSize={13} weight={500}>
+            {tOnboarding('interests.area.other')}
+          </Text>
+        </Block>
       </Flexbox>
-    </ProfileRow>
+      {showCustomInput && (
+        <Input
+          placeholder={tOnboarding('interests.placeholder')}
+          size="small"
+          style={{ width: 200 }}
+          value={customInput}
+          onChange={(e) => setCustomInput(e.target.value)}
+          onPressEnter={handleAddCustom}
+        />
+      )}
+    </Flexbox>
+  );
+
+  if (mobile) {
+    return (
+      <Flexbox gap={12} style={rowStyle}>
+        <Text strong>{t('profile.interests')}</Text>
+        {content}
+      </Flexbox>
+    );
+  }
+
+  return (
+    <Flexbox horizontal gap={24} style={rowStyle}>
+      <Text style={labelStyle}>{t('profile.interests')}</Text>
+      <Flexbox align="flex-end" style={{ flex: 1 }}>{content}</Flexbox>
+    </Flexbox>
   );
 };
 

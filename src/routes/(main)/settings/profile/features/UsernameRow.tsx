@@ -10,9 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { useUserStore } from '@/store/user';
 import { userProfileSelectors } from '@/store/user/selectors';
 
-import ProfileRow from './ProfileRow';
+import { INPUT_WIDTH, labelStyle, rowStyle } from './ProfileRow';
 
-const UsernameRow = () => {
+interface UsernameRowProps {
+  mobile?: boolean;
+}
+
+const UsernameRow = ({ mobile }: UsernameRowProps) => {
   const { t } = useTranslation('auth');
   const username = useUserStore(userProfileSelectors.username);
   const updateUsername = useUserStore((s) => s.updateUsername);
@@ -89,8 +93,8 @@ const UsernameRow = () => {
     inputRef.current?.blur();
   }, [username]);
 
-  return (
-    <ProfileRow label={t('profile.username')}>
+  const input = (
+    <Flexbox gap={4}>
       <Flexbox horizontal align="center" gap={8}>
         {saving && <Spin indicator={<LoadingOutlined spin />} size="small" />}
         {error && (
@@ -117,6 +121,7 @@ const UsernameRow = () => {
           placeholder={t('profile.usernamePlaceholder')}
           ref={inputRef}
           status={error ? 'error' : undefined}
+          style={mobile ? undefined : { textAlign: 'right', width: INPUT_WIDTH }}
           variant="filled"
           onBlur={handleSave}
           onChange={handleChange}
@@ -129,7 +134,25 @@ const UsernameRow = () => {
           }}
         />
       </Flexbox>
-    </ProfileRow>
+    </Flexbox>
+  );
+
+  if (mobile) {
+    return (
+      <Flexbox gap={12} style={rowStyle}>
+        <Text strong>{t('profile.username')}</Text>
+        {input}
+      </Flexbox>
+    );
+  }
+
+  return (
+    <Flexbox horizontal align="center" gap={24} style={rowStyle}>
+      <Text style={labelStyle}>{t('profile.username')}</Text>
+      <Flexbox align="flex-end" style={{ flex: 1 }}>
+        {input}
+      </Flexbox>
+    </Flexbox>
   );
 };
 

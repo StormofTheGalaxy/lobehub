@@ -1,64 +1,46 @@
 'use client';
 
-import { Text } from '@lobehub/ui';
-import { createStaticStyles } from 'antd-style';
-import { type ReactNode } from 'react';
+import { Flexbox, Text } from '@lobehub/ui';
+import { type CSSProperties, type ReactNode } from 'react';
 
 interface ProfileRowProps {
   action?: ReactNode;
-  children?: ReactNode;
-  label?: string;
-  labelSlot?: ReactNode;
+  children: ReactNode;
+  label: string;
+  mobile?: boolean;
 }
 
-const styles = createStaticStyles(({ css, responsive }) => ({
-  action: css`
-    flex-shrink: 0;
+export const rowStyle: CSSProperties = {
+  minHeight: 48,
+  padding: '16px 0',
+};
 
-    /* Keep action trailing even for action-only rows (AvatarRow / PasswordRow) where body has no children and space-between degenerates to flex-start. */
-    margin-inline-start: auto;
-  `,
-  body: css`
-    display: flex;
-    flex: 1;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
+export const labelStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 160,
+};
 
-    min-width: 0;
-  `,
-  label: css`
-    flex: 0 0 160px;
+export const INPUT_WIDTH = 240;
 
-    ${responsive.md} {
-      flex: 0 0 auto;
-    }
-  `,
-  row: css`
-    display: flex;
-    gap: 24px;
-    align-items: center;
+const ProfileRow = ({ label, children, action, mobile }: ProfileRowProps) => {
+  if (mobile) {
+    return (
+      <Flexbox gap={12} style={rowStyle}>
+        <Flexbox horizontal align="center" justify="space-between">
+          <Text strong>{label}</Text>
+          {action}
+        </Flexbox>
+        <Flexbox>{children}</Flexbox>
+      </Flexbox>
+    );
+  }
 
-    min-height: 48px;
-    padding-block: 16px;
-
-    ${responsive.md} {
-      flex-direction: column;
-      gap: 12px;
-      align-items: stretch;
-    }
-  `,
-}));
-
-const ProfileRow = ({ label, labelSlot, children, action }: ProfileRowProps) => {
   return (
-    <div className={styles.row}>
-      <div className={styles.label}>{labelSlot ?? (label && <Text strong>{label}</Text>)}</div>
-      <div className={styles.body}>
-        {children}
-        {action && <div className={styles.action}>{action}</div>}
-      </div>
-    </div>
+    <Flexbox horizontal align="center" gap={24} style={rowStyle}>
+      <Text style={labelStyle}>{label}</Text>
+      <Flexbox align="flex-end" style={{ flex: 1 }}>{children}</Flexbox>
+      {action && <Flexbox>{action}</Flexbox>}
+    </Flexbox>
   );
 };
 

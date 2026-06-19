@@ -157,6 +157,7 @@ describe('mapFeatureFlagsEnvToState', () => {
       showApiKeyManage: false,
       showAiImage: true,
       showChangelog: false,
+      enableTokenCounter: undefined,
       enableCheckUpdates: true,
       showWelcomeSuggest: true,
       enableKnowledgeBase: false,
@@ -236,6 +237,7 @@ describe('mapFeatureFlagsEnvToState', () => {
       ai_image: ['user-456'],
       knowledge_base: ['user-123', 'user-789'],
       rag_eval: true,
+      token_counter: false,
     };
 
     const mappedState = mapFeatureFlagsEnvToState(config, userId);
@@ -247,5 +249,6 @@ describe('mapFeatureFlagsEnvToState', () => {
     expect(mappedState.showAiImage).toBe(false);
     expect(mappedState.enableKnowledgeBase).toBe(true);
     expect(mappedState.enableRAGEval).toBe(true);
+    expect(mappedState.enableTokenCounter).toBe(false);
   });
 });

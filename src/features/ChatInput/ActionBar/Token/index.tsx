@@ -3,13 +3,15 @@ import { memo } from 'react';
 
 import { useModelHasContextWindowToken } from '@/hooks/useModelHasContextWindowToken';
 import dynamic from '@/libs/next/dynamic';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 const LargeTokenContent = dynamic(() => import('./TokenTag'), { ssr: false });
 
 const Token = memo<PropsWithChildren>(({ children }) => {
+  const { enableTokenCounter } = useServerConfigStore(featureFlagsSelectors);
   const showTag = useModelHasContextWindowToken();
 
-  return showTag && children;
+  return enableTokenCounter !== false && showTag && children;
 });
 
 const ContextWindow = memo(() => {

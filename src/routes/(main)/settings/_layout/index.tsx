@@ -5,16 +5,19 @@ import { type FC } from 'react';
 import { Outlet } from 'react-router';
 
 import SideBar from '@/routes/(main)/settings/_layout/SideBar';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 import SettingsContextProvider from './ContextProvider';
 import { styles } from './style';
 
 const Layout: FC = () => {
+  const { showOpenAIApiKey, showOpenAIProxyUrl } = useServerConfigStore(featureFlagsSelectors);
+
   return (
     <SettingsContextProvider
       value={{
-        showOpenAIApiKey: true,
-        showOpenAIProxyUrl: true,
+        showOpenAIApiKey,
+        showOpenAIProxyUrl,
       }}
     >
       <SideBar />

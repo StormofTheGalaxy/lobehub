@@ -13,6 +13,7 @@ import {
 } from '@/features/ChatInput';
 import { useRandomQuestions } from '@/routes/(main)/home/features/SuggestQuestions/useRandomQuestions';
 import { agentSkillService } from '@/services/skill';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { useToolStore } from '@/store/tool';
 import type { DiscoverSkillItem } from '@/types/discover';
 
@@ -266,9 +267,10 @@ interface ExamplesProps {
 const Examples = memo<ExamplesProps>(({ suggestMode, onExampleClick }) => {
   const { t: tCommon } = useTranslation('common');
   const { t: tSuggest } = useTranslation('suggestQuestions');
+  const { showWelcomeSuggest } = useServerConfigStore(featureFlagsSelectors);
   const { questions, refresh } = useRandomQuestions(suggestMode);
 
-  if (questions.length === 0) return null;
+  if (!showWelcomeSuggest || questions.length === 0) return null;
 
   return (
     <Flexbox gap={16}>
