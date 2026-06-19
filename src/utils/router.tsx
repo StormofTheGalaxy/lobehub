@@ -10,6 +10,7 @@ import { createBrowserRouter, Navigate, Outlet, useNavigate, useRouteError } fro
 import BusinessGlobalProvider from '@/business/client/BusinessGlobalProvider';
 import ErrorCapture from '@/components/Error';
 import Loading from '@/components/Loading/BrandTextLoading';
+import { useWorkspaceUrlSync } from '@/features/Workspace/useWorkspaceUrlSync';
 import { useIsDark } from '@/hooks/useIsDark';
 import SPAGlobalProvider from '@/layout/SPAGlobalProvider';
 import AppLayer from '@/spa/AppLayer';
@@ -133,6 +134,11 @@ export const NavigatorRegistrar = memo(() => {
   return null;
 });
 
+export const WorkspaceUrlSyncRegistrar = memo(() => {
+  useWorkspaceUrlSync();
+  return null;
+});
+
 export interface CreateAppRouterOptions {
   basename?: string;
 }
@@ -141,6 +147,7 @@ const RouterRoot = memo(() => (
   <SPAGlobalProvider>
     <BusinessGlobalProvider>
       <NavigatorRegistrar />
+      <WorkspaceUrlSyncRegistrar />
       <AppLayer>
         <Outlet />
       </AppLayer>
