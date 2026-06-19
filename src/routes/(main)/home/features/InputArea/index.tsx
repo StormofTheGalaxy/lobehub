@@ -3,6 +3,7 @@ import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import DragUploadZone, { useUploadFiles } from '@/components/DragUploadZone';
+import AgentPresetsHomeEntry from '@/features/AgentPresets/HomeEntry';
 import { type ActionKeys } from '@/features/ChatInput';
 import { ChatInputProvider, DesktopChatInput } from '@/features/ChatInput';
 import { useHomeDailyBrief } from '@/hooks/useHomeDailyBrief';
@@ -198,6 +199,7 @@ const InputArea = () => {
       <div style={{ display: hideStarterList ? 'none' : undefined }}>
         <StarterList />
       </div>
+      {!hideStarterList && <AgentPresetsHomeEntry />}
       <AnimatePresence mode="popLayout">
         {(showSuggestQuestions || showCommunityRecommend) && (
           <m.div

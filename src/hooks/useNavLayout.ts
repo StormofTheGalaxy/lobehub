@@ -1,4 +1,4 @@
-import { HomeIcon, SearchIcon } from 'lucide-react';
+import { HomeIcon, SearchIcon, ShapesIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -75,6 +75,12 @@ export const useNavLayout = (): NavLayout => {
   const bottomMenuItems = useMemo(
     () =>
       [
+        {
+          icon: ShapesIcon,
+          key: 'agent-presets',
+          title: t('tab.agentPresets', { defaultValue: 'Пресеты агентов' }),
+          url: '/agent-presets',
+        },
         {
           icon: getRouteById('image')!.icon,
           key: SidebarTabKey.Image,

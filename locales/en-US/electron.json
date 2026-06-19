@@ -32,6 +32,8 @@
   "gateway.statusConnecting": "Connecting to Gateway...",
   "gateway.statusDisconnected": "Not connected to Gateway",
   "gateway.title": "Device Gateway",
+  "navigation.agentPresets": "Пресеты агентов",
+  "navigation.agentPresetsAdmin": "Управление пресетами",
   "navigation.chat": "Chat",
   "navigation.discover": "Discover",
   "navigation.discoverAssistants": "Discover Agents",

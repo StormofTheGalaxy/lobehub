@@ -8,7 +8,7 @@ import { mutate as globalMutate } from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
 import { MARKET_OIDC_ENDPOINTS } from '@/services/_url';
-import { useServerConfigStore } from '@/store/serverConfig';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { serverConfigSelectors } from '@/store/serverConfig/selectors';
 import { useUserStore } from '@/store/user';
 import { settingsSelectors } from '@/store/user/slices/settings/selectors/settings';
@@ -165,9 +165,16 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
   const enableMarketTrustedClient = useServerConfigStore(
     serverConfigSelectors.enableMarketTrustedClient,
   );
+  const { showMarket } = useServerConfigStore(featureFlagsSelectors);
 
   // Initialize OIDC client (client-side only)
   useEffect(() => {
+    if (!showMarket) {
+      setOidcClient(null);
+      setStatus('unauthenticated');
+      return;
+    }
+
     if (typeof window !== 'undefined') {
       const baseUrl = process.env.NEXT_PUBLIC_MARKET_BASE_URL || 'https://market.lobehub.com';
       const desktopRedirectUri = new URL(MARKET_OIDC_ENDPOINTS.desktopCallback, baseUrl).toString();
@@ -185,7 +192,7 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
       };
       setOidcClient(new MarketOIDC(oidcConfig));
     }
-  }, [isDesktop]);
+  }, [isDesktop, showMarket]);
 
   /**
    * Try to refresh the access token using a refresh token
@@ -393,17 +400,22 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
   /**
    * Sign-in method (shows confirmation dialog first)
    */
-  const signIn = useCallback(async (scene: MarketAuthScene = 'default'): Promise<number | null> => {
-    if (!useUserStore.getState().isSignedIn) {
-      throw new Error('LobeChat session required');
-    }
-    setAuthScene(scene);
-    return new Promise<number | null>((resolve, reject) => {
-      setPendingSignInResolve(() => resolve);
-      setPendingSignInReject(() => reject);
-      setShowConfirmModal(true);
-    });
-  }, []);
+  const signIn = useCallback(
+    async (scene: MarketAuthScene = 'default'): Promise<number | null> => {
+      if (!showMarket) return null;
+
+      if (!useUserStore.getState().isSignedIn) {
+        throw new Error('LobeChat session required');
+      }
+      setAuthScene(scene);
+      return new Promise<number | null>((resolve, reject) => {
+        setPendingSignInResolve(() => resolve);
+        setPendingSignInReject(() => reject);
+        setShowConfirmModal(true);
+      });
+    },
+    [showMarket],
+  );
 
   /**
    * Handle authorization confirmation
@@ -465,6 +477,7 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
    * Get current user info
    */
   const getCurrentUserInfo = (): MarketUserInfo | null => {
+    if (!showMarket) return null;
     return session?.userInfo ?? null;
   };
 
@@ -472,6 +485,8 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
    * Get access token (prioritize session, fallback to DB)
    */
   const getAccessToken = (): string | null => {
+    if (!showMarket) return null;
+
     // Prioritize fetching from session (in-memory state)
     if (session?.accessToken) {
       return session.accessToken;
@@ -638,6 +653,8 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
    */
   const handleUnauthorized = useCallback(
     async (scene: MarketAuthScene = 'default'): Promise<boolean> => {
+      if (!showMarket) return false;
+
       console.info('[MarketAuth] Handling unauthorized error, attempting recovery...');
 
       // First try to refresh the token
@@ -661,7 +678,7 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
         return false;
       }
     },
-    [refreshToken, signIn],
+    [refreshToken, showMarket, signIn],
   );
 
   /**
@@ -669,11 +686,17 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
    * Wait for isUserStateInit to be true, at which point the SWR request from useInitUserState is complete and settings data is loaded
    */
   useEffect(() => {
+    if (!showMarket) {
+      setSession(null);
+      setStatus('unauthenticated');
+      return;
+    }
+
     if (isUserStateInit) {
       initializeSession();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUserStateInit, enableMarketTrustedClient]);
+  }, [isUserStateInit, enableMarketTrustedClient, showMarket]);
 
   /**
    * Auto-refresh token before expiration
@@ -681,6 +704,7 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
    */
   useEffect(() => {
     // Skip if using trusted client (no token expiration)
+    if (!showMarket) return;
     if (enableMarketTrustedClient) return;
 
     // Skip if not authenticated or no session
@@ -705,7 +729,7 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
     return () => {
       clearTimeout(refreshTimer);
     };
-  }, [status, session?.expiresAt, enableMarketTrustedClient, refreshToken]);
+  }, [status, session?.expiresAt, enableMarketTrustedClient, refreshToken, showMarket]);
 
   /**
    * Listen for market-unauthorized events from tRPC error handler
@@ -736,8 +760,8 @@ export const MarketAuthProvider = ({ children, isDesktop }: MarketAuthProviderPr
     getRefreshToken,
     handleUnauthorized,
     // When Trusted Client authentication is enabled, automatically treat as authenticated (backend uses trustedClientToken)
-    isAuthenticated: enableMarketTrustedClient || status === 'authenticated',
-    isLoading: status === 'loading',
+    isAuthenticated: showMarket && (enableMarketTrustedClient || status === 'authenticated'),
+    isLoading: showMarket && status === 'loading',
     openProfileSetup,
     refreshToken,
     session,

@@ -7,6 +7,8 @@ import { initializeServerAnalytics } from '@/libs/analytics';
 import { KeyVaultsGateKeeper } from '@/server/modules/KeyVaultsEncrypt';
 import { FileS3 } from '@/server/modules/S3';
 
+import { maybeGrantSuperAdmin } from '../rbac/superAdmin';
+
 type CreatedUser = {
   createdAt?: Date | null;
   email?: string | null;
@@ -32,6 +34,14 @@ export class UserService {
         console.error(error);
         console.error('Failed to init new user for business');
       }
+    }
+
+    // Acensus: автовыдача роли super_admin при совпадении email из allowlist.
+    // Идемпотентно, безопасно для соцлогинов и обычной регистрации.
+    try {
+      await maybeGrantSuperAdmin(this.db, { email: user.email, userId: user.id });
+    } catch (error) {
+      console.error('[acensus] failed to maybe-grant super_admin on init', error);
     }
 
     const analytics = await initializeServerAnalytics();

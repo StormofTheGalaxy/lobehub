@@ -1,4 +1,5 @@
 import { marketApiService } from '@/services/marketApi';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import type { DiscoverSkillItem } from '@/types/discover';
 import { SkillSorts } from '@/types/discover';
 
@@ -106,6 +107,11 @@ export const buildAgentSkillSuggestionQueries = (prompt: string): string[] => {
 export const searchAgentSkillSuggestion = async (
   prompt: string,
 ): Promise<AgentSkillSuggestionResult | undefined> => {
+  // Acensus B2B: при выключенном LobeHub маркете не дёргаем внешние market API
+  // — иначе из админ-чата на дефолтном сервере уйдёт сетевой запрос наружу.
+  const { showMarket } = featureFlagsSelectors(useServerConfigStore.getState());
+  if (!showMarket) return;
+
   if (!isHighConfidenceSkillSuggestionPrompt(prompt)) return;
 
   const queries = buildAgentSkillSuggestionQueries(prompt);

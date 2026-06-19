@@ -32,6 +32,8 @@
   "gateway.statusConnecting": "Подключение к шлюзу...",
   "gateway.statusDisconnected": "Не подключено к шлюзу",
   "gateway.title": "Шлюз устройства",
+  "navigation.agentPresets": "Пресеты агентов",
+  "navigation.agentPresetsAdmin": "Управление пресетами",
   "navigation.chat": "Чат",
   "navigation.discover": "Открыть",
   "navigation.discoverAssistants": "Открыть Ассистентов",

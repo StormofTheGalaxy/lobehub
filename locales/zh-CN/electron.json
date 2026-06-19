@@ -32,6 +32,8 @@
   "gateway.statusConnecting": "正在连接到网关...",
   "gateway.statusDisconnected": "未连接到网关",
   "gateway.title": "设备网关",
+  "navigation.agentPresets": "Пресеты агентов",
+  "navigation.agentPresetsAdmin": "Управление пресетами",
   "navigation.chat": "对话",
   "navigation.discover": "发现",
   "navigation.discoverAssistants": "发现助理",

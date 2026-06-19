@@ -113,6 +113,15 @@ describe('mapFeatureFlagsEnvToState', () => {
     expect(mappedState.enableStorageOverage).toBe(true);
   });
 
+  it('should use Acensus B2B defaults', () => {
+    const mappedState = mapFeatureFlagsEnvToState(DEFAULT_FEATURE_FLAGS);
+
+    expect(mappedState.enableWorkspace).toBe(true);
+    expect(mappedState.showMarket).toBe(false);
+    expect(mappedState.hideGitHub).toBe(true);
+    expect(mappedState.hideDocs).toBe(true);
+  });
+
   it('should map the workspace allowlist flag by user ID', () => {
     const config = {
       workspace: ['user-123'],

@@ -59,6 +59,24 @@ export const sharedMainAreaChildren: RouteObject[] = [
     path: 'agent',
   },
 
+  // Acensus internal agent preset catalog (mobile parity with desktop)
+  {
+    element: dynamicElement(
+      () => import('@/routes/(main)/agent-presets'),
+      'Mobile > Agent Presets',
+    ),
+    errorElement: <ErrorBoundary />,
+    path: 'agent-presets',
+  },
+  {
+    element: dynamicElement(
+      () => import('@/routes/(main)/agent-presets/admin'),
+      'Mobile > Agent Presets > Admin',
+    ),
+    errorElement: <ErrorBoundary />,
+    path: 'agent-presets/admin',
+  },
+
   // Discover routes with nested structure
   {
     children: [

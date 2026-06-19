@@ -199,7 +199,11 @@ export class MarketApiService {
    * Get skill download URL from market
    */
   getSkillDownloadUrl(identifier: string): string {
-    const marketBaseUrl = process.env.NEXT_PUBLIC_MARKET_BASE_URL || 'https://market.lobehub.com';
+    // Acensus B2B: если NEXT_PUBLIC_MARKET_BASE_URL не задан явно, не идём на
+    // публичный market.lobehub.com — возвращаем безопасную заглушку,
+    // чтобы download-ссылки не утекали наружу при self-hosted деплое.
+    const marketBaseUrl = process.env.NEXT_PUBLIC_MARKET_BASE_URL;
+    if (!marketBaseUrl) return 'about:blank';
     return `${marketBaseUrl}/api/v1/skills/${identifier}/download`;
   }
 }

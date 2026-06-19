@@ -131,6 +131,30 @@ export const sharedMainAreaChildren: RouteObject[] = [
     path: 'fleet',
   },
 
+  // Internal Acensus agent preset catalog
+  {
+    element: dynamicElement(
+      () => import('@/routes/(main)/agent-presets'),
+      'Desktop > Agent Presets',
+    ),
+    errorElement: <ErrorBoundary />,
+    handle: {
+      meta: routeMeta({ icon: ShapesIcon, titleKey: 'navigation.agentPresets' }),
+    },
+    path: 'agent-presets',
+  },
+  {
+    element: dynamicElement(
+      () => import('@/routes/(main)/agent-presets/admin'),
+      'Desktop > Agent Presets > Admin',
+    ),
+    errorElement: <ErrorBoundary />,
+    handle: {
+      meta: routeMeta({ icon: ShapesIcon, titleKey: 'navigation.agentPresetsAdmin' }),
+    },
+    path: 'agent-presets/admin',
+  },
+
   // Group chat routes
   {
     children: [

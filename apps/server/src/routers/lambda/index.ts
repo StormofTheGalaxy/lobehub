@@ -25,6 +25,7 @@ import { agentEvalRouter } from './agentEval';
 import { agentEvalExternalRouter } from './agentEvalExternal';
 import { agentGroupRouter } from './agentGroup';
 import { agentNotifyRouter } from './agentNotify';
+import { agentPresetRouter } from './agentPreset';
 import { agentSignalRouter } from './agentSignal';
 import { agentSkillsRouter } from './agentSkills';
 import { aiAgentRouter } from './aiAgent';
@@ -85,6 +86,7 @@ export const lambdaRouter = router({
   agent: agentRouter,
   agentBotProvider: agentBotProviderRouter,
   agentNotify: agentNotifyRouter,
+  agentPreset: agentPresetRouter,
   botMessage: botMessageRouter,
   agentDocument: agentDocumentRouter,
   agentEval: agentEvalRouter,

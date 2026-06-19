@@ -55,6 +55,8 @@ import { agentRouteMeta } from '@/routes/(main)/agent/features/routeMeta';
 import AgentProfilePage from '@/routes/(main)/agent/profile';
 import AgentTaskDetailRoute from '@/routes/(main)/agent/task/[taskId]';
 import AgentTopicsPage from '@/routes/(main)/agent/topics';
+import AgentPresetsPage from '@/routes/(main)/agent-presets';
+import AgentPresetsAdminPage from '@/routes/(main)/agent-presets/admin';
 import CommunityLayout from '@/routes/(main)/community/_layout';
 import CommunityDetailLayout from '@/routes/(main)/community/(detail)/_layout';
 import CommunityDetailAgentPage from '@/routes/(main)/community/(detail)/agent';
@@ -198,6 +200,24 @@ export const sharedMainAreaChildren: RouteObject[] = [
     errorElement: <ErrorBoundary />,
     handle: { meta: fleetRouteMeta },
     path: 'fleet',
+  },
+
+  // Internal Acensus agent preset catalog
+  {
+    element: <AgentPresetsPage />,
+    errorElement: <ErrorBoundary />,
+    handle: {
+      meta: routeMeta({ icon: ShapesIcon, titleKey: 'navigation.agentPresets' }),
+    },
+    path: 'agent-presets',
+  },
+  {
+    element: <AgentPresetsAdminPage />,
+    errorElement: <ErrorBoundary />,
+    handle: {
+      meta: routeMeta({ icon: ShapesIcon, titleKey: 'navigation.agentPresetsAdmin' }),
+    },
+    path: 'agent-presets/admin',
   },
 
   // Group chat routes
