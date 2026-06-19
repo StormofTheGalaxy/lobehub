@@ -4,7 +4,7 @@ import { ActionIcon, DropdownMenu, Empty } from '@lobehub/ui';
 import { BotIcon, MoreHorizontal, UsersIcon } from 'lucide-react';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useDiscoverStore } from '@/store/discover';
 import { type StarterMode } from '@/store/home';
