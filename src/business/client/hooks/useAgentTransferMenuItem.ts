@@ -1,10 +1,14 @@
+import type { MetaData } from '@lobechat/types';
 import { type ItemType } from 'antd/es/menu/interface';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useWorkspaceTransferItems } from './useWorkspaceTransferItems';
 
-export const useAgentTransferMenuItem = (agentId?: string): ItemType[] | null =>
+export const useAgentTransferMenuItem = (
+  agentId?: string,
+  _agentMeta?: MetaData,
+): ItemType[] | null =>
   useWorkspaceTransferItems({
     enabled: !!agentId,
     move: (targetWorkspaceId) =>

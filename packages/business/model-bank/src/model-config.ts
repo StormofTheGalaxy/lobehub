@@ -55,6 +55,15 @@ const buildFallbackModel = (id: string): AiFullModelCard => {
   };
 };
 
+export interface LobeHubModelPricingContext {
+  plan: string;
+  scope: 'personal';
+}
+
+export interface LobeHubModelPricingOptions {
+  pricingContext?: LobeHubModelPricingContext;
+}
+
 const getDefaultLobeHubModelConfig = (): LobeHubModelConfig => {
   const configuredModels = parseConfiguredModels();
   const configuredModelSet = new Set(configuredModels);
@@ -79,7 +88,7 @@ const getDefaultLobeHubModelConfig = (): LobeHubModelConfig => {
 const loadLobeHubModelConfig = async (): Promise<LobeHubModelConfig> =>
   getDefaultLobeHubModelConfig();
 
-export const loadModels = async () =>
+export const loadModels = async (_options?: LobeHubModelPricingOptions) =>
   loadModelBankModels({
     providerLoaders: {
       [ModelProvider.LobeHub]: loadLobeHubModels,
