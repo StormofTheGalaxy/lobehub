@@ -41,7 +41,7 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai', workspaceId);
 
-    await expect(hooks.beforeChat?.()).rejects.toMatchObject({
+    await expect(hooks.beforeChat?.({} as never)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('risk control') }),
     });
   });
@@ -57,7 +57,7 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai', workspaceId);
 
-    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 6 } } as never)).rejects.toMatchObject(
+    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 6 } } as never, {} as never)).rejects.toMatchObject(
       {
         error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
       },
@@ -72,7 +72,7 @@ describe('getBusinessModelRuntimeHooks', () => {
       creditLedger: [expect.objectContaining({ amount: -5, balanceAfter: 0 })],
     });
 
-    await expect(hooks.beforeChat?.()).rejects.toMatchObject({
+    await expect(hooks.beforeChat?.({} as never)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
     });
   });
@@ -89,7 +89,7 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai');
 
-    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 8 } } as never)).rejects.toMatchObject(
+    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 8 } } as never, {} as never)).rejects.toMatchObject(
       {
         error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
       },
@@ -104,7 +104,7 @@ describe('getBusinessModelRuntimeHooks', () => {
       personalCreditLedger: [expect.objectContaining({ amount: -3, balanceAfter: 0 })],
     });
 
-    await expect(hooks.beforeEmbeddings?.()).rejects.toMatchObject({
+    await expect(hooks.beforeEmbeddings?.({} as never)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
     });
   });
@@ -120,7 +120,7 @@ describe('getBusinessModelRuntimeHooks', () => {
     });
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai');
-    await hooks.onEmbeddingsFinal?.({ usage: { total_tokens: 4 } } as never);
+    await hooks.onEmbeddingsFinal?.({ usage: { total_tokens: 4 } } as never, {} as never);
 
     const settings = await serverDB.query.userSettings.findFirst({
       columns: { market: true },

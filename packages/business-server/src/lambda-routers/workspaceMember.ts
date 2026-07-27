@@ -12,7 +12,7 @@ import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 
 import { isSuperAdmin } from '../enterprise/superAdmin';
 
-const memberRoleSchema = z.enum(['owner', 'member', 'viewer']);
+const memberRoleSchema = z.enum(['owner', 'admin', 'member', 'viewer']);
 
 const assertWorkspaceMember = async (
   ctx: { serverDB: LobeChatDatabase; userId: string; workspaceMemberModel: WorkspaceMemberModel },
@@ -299,14 +299,20 @@ export const workspaceMemberRouter = router({
       const actorIsSuperAdmin = await isSuperAdmin(ctx.serverDB, ctx.userId);
 
       if (input.role === 'owner') {
-        if (actorIsSuperAdmin) {
-          await ctx.workspaceMemberModel.addMember({
-            role: 'owner',
-            userId: input.userId,
-            workspaceId: input.workspaceId,
-          });
-        } else {
-          await ctx.workspaceModel.promoteToOwner(input.workspaceId, input.userId);
+        // A workspace has exactly one active owner (unique partial index on
+        // `workspace_members`), so granting Owner is an ownership transfer: the
+        // current owner steps down to Admin in the same transaction.
+        const workspace = await ctx.workspaceModel.findById(input.workspaceId);
+        if (!workspace) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Workspace not found' });
+        }
+
+        if (workspace.primaryOwnerId !== input.userId) {
+          const actorId = actorIsSuperAdmin ? workspace.primaryOwnerId : ctx.userId;
+          await new WorkspaceModel(ctx.serverDB, actorId).transferPrimaryOwnership(
+            input.workspaceId,
+            input.userId,
+          );
         }
       } else {
         const workspace = await ctx.workspaceModel.findById(input.workspaceId);

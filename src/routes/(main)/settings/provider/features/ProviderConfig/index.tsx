@@ -14,10 +14,11 @@ import {
   stopPropagation,
   Tooltip,
 } from '@lobehub/ui';
+import { Switch } from '@lobehub/ui/base-ui';
 import { useDebounceFn } from 'ahooks';
-import { Form as AntdForm, Switch } from 'antd';
+import { Form as AntdForm } from 'antd';
 import { createStaticStyles, cssVar, cx, responsive } from 'antd-style';
-import { Loader2Icon, LockIcon } from 'lucide-react';
+import { InfoIcon, Loader2Icon, LockIcon } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -30,7 +31,11 @@ import { usePermission } from '@/hooks/usePermission';
 import { lambdaQuery } from '@/libs/trpc/client';
 import { aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
 import { serverConfigSelectors, useServerConfigStore } from '@/store/serverConfig';
-import { type AiProviderDetailItem, type AiProviderSourceType } from '@/types/aiProvider';
+import {
+  type AiProviderDetailItem,
+  type AiProviderSourceType,
+  type UpdateAiProviderConfigParams,
+} from '@/types/aiProvider';
 import { AiProviderSourceEnum } from '@/types/aiProvider';
 
 import { KeyVaultsConfigKey, LLMProviderApiTokenKey, LLMProviderBaseUrlKey } from '../../const';
@@ -114,6 +119,7 @@ export interface ProviderConfigProps extends Omit<AiProviderDetailItem, 'enabled
     placeholder?: string;
     showModelFetcher?: boolean;
   };
+  normalizeConfigValues?: (values: UpdateAiProviderConfigParams) => UpdateAiProviderConfigParams;
   showAceGcm?: boolean;
   source?: AiProviderSourceType;
   title?: ReactNode;
@@ -135,6 +141,7 @@ const ProviderConfig = memo<ProviderConfigProps>(
     source = AiProviderSourceEnum.Builtin,
     apiKeyUrl,
     title,
+    normalizeConfigValues,
   }) => {
     const {
       authType,
@@ -229,6 +236,9 @@ const ProviderConfig = memo<ProviderConfigProps>(
         ...(providerRuntimeConfig?.config && { config: providerRuntimeConfig.config }),
       };
 
+      // Clear the previous provider's field state first so omitted keys do not
+      // leak old values when the next provider has empty credentials.
+      form.resetFields();
       // Set form values and mark as initialized
       form.setFieldsValue(mergedData);
       lastInitializedIdRef.current = id;
@@ -249,6 +259,12 @@ const ProviderConfig = memo<ProviderConfigProps>(
       },
       [updateAiProviderConfig],
     );
+
+    const normalizeValues = useCallback(
+      (values: UpdateAiProviderConfigParams) => normalizeConfigValues?.(values) ?? values,
+      [normalizeConfigValues],
+    );
+
     const { run: debouncedHandleValueChange } = useDebounceFn(handleValueChange, {
       wait: 500,
     });
@@ -418,7 +434,7 @@ const ProviderConfig = memo<ProviderConfigProps>(
                   // Set connection test state to prevent duplicate requests from onValuesChange
                   isCheckingConnection.current = true;
                   // Proactively save the latest form values to ensure fetchAiProviderRuntimeState retrieves up-to-date data
-                  await updateAiProviderConfig(id, form.getFieldsValue());
+                  await updateAiProviderConfig(id, normalizeValues(form.getFieldsValue()));
                 }}
               />
             ),
@@ -477,7 +493,19 @@ const ProviderConfig = memo<ProviderConfigProps>(
         {extra}
         {isCustom && <UpdateProviderInfo />}
         {canDeactivate && !(enableBusinessFeatures && id === BRANDING_PROVIDER) && (
-          <EnableSwitch id={id} key={id} />
+          <>
+            {!isCustom && (
+              <Tooltip title={t('providerModels.config.builtinNotice')}>
+                <Icon
+                  color={cssVar.colorTextTertiary}
+                  icon={InfoIcon}
+                  size={16}
+                  onClick={stopPropagation}
+                />
+              </Tooltip>
+            )}
+            <EnableSwitch id={id} key={id} />
+          </>
         )}
       </Flexbox>
     );
@@ -512,7 +540,7 @@ const ProviderConfig = memo<ProviderConfigProps>(
             variant={'borderless'}
             onValuesChange={(_, values) => {
               if (!canManageProvider) return;
-              debouncedHandleValueChange(id, values);
+              debouncedHandleValueChange(id, normalizeValues(values));
             }}
             {...FORM_STYLE}
           />

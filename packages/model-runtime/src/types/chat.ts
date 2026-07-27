@@ -1,4 +1,9 @@
-import type { ModelPerformance, ModelTokensUsage, ModelUsage } from '@lobechat/types';
+import type {
+  ModelPerformance,
+  ModelReasoning,
+  ModelTokensUsage,
+  ModelUsage,
+} from '@lobechat/types';
 
 import type { ModelPricingContext } from './pricing';
 import type { MessageToolCall, MessageToolCallChunk } from './toolsCalling';
@@ -52,10 +57,13 @@ export type UserMessageContentPart =
 
 export interface OpenAIChatMessage {
   content: string | UserMessageContentPart[];
+  model?: string;
   name?: string;
+  provider?: string;
   reasoning?: {
     content?: string;
     duration?: number;
+    signature?: string;
   };
   reasoning_content?: string;
   role: LLMRoleType;
@@ -134,6 +142,7 @@ export interface ChatStreamPayload {
   provider?: string;
   reasoning?: {
     effort?: string;
+    mode?: 'standard' | 'pro';
     summary?: string;
   };
   reasoning_effort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
@@ -157,6 +166,14 @@ export interface ChatStreamPayload {
    */
   thinking?: {
     budget_tokens?: number;
+    /**
+     * Controls whether the summarized reasoning text is returned. Defaults to `omitted` on
+     * Claude Fable 5 / Opus 5 / Sonnet 5 / Opus 4.8 / Opus 4.7, where thinking blocks then
+     * arrive with an empty `thinking` field and no `thinking_delta` events while streaming.
+     * Invalid together with `type: 'disabled'`.
+     * @see https://platform.claude.com/docs/en/build-with-claude/thinking#controlling-thinking-display
+     */
+    display?: 'omitted' | 'summarized';
     type?: 'enabled' | 'disabled' | 'adaptive';
   };
   thinkingBudget?: number;
@@ -243,6 +260,7 @@ export interface OnFinishData {
    */
   finishReason?: string;
   grounding?: any;
+  reasoning?: ModelReasoning;
   speed?: ModelPerformance;
   text: string;
   thinking?: string;
@@ -261,10 +279,7 @@ export interface UsageMissingDiagnostics {
   provider?: string;
   responseId?: string;
   source:
-    | 'anthropic_messages'
-    | 'google_generative_ai'
-    | 'openai_chat_completions'
-    | 'openai_responses';
+    'anthropic_messages' | 'google_generative_ai' | 'openai_chat_completions' | 'openai_responses';
   terminalEventType: string;
   terminalStatus?: string;
 }

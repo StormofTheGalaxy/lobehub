@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   getChatModelList,
+  getEmbeddingModelList,
   getImageModelList,
   normalizeChatModel,
+  normalizeEmbeddingModel,
   normalizeImageModel,
 } from '../action';
 
@@ -17,6 +19,17 @@ const createChatModel = (overrides: Partial<EnabledAiModel> = {}): EnabledAiMode
   id: overrides.id ?? 'chat-model',
   providerId: overrides.providerId ?? 'openai',
   type: 'chat',
+  ...overrides,
+});
+
+const createEmbeddingModel = (overrides: Partial<EnabledAiModel> = {}): EnabledAiModel => ({
+  abilities: overrides.abilities ?? {},
+  contextWindowTokens: overrides.contextWindowTokens,
+  displayName: overrides.displayName ?? 'Embedding Model',
+  enabled: overrides.enabled ?? true,
+  id: overrides.id ?? 'embedding-model',
+  providerId: overrides.providerId ?? 'openai',
+  type: 'embedding',
   ...overrides,
 });
 
@@ -160,6 +173,58 @@ describe('aiProvider action helpers', () => {
       expect(fallbackSpy).toHaveBeenCalledWith('stable-diffusion', 'pricing', 'stability');
       expect(fallbackSpy).toHaveBeenCalledWith('stable-diffusion', 'description', 'stability');
     });
+
+    it('falls back to model config when parameters is an empty object', async () => {
+      // Regression for #15493: the `parameters` DB column defaults to `{}`, which
+      // must be treated as missing so required fields (e.g. `prompt`) are restored
+      // from the bundled model config instead of failing schema validation.
+      const fallbackSpy = vi
+        .mocked(runtimeModule.getModelPropertyWithFallback)
+        .mockImplementation(async (_id, key) => {
+          if (key === 'parameters')
+            return {
+              prompt: { default: '' },
+              size: { default: '1024x1024', enum: ['512x512', '1024x1024'] },
+            } satisfies ModelParamsSchema;
+          return undefined;
+        });
+
+      const model = createImageModel({
+        id: 'cogview-4',
+        parameters: {} as ModelParamsSchema,
+        providerId: 'zhipu',
+      });
+
+      const result = await normalizeImageModel(model);
+
+      expect(result.parameters).toEqual({
+        prompt: { default: '' },
+        size: { default: '1024x1024', enum: ['512x512', '1024x1024'] },
+      });
+      expect(fallbackSpy).toHaveBeenCalledWith('cogview-4', 'parameters', 'zhipu');
+    });
+  });
+
+  describe('normalizeEmbeddingModel', () => {
+    it('preserves inline embedding metadata without loading fallback model config', async () => {
+      const fallbackSpy = vi.spyOn(runtimeModule, 'getModelPropertyWithFallback');
+      const pricing: Pricing = {
+        units: [{ name: 'textInput', rate: 0.02, strategy: 'fixed', unit: 'millionTokens' }],
+      };
+      const model = {
+        ...createEmbeddingModel({ id: 'text-embedding-3-small', providerId: 'openai' }),
+        description: 'Inline embedding description',
+        knowledgeCutoff: '2024-01',
+        pricing,
+      };
+
+      const result = await normalizeEmbeddingModel(model);
+
+      expect(result.description).toBe('Inline embedding description');
+      expect(result.knowledgeCutoff).toBe('2024-01');
+      expect(result.pricing).toBe(pricing);
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('getChatModelList', () => {
@@ -206,6 +271,39 @@ describe('aiProvider action helpers', () => {
       );
 
       expect(result.map((model) => model.id)).toEqual(['visible-model']);
+    });
+  });
+
+  describe('getEmbeddingModelList', () => {
+    it('collects only visible embedding models for a provider', async () => {
+      // ROOT CAUSE:
+      //
+      // Memory embedding settings used the chat-only model list, so embedding
+      // models existed in runtime state but were never offered by the selector.
+      //
+      // We fixed this by building an embedding-specific provider model list and
+      // wiring the memory embedding dropdown to that list.
+      const result = await getEmbeddingModelList(
+        [
+          createChatModel({ id: 'gpt-4o', providerId: 'openai' }),
+          createEmbeddingModel({
+            displayName: 'Text Embedding 3 Small',
+            id: 'text-embedding-3-small',
+            providerId: 'openai',
+          }),
+          createEmbeddingModel({
+            displayName: 'Hidden Embedding Alias',
+            id: 'hidden-embedding-alias',
+            providerId: 'openai',
+            visible: false,
+          }),
+          createEmbeddingModel({ id: 'cohere-embed', providerId: 'cohere' }),
+        ],
+        'openai',
+      );
+
+      expect(result.map((model) => model.id)).toEqual(['text-embedding-3-small']);
+      expect(result[0].displayName).toBe('Text Embedding 3 Small');
     });
   });
 

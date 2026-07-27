@@ -13,7 +13,7 @@ import {
   isGPT5ProResponsesModel,
   isResponsesAPIModel,
   supportsGPT5ResponsesReasoningEffortNone,
-} from '../../providers/openai/openaiModelId';
+} from '../../providers/openai/modelId';
 import type {
   ASROptions,
   ASRPayload,
@@ -46,7 +46,7 @@ import type {
   PollVideoStatusResult,
 } from '../../types/video';
 import { AgentRuntimeError } from '../../utils/createError';
-import { debugResponse, debugStream } from '../../utils/debugStream';
+import { debugPayload, debugResponse, debugStream } from '../../utils/debugStream';
 import { desensitizeUrl } from '../../utils/desensitizeUrl';
 import { getModelPropertyWithFallback } from '../../utils/getFallbackModelProperty';
 import { getModelPricing } from '../../utils/getModelPricing';
@@ -121,11 +121,14 @@ type ChatCompletionCreateParamsWithPromptCacheKey = Omit<
   Pick<GenerateObjectPayload, 'reasoning_effort'>;
 type GenerateObjectReasoningParams = Pick<GenerateObjectPayload, 'reasoning_effort' | 'thinking'>;
 type ResponseCreateParamsWithPromptCacheKey = (
-  | OpenAI.Responses.ResponseCreateParamsStreaming
-  | OpenAI.Responses.ResponseCreateParams
+  OpenAI.Responses.ResponseCreateParamsStreaming | OpenAI.Responses.ResponseCreateParams
 ) &
   OpenAIExtraParams;
-export type CreateImageOptions = Omit<ClientOptions, 'apiKey'> &
+// Exclude openai's own `provider` (added in openai SDK 6.45.0 as `provider?: Provider`
+// for its third-party-provider feature) — otherwise intersecting it with our
+// `provider: string` collapses to `Provider & string`, breaking every call site
+// that passes a plain provider id string.
+export type CreateImageOptions = Omit<ClientOptions, 'apiKey' | 'provider'> &
   ModelIdMappingOptions & {
     apiKey: string;
     provider: string;
@@ -159,7 +162,8 @@ const getGenerateObjectResponsesReasoningParams = ({
     : {};
 };
 
-export type CreateVideoOptions = Omit<ClientOptions, 'apiKey'> &
+// See CreateImageOptions above: drop openai's `provider` so ours stays `string`.
+export type CreateVideoOptions = Omit<ClientOptions, 'apiKey' | 'provider'> &
   ModelIdMappingOptions & {
     apiKey: string;
     provider: string;
@@ -286,16 +290,28 @@ export interface OpenAICompatibleFactoryOptions<T extends Record<string, any> = 
     options: CreateVideoOptions,
   ) => Promise<PollVideoStatusResult>;
   models?:
-    | ((params: { client: OpenAI }) => Promise<ChatModelCard[]>)
+    | ((params: { client: OpenAI; options?: ConstructorOptions<T> }) => Promise<ChatModelCard[]>)
     | {
         transformModel?: (model: OpenAI.Model) => ChatModelCard;
       };
+  /**
+   * Additional provider-specific model patterns that support `prompt_cache_key`.
+   * OpenAI models are handled by the factory default; other providers must opt in.
+   */
+  promptCacheKeyModels?: Array<string | RegExp>;
   provider: string;
   responses?: {
     handlePayload?: (
       payload: ChatStreamPayload,
       options: ConstructorOptions<T>,
     ) => ChatStreamPayload;
+    prepareRequest?: (
+      payload: ResponseCreateParamsWithPromptCacheKey,
+      options: ConstructorOptions<T>,
+    ) => {
+      headers?: Record<string, string>;
+      payload: ResponseCreateParamsWithPromptCacheKey;
+    };
   };
 }
 
@@ -310,6 +326,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
   models,
   customClient,
   responses,
+  promptCacheKeyModels,
   createImage: customCreateImage,
   createVideo: customCreateVideo,
   handleCreateVideoWebhook: customHandleCreateVideoWebhook,
@@ -377,6 +394,18 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
       }
 
       return { ...requestPayload, model: mappedModel };
+    }
+
+    private prepareResponsesRequest(
+      requestPayload: ResponseCreateParamsWithPromptCacheKey,
+      logicalModel: string,
+    ) {
+      const mappedRequestPayload = this.withMappedRequestModel(requestPayload, logicalModel);
+      return (
+        responses?.prepareRequest?.(mappedRequestPayload, this._options) || {
+          payload: mappedRequestPayload,
+        }
+      );
     }
 
     /**
@@ -478,8 +507,19 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
     private resolvePromptCacheKey(model?: string, user?: string) {
       if (!user) return;
 
-      // Keep the default key at {userId}:{model}; {agentId} can be added later if a narrower cache bucket is needed.
+      // Keep the default key at {userId}:{model}; {agentId/topicId} can be added later if a narrower cache bucket is needed.
       if (model?.startsWith('gpt-') || /^o\d/.test(model || '') || model === 'chat-latest') {
+        return `lobe:${user}:${model}`;
+      }
+
+      const matchesProviderPromptCacheModel = promptCacheKeyModels?.some((item) => {
+        if (!model) return false;
+        if (typeof item === 'string') return model.includes(item);
+
+        item.lastIndex = 0;
+        return item.test(model);
+      });
+      if (matchesProviderPromptCacheModel) {
         return `lobe:${user}:${model}`;
       }
     }
@@ -515,7 +555,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
         // Normalize tool parameter schemas before they fan out to the
         // Chat-Completions / Responses paths. User MCP tools may emit boolean
         // sub-schemas (`items: true`) or array properties missing `type`, which
-        // upstream validators (OpenAI/DeepSeek, Gemini) reject. See LOBE-10066.
+        // upstream validators (OpenAI/DeepSeek, Gemini) reject.
         if (payload.tools) payload.tools = normalizeToolsParameters(payload.tools as any) as any;
 
         let processedPayload: any = payload;
@@ -683,10 +723,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
           log('sending chat completion request with %d messages', messages.length);
 
           if (debugParams?.chatCompletion?.()) {
-            // eslint-disable-next-line no-console
-            console.log('[requestPayload]');
-            // eslint-disable-next-line no-console
-            console.log(JSON.stringify(requestPayload), '\n');
+            debugPayload(requestPayload);
           }
 
           response = (await this.client.chat.completions.create(requestPayload, {
@@ -841,7 +878,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
       let resultModels: ChatModelCard[];
       if (typeof models === 'function') {
         log('using custom models function');
-        resultModels = await models({ client: this.client });
+        resultModels = await models({ client: this.client, options: this._options });
       } else {
         log('fetching models from client API');
         const list = await this.client.models.list();
@@ -949,8 +986,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
       // Structural type keeps this compatible across openai SDK majors (v6
       // widened tool_calls to a function/custom union).
       const toolCalls = res.choices[0].message.tool_calls as
-        | { function?: { arguments: string; name: string } }[]
-        | undefined;
+        { function?: { arguments: string; name: string } }[] | undefined;
       const toolCall =
         toolCalls?.find((item) => item.function?.name === tool.function.name) ?? toolCalls?.[0];
 
@@ -1028,20 +1064,26 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
 
         if (shouldUseResponses) {
           log('calling responses.create for structured output');
-          const res = await this.client!.responses.create(
-            this.withMappedRequestModel(
-              {
-                input: messages,
-                model,
-                ...getGenerateObjectResponsesReasoningParams(payload),
-                ...this.resolvePromptCacheKeyParams(model, options?.user),
-                text: { format: { strict: true, type: 'json_schema', ...processedSchema } },
-                // Responses API replaced `user` with `safety_identifier`; some endpoints reject `user`
-                safety_identifier: options?.user,
-              } as any,
+          const preparedRequest = this.prepareResponsesRequest(
+            {
+              input: messages,
               model,
-            ),
-            { headers: options?.headers, signal: options?.signal },
+              ...getGenerateObjectResponsesReasoningParams(payload),
+              ...this.resolvePromptCacheKeyParams(model, options?.user),
+              text: { format: { strict: true, type: 'json_schema', ...processedSchema } },
+              // Responses API replaced `user` with `safety_identifier`; some endpoints reject `user`
+              safety_identifier: options?.user,
+            } as any,
+            model,
+          );
+          const res = await this.client!.responses.create(
+            preparedRequest.payload as OpenAI.Responses.ResponseCreateParamsNonStreaming,
+            {
+              headers: preparedRequest.headers
+                ? { ...options?.headers, ...preparedRequest.headers }
+                : options?.headers,
+              signal: options?.signal,
+            },
           );
 
           if (res.usage) {
@@ -1389,6 +1431,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
       const input = await convertOpenAIResponseInputs(messages as any, {
         forceImageBase64: chatCompletion?.forceImageBase64,
         forceVideoBase64: chatCompletion?.forceVideoBase64,
+        provider: this.id,
         strictToolPairing: true,
       });
 
@@ -1428,19 +1471,20 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
           preferTemperature: true,
         }),
       } as ResponseCreateParamsWithPromptCacheKey;
-      const requestPayload = this.withMappedRequestModel(postPayload, usageModel);
+      const preparedRequest = this.prepareResponsesRequest(postPayload, usageModel);
+      const requestPayload = preparedRequest.payload;
 
       if (debugParams?.responses?.()) {
-        // eslint-disable-next-line no-console
-        console.log('[requestPayload]');
-        // eslint-disable-next-line no-console
-        console.log(JSON.stringify(requestPayload), '\n');
+        debugPayload(requestPayload);
       }
 
       log('sending responses.create request');
 
       const response = await this.client.responses.create(requestPayload, {
-        headers: options?.requestHeaders,
+        headers: {
+          ...options?.requestHeaders,
+          ...preparedRequest?.headers,
+        },
         signal: options?.signal,
       });
 
@@ -1539,23 +1583,30 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
         const input = await convertOpenAIResponseInputs(messages as any, {
           forceImageBase64: chatCompletion?.forceImageBase64,
           forceVideoBase64: chatCompletion?.forceVideoBase64,
+          provider: this.id,
           strictToolPairing: true,
         });
 
+        const preparedRequest = this.prepareResponsesRequest(
+          {
+            input,
+            model,
+            ...this.resolvePromptCacheKeyParams(model, options?.user),
+            tool_choice: 'required',
+            tools: tools!.map((tool) => this.convertChatCompletionToolToResponseTool(tool)),
+            // Responses API replaced `user` with `safety_identifier`; some endpoints reject `user`
+            safety_identifier: options?.user,
+          } as any,
+          payload.model,
+        );
         const res = await this.client.responses.create(
-          this.withMappedRequestModel(
-            {
-              input,
-              model,
-              ...this.resolvePromptCacheKeyParams(model, options?.user),
-              tool_choice: 'required',
-              tools: tools!.map((tool) => this.convertChatCompletionToolToResponseTool(tool)),
-              // Responses API replaced `user` with `safety_identifier`; some endpoints reject `user`
-              safety_identifier: options?.user,
-            } as any,
-            payload.model,
-          ),
-          { headers: options?.headers, signal: options?.signal },
+          preparedRequest.payload as OpenAI.Responses.ResponseCreateParamsNonStreaming,
+          {
+            headers: preparedRequest.headers
+              ? { ...options?.headers, ...preparedRequest.headers }
+              : options?.headers,
+            signal: options?.signal,
+          },
         );
 
         if (res.usage) {

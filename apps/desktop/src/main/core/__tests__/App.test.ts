@@ -11,6 +11,7 @@ vi.mock('electron', () => ({
     getAppPath: vi.fn(() => '/mock/app/path'),
     getLocale: vi.fn(() => 'en-US'),
     getPath: vi.fn(() => '/mock/user/path'),
+    getVersion: vi.fn(() => '1.2.3'),
     requestSingleInstanceLock: vi.fn(() => true),
     isReady: vi.fn(() => true),
     whenReady: vi.fn(() => Promise.resolve()),
@@ -42,13 +43,6 @@ vi.mock('electron', () => ({
       },
     },
   },
-}));
-
-// electron-devtools-installer accesses electron.app.getPath at import-time in node env;
-// mock it to avoid side effects in unit tests
-vi.mock('electron-devtools-installer', () => ({
-  REACT_DEVELOPER_TOOLS: 'REACT_DEVELOPER_TOOLS',
-  default: vi.fn(),
 }));
 
 vi.mock('fs-extra', () => ({

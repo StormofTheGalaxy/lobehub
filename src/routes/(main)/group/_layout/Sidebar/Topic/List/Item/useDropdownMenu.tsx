@@ -1,11 +1,11 @@
+import { GROUP_CHAT_TOPIC_URL } from '@lobechat/const';
 import type { ChatTopicStatus } from '@lobechat/types';
 import { type MenuProps } from '@lobehub/ui';
 import { Icon } from '@lobehub/ui';
-import { confirmModal } from '@lobehub/ui/base-ui';
 import { App } from 'antd';
 import {
-  CheckCircle2,
-  Circle,
+  Archive,
+  ArchiveRestore,
   ExternalLink,
   Hash,
   Link2,
@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useActiveWorkspaceSlug } from '@/business/client/hooks/useActiveWorkspaceSlug';
 import { isDesktop } from '@/const/version';
+import { confirmRemoveTopic } from '@/features/DeleteTopicConfirm';
 import { useWorkspaceAwareNavigate } from '@/features/Workspace/useWorkspaceAwareNavigate';
 import { buildWorkspaceAwarePath } from '@/features/Workspace/workspaceAwarePath';
 import { useAppOrigin } from '@/hooks/useAppOrigin';
@@ -74,7 +75,7 @@ export const useTopicItemDropdownMenu = ({
     return [
       {
         disabled: !canEditTopic,
-        icon: <Icon icon={isCompleted ? Circle : CheckCircle2} />,
+        icon: <Icon icon={isCompleted ? ArchiveRestore : Archive} />,
         key: 'markCompleted',
         label: isCompleted ? t('actions.unmarkCompleted') : t('actions.markCompleted'),
         onClick: () => {
@@ -118,7 +119,7 @@ export const useTopicItemDropdownMenu = ({
               onClick: () => {
                 if (!activeGroupId) return;
                 const url = buildWorkspaceAwarePath(
-                  `/group/${activeGroupId}?topic=${id}`,
+                  GROUP_CHAT_TOPIC_URL(activeGroupId, id),
                   activeWorkspaceSlug,
                 );
                 addTab(url);
@@ -153,7 +154,7 @@ export const useTopicItemDropdownMenu = ({
         label: t('actions.copyLink'),
         onClick: () => {
           if (!activeGroupId) return;
-          const url = `${appOrigin}/group/${activeGroupId}?topic=${id}`;
+          const url = `${appOrigin}${GROUP_CHAT_TOPIC_URL(activeGroupId, id)}`;
           navigator.clipboard.writeText(url);
           message.success(t('actions.copyLinkSuccess'));
         },
@@ -177,15 +178,11 @@ export const useTopicItemDropdownMenu = ({
         key: 'delete',
         label: t('delete', { ns: 'common' }),
         onClick: () => {
-          confirmModal({
-            cancelText: t('cancel', { ns: 'common' }),
-            content: t('actions.confirmRemoveTopic'),
-            okButtonProps: { danger: true },
-            okText: t('delete', { ns: 'common' }),
-            onOk: async () => {
-              await removeTopic(id);
+          void confirmRemoveTopic({
+            onConfirm: async (removeFiles) => {
+              await removeTopic(id, removeFiles);
             },
-            title: t('delete', { ns: 'common' }),
+            topicIds: [id],
           });
         },
       },

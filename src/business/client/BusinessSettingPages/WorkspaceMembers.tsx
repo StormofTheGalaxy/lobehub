@@ -1,5 +1,5 @@
-import { Button, Flexbox, Input, Tag, Text } from '@lobehub/ui';
-import { Select } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Button, Select } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Link2, ShieldCheck, UserPlus, UsersRound } from 'lucide-react';
 import { useState } from 'react';
@@ -65,14 +65,17 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
   `,
 }));
 
-const roleOptions = [
+type WorkspaceRole = 'admin' | 'member' | 'owner' | 'viewer';
+
+const roleOptions: { label: string; value: WorkspaceRole }[] = [
   { label: 'Владелец', value: 'owner' },
+  { label: 'Администратор', value: 'admin' },
   { label: 'Участник', value: 'member' },
   { label: 'Наблюдатель', value: 'viewer' },
 ];
 
 const roleLabel = (role: string) =>
-  role === 'owner' ? 'Владелец' : role === 'viewer' ? 'Наблюдатель' : 'Участник';
+  roleOptions.find((option) => option.value === role)?.label ?? 'Участник';
 
 export default function WorkspaceMembers() {
   const workspace = useActiveWorkspace();
@@ -81,8 +84,8 @@ export default function WorkspaceMembers() {
   const [inviting, setInviting] = useState(false);
   const [lastInviteUrl, setLastInviteUrl] = useState('');
   const [query, setQuery] = useState('');
-  const [role, setRole] = useState<'member' | 'owner' | 'viewer'>('member');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'member' | 'owner' | 'viewer'>('all');
+  const [role, setRole] = useState<WorkspaceRole>('member');
+  const [roleFilter, setRoleFilter] = useState<'all' | WorkspaceRole>('all');
   const [userId, setUserId] = useState('');
   const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
   const { data = [], mutate: mutateMembers } = useSWR(
@@ -136,7 +139,7 @@ export default function WorkspaceMembers() {
     const matchesQuery =
       !normalizedQuery ||
       member.userId.toLowerCase().includes(normalizedQuery) ||
-      member.email.toLowerCase().includes(normalizedQuery);
+      (member.email ?? '').toLowerCase().includes(normalizedQuery);
 
     return matchesRole && matchesQuery;
   });
@@ -177,7 +180,7 @@ export default function WorkspaceMembers() {
               options={roleOptions}
               style={{ width: 150 }}
               value={role}
-              onChange={(value) => setRole(value as 'member' | 'owner' | 'viewer')}
+              onChange={(value) => setRole(value as WorkspaceRole)}
             />
             <Button
               icon={<Link2 size={16} />}
@@ -238,7 +241,7 @@ export default function WorkspaceMembers() {
               options={[{ label: 'Все роли', value: 'all' }, ...roleOptions]}
               style={{ width: 150 }}
               value={roleFilter}
-              onChange={(value) => setRoleFilter(value as 'all' | 'member' | 'owner' | 'viewer')}
+              onChange={(value) => setRoleFilter(value as 'all' | WorkspaceRole)}
             />
           </Flexbox>
         </Flexbox>
@@ -267,7 +270,7 @@ export default function WorkspaceMembers() {
                   value={member.role}
                   onChange={async (value) => {
                     await lambdaClient.workspaceMember.updateRole.mutate({
-                      role: value as 'member' | 'owner' | 'viewer',
+                      role: value as WorkspaceRole,
                       userId: member.userId,
                       workspaceId: workspace.id,
                     });

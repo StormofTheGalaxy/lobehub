@@ -720,6 +720,29 @@ describe('createCallbacksTransformer', () => {
     expect(onThinking).toHaveBeenNthCalledWith(2, ' about this');
   });
 
+  it('should preserve reasoning signatures in final callback data', async () => {
+    const onCompletion = vi.fn();
+    const transformer = createCallbacksTransformer({ onCompletion });
+
+    const chunks = [
+      'event: reasoning\n',
+      'data: "Thinking..."\n\n',
+      'event: reasoning_signature\n',
+      'data: "encrypted-signature"\n\n',
+    ];
+
+    await processChunks(transformer, chunks);
+
+    expect(onCompletion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reasoning: {
+          content: 'Thinking...',
+          signature: 'encrypted-signature',
+        },
+      }),
+    );
+  });
+
   it('should handle base64_image chunks and call onBase64Image callback', async () => {
     const receivedCalls: Array<{
       image: { id: string; data: string };
@@ -759,6 +782,53 @@ describe('createCallbacksTransformer', () => {
         { id: 'img2', data: 'base64data2' },
       ],
     });
+  });
+
+  // Regression: google/openai image streams serialize the `base64_image` event's
+  // `data` as a raw data-URI string (which itself contains `data:`). The
+  // transformer must strip only the leading field marker (not split on the
+  // embedded one) and wrap the string into an image item, so a real server-side
+  // onBase64Image consumer can upload it instead of crashing on `image.data`.
+  it('should wrap raw data-URI base64_image payloads and call onBase64Image', async () => {
+    const receivedCalls: Array<{
+      image: { data: string; id: string };
+      images: Array<{ data: string; id: string }>;
+    }> = [];
+    const onBase64Image = vi.fn((data) => {
+      receivedCalls.push({
+        image: { ...data.image },
+        images: data.images.map((img: { data: string; id: string }) => ({ ...img })),
+      });
+    });
+    const transformer = createCallbacksTransformer({ onBase64Image });
+
+    const uri1 = 'data:image/png;base64,base64data1';
+    const uri2 = 'data:image/png;base64,base64data2';
+
+    const chunks = [
+      'event: base64_image\n',
+      `data: ${JSON.stringify(uri1)}\n\n`,
+      'event: base64_image\n',
+      `data: ${JSON.stringify(uri2)}\n\n`,
+    ];
+
+    await processChunks(transformer, chunks);
+
+    expect(onBase64Image).toHaveBeenCalledTimes(2);
+    // The raw data-URI is preserved (not corrupted by the embedded `data:`) and
+    // wrapped with a generated id.
+    expect(receivedCalls[0].image).toEqual({
+      data: uri1,
+      id: expect.stringMatching(/^tmp_img_/),
+    });
+    expect(receivedCalls[0].images).toEqual([
+      { data: uri1, id: expect.stringMatching(/^tmp_img_/) },
+    ]);
+    expect(receivedCalls[1].image).toEqual({
+      data: uri2,
+      id: expect.stringMatching(/^tmp_img_/),
+    });
+    expect(receivedCalls[1].images.map((img) => img.data)).toEqual([uri1, uri2]);
   });
 
   it('should handle content_part chunks and call onContentPart callback', async () => {
@@ -892,6 +962,7 @@ describe('createCallbacksTransformer', () => {
       thinking: 'Thinking...',
       usage: { totalTokens: 10 },
       grounding: undefined,
+      reasoning: { content: 'Thinking...', signature: undefined },
       speed: undefined,
       toolsCalling: undefined,
     };

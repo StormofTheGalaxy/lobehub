@@ -1,13 +1,15 @@
 'use client';
 
+import { AGENT_CHAT_TOPIC_URL, AGENT_CHAT_URL } from '@lobechat/const';
 import { memo, useLayoutEffect, useRef } from 'react';
 import { useLocation, useParams, useSearchParams } from 'react-router';
 
-import { SESSION_CHAT_TOPIC_URL, SESSION_CHAT_URL } from '@/const/url';
 import { useClearActiveTopicUnread } from '@/features/Conversation/hooks';
+import { useTopicCommentDeepLink } from '@/features/TopicComment/useTopicCommentDeepLink';
 import { useWorkspaceAwareNavigate } from '@/features/Workspace/useWorkspaceAwareNavigate';
 import { useQueryState } from '@/hooks/useQueryParam';
 import { useChatStore } from '@/store/chat';
+import { topicSelectors } from '@/store/chat/selectors';
 
 const getSearchSuffix = (searchParams: URLSearchParams) => {
   const search = searchParams.toString();
@@ -24,10 +26,17 @@ const ChatHydration = memo(() => {
 
   const [thread, setThread] = useQueryState('thread', { history: 'replace', throttleMs: 500 });
   const routeTopicId = params.topicId;
+  const activeAgentId = useChatStore((s) => s.activeAgentId);
+  const topicMetadata = useChatStore((s) =>
+    routeTopicId ? topicSelectors.getTopicById(routeTopicId)(s)?.metadata : undefined,
+  );
+  const useFetchTopicLinkedPullRequest = useChatStore((s) => s.useFetchTopicLinkedPullRequest);
 
   // Route hydration sets activeTopicId directly (below) instead of going through
   // switchTopic, so clear any lingering persisted unread once the topic loads.
   useClearActiveTopicUnread();
+  useFetchTopicLinkedPullRequest(activeAgentId ? routeTopicId : undefined, topicMetadata);
+  useTopicCommentDeepLink(routeTopicId);
 
   useLayoutEffect(() => {
     const target = routeTopicId ?? null;
@@ -55,14 +64,30 @@ const ChatHydration = memo(() => {
     const unsubscribeTopic = useChatStore.subscribe(
       (s) => s.activeTopicId,
       (state) => {
-        const { aid } = paramsRef.current;
+        const { aid, topicId } = paramsRef.current;
 
         if (!aid) return;
+        if (state === topicId) return;
+
+        // Workspace bootstrap clears scoped chat data with `undefined` before
+        // loading the new scope. On a topic deep link the URL remains the
+        // source of truth, so restore that routed topic instead of treating the
+        // reset as an explicit request to open a blank conversation.
+        // `switchTopic(null)` normalizes to `null`, so intentional topic
+        // changes still take the normal store-to-URL path below.
+        if (state === undefined && topicId) {
+          useChatStore.setState(
+            { activeTopicId: topicId },
+            false,
+            'ChatHydration/restoreTopicAfterScopedReset',
+          );
+          return;
+        }
 
         const nextSearchParams = new URLSearchParams(searchParamsRef.current);
         nextSearchParams.delete('topic');
 
-        const nextPath = state ? SESSION_CHAT_TOPIC_URL(aid, state) : SESSION_CHAT_URL(aid);
+        const nextPath = state ? AGENT_CHAT_TOPIC_URL(aid, state) : AGENT_CHAT_URL(aid);
         const nextUrl = `${nextPath}${getSearchSuffix(nextSearchParams)}${locationRef.current.hash}`;
         const currentUrl = `${locationRef.current.pathname}${locationRef.current.search}${locationRef.current.hash}`;
 

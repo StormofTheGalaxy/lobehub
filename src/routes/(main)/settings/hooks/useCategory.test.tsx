@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { cleanup, renderHook } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -58,6 +58,7 @@ const getItemKeys = () => {
 const initialUserStoreState = useUserStore.getState();
 
 afterEach(() => {
+  cleanup();
   useUserStore.setState(initialUserStoreState, true);
 });
 
@@ -76,15 +77,25 @@ describe('settings useCategory', () => {
     expect(keys).not.toContain(SettingsTabs.Provider);
   });
 
-  it('places Devices under Agent settings instead of General settings', () => {
+  it('hides OAuth Apps by default', () => {
+    expect(getItemKeys()).not.toContain(SettingsTabs.OAuthApps);
+  });
+
+  it('shows OAuth Apps when the Labs preference is enabled', () => {
+    useUserStore.setState({
+      preference: {
+        ...initialUserStoreState.preference,
+        lab: { ...initialUserStoreState.preference.lab, enableOAuthApps: true },
+      },
+    });
+
     const { result } = renderHook(() => useCategory(), {
       wrapper: createWrapper(true),
     });
+    const developerGroup = result.current.find((group) => group.key === SettingsGroupKey.Developer);
+    const systemGroup = result.current.find((group) => group.key === SettingsGroupKey.System);
 
-    const general = result.current.find((group) => group.key === SettingsGroupKey.General);
-    const agent = result.current.find((group) => group.key === SettingsGroupKey.Agent);
-
-    expect(general?.items.map((item) => item.key)).not.toContain(SettingsTabs.Devices);
-    expect(agent?.items.map((item) => item.key)).toContain(SettingsTabs.Devices);
+    expect(developerGroup?.items.map((item) => item.key)).toContain(SettingsTabs.OAuthApps);
+    expect(systemGroup?.items.map((item) => item.key)).not.toContain(SettingsTabs.OAuthApps);
   });
 });

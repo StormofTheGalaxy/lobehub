@@ -2,10 +2,11 @@
 
 import { BUILTIN_AGENT_SLUGS } from '@lobechat/builtin-agents';
 import { setAgentTemplatesFetcher } from '@lobechat/builtin-tool-web-onboarding/agentMarketplace';
-import { SESSION_CHAT_TOPIC_URL } from '@lobechat/const';
+import { AGENT_CHAT_TOPIC_URL } from '@lobechat/const';
 import type { SendMessageParams } from '@lobechat/types';
 import { RequestTrigger } from '@lobechat/types';
-import { Button, ErrorBoundary, Flexbox } from '@lobehub/ui';
+import { ErrorBoundary, Flexbox } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { Drawer } from 'antd';
 import { History } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -124,7 +125,7 @@ const AgentOnboardingPage = memo(() => {
   const onboardingFinished = !!agentOnboarding?.finishedAt;
   const finishTargetUrl = useMemo(() => {
     if (!onboardingFinished || !inboxAgentId || !effectiveTopicId) return undefined;
-    return SESSION_CHAT_TOPIC_URL(inboxAgentId, effectiveTopicId);
+    return AGENT_CHAT_TOPIC_URL(inboxAgentId, effectiveTopicId);
   }, [onboardingFinished, inboxAgentId, effectiveTopicId]);
 
   const viewingHistoricalTopic =
@@ -265,7 +266,7 @@ const AgentOnboardingPage = memo(() => {
         targetUrl:
           // A threaded signup target (if any) wins over the onboarding topic on finish
           peekOnboardingCallbackUrl() ??
-          (inboxAgentId && topicId ? SESSION_CHAT_TOPIC_URL(inboxAgentId, topicId) : undefined),
+          (inboxAgentId && topicId ? AGENT_CHAT_TOPIC_URL(inboxAgentId, topicId) : undefined),
       });
     },
     [inboxAgentId],

@@ -31,6 +31,7 @@ export const FILE_URL = {
 
 export const BRANDING_EMAIL = {
   business: 'support@acensus.ru',
+  replyTo: undefined,
   support: 'support@acensus.ru',
 };
 

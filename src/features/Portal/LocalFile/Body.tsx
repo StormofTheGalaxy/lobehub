@@ -1,16 +1,7 @@
 import { isDesktop } from '@lobechat/const';
 import type { MarkdownProps } from '@lobehub/ui';
-import {
-  ActionIcon,
-  Center,
-  Empty,
-  Flexbox,
-  Icon,
-  Image,
-  Markdown,
-  Segmented,
-  Text,
-} from '@lobehub/ui';
+import { ActionIcon, Center, Empty, Flexbox, Icon, Image, Markdown, Text } from '@lobehub/ui';
+import { Tabs } from '@lobehub/ui/base-ui';
 import { createStaticStyles, cssVar } from 'antd-style';
 import { CodeIcon, EyeIcon, RefreshCwIcon } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -27,7 +18,6 @@ import { chatPortalSelectors } from '@/store/chat/selectors';
 import { createLocalFileTabId } from '@/store/chat/slices/portal/helpers';
 import {
   parseSkillMarkdownFrontmatter,
-  parseSkillMarkdownFrontmatterFields,
   parseSkillMarkdownMetadata,
   type SkillMarkdownMetadataItem,
 } from '@/utils/skillMarkdown';
@@ -131,6 +121,31 @@ type TextPreviewMode = 'render' | 'raw';
 
 const NO_TOPIC_KEY = '__no_topic__';
 
+const floatingControlsStyles = createStaticStyles(({ css }) => ({
+  container: css`
+    position: absolute;
+    z-index: 2;
+    inset-block-start: 8px;
+    inset-inline-end: 12px;
+
+    padding: 4px;
+    border: 1px solid ${cssVar.colorBorderSecondary};
+    border-radius: ${cssVar.borderRadiusLG};
+
+    opacity: 0.55;
+    background: ${cssVar.colorBgElevated};
+    backdrop-filter: blur(8px);
+    box-shadow: ${cssVar.boxShadowTertiary};
+
+    transition: opacity 0.15s ease;
+
+    &:hover,
+    &:focus-within {
+      opacity: 1;
+    }
+  `,
+}));
+
 interface TextPreviewPaneProps {
   activeTopicId?: string | null;
   content: string;
@@ -142,6 +157,7 @@ interface TextPreviewPaneProps {
   onSaved?: (savedContent: string) => void;
   readOnly?: boolean;
   reloading?: boolean;
+  resourceBaseUrl?: string;
   workingDirectory: string;
 }
 
@@ -157,6 +173,7 @@ const TextPreviewPane = memo<TextPreviewPaneProps>(
     onSaved,
     readOnly = false,
     reloading = false,
+    resourceBaseUrl,
     workingDirectory,
   }) => {
     const { t } = useTranslation('chat');
@@ -220,17 +237,10 @@ const TextPreviewPane = memo<TextPreviewPaneProps>(
       () => (isMarkdown ? parseSkillMarkdownFrontmatter(editingValue) : { body: editingValue }),
       [isMarkdown, editingValue],
     );
-    const frontmatterFields = useMemo(
-      () => (frontmatter ? parseSkillMarkdownFrontmatterFields(frontmatter) : {}),
-      [frontmatter],
-    );
     const frontmatterMetadata = useMemo(
       () => (frontmatter ? parseSkillMarkdownMetadata(frontmatter) : []),
       [frontmatter],
     );
-    const previewTitle = isMarkdown
-      ? (frontmatterFields.name ?? '')
-      : (filePath.split('/').at(-1) ?? filePath);
     const markdownComponents = useMemo(
       () =>
         ({
@@ -263,19 +273,13 @@ const TextPreviewPane = memo<TextPreviewPaneProps>(
     }, [onReload]);
 
     return (
-      <Flexbox flex={1} height={'100%'} style={{ minHeight: 0, overflow: 'hidden' }}>
+      <Flexbox
+        flex={1}
+        height={'100%'}
+        style={{ minHeight: 0, overflow: 'hidden', position: 'relative' }}
+      >
         {canRender && (
-          <Flexbox
-            horizontal
-            align={'center'}
-            gap={8}
-            paddingBlock={6}
-            paddingInline={12}
-            style={{ flexShrink: 0 }}
-          >
-            <Text ellipsis style={{ flex: 1, fontSize: 13, fontWeight: 500, minWidth: 0 }}>
-              {previewTitle}
-            </Text>
+          <Flexbox horizontal align={'center'} className={floatingControlsStyles.container} gap={4}>
             {isHtml && (
               <ActionIcon
                 icon={RefreshCwIcon}
@@ -285,26 +289,27 @@ const TextPreviewPane = memo<TextPreviewPaneProps>(
                 onClick={handleReloadPreview}
               />
             )}
-            <Segmented
+
+            <Tabs
+              activeKey={mode}
               size={'small'}
-              value={mode}
-              options={[
+              items={[
                 {
                   icon: <Icon icon={EyeIcon} />,
+                  key: 'render',
                   label: t('workingPanel.localFile.preview.render'),
-                  value: 'render',
                 },
                 {
                   icon: <Icon icon={CodeIcon} />,
+                  key: 'raw',
                   label: t(
                     isHtml
                       ? 'workingPanel.localFile.preview.source'
                       : 'workingPanel.localFile.preview.raw',
                   ),
-                  value: 'raw',
                 },
               ]}
-              onChange={(v) => setMode(v as TextPreviewMode)}
+              onChange={(key) => setMode(key as TextPreviewMode)}
             />
           </Flexbox>
         )}
@@ -320,7 +325,11 @@ const TextPreviewPane = memo<TextPreviewPaneProps>(
               </Markdown>
             </>
           ) : showHtmlPreview ? (
-            <InlineHtmlPreview content={editingValue} key={`${filePath}:${htmlPreviewRevision}`} />
+            <InlineHtmlPreview
+              baseUrl={resourceBaseUrl}
+              content={editingValue}
+              key={`${filePath}:${htmlPreviewRevision}`}
+            />
           ) : (
             <CodeEditorPane
               language={extensionToLanguage(ext)}
@@ -355,6 +364,7 @@ const ActiveFileView = memo<ActiveFileViewProps>(
 
     const filename = filePath.split('/').at(-1) ?? '';
     const enabled = Boolean(workingDirectory) && (!!deviceId || isDesktop);
+    const resourceScope = !deviceId && isHtmlFile({ path: filePath }) ? 'workspace' : undefined;
     const {
       data: preview,
       error,
@@ -367,6 +377,7 @@ const ActiveFileView = memo<ActiveFileViewProps>(
             allowExternalFile: allowExternalFilePreview,
             deviceId,
             filePath,
+            ...(resourceScope && { resourceScope }),
             workingDirectory,
           })
         : null,
@@ -375,6 +386,7 @@ const ActiveFileView = memo<ActiveFileViewProps>(
           allowExternalFile: allowExternalFilePreview,
           deviceId,
           path: filePath,
+          ...(resourceScope && { resourceScope }),
           workingDirectory,
         }),
       { revalidateOnFocus: false },
@@ -427,6 +439,7 @@ const ActiveFileView = memo<ActiveFileViewProps>(
         // device over RPC (writeProjectFile) just as local files go through IPC.
         readOnly={false}
         reloading={isValidating}
+        resourceBaseUrl={preview.resourceBaseUrl}
         workingDirectory={workingDirectory}
         onReload={handleReload}
         onSaved={handleSavedContent}

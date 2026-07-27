@@ -106,11 +106,14 @@ export const workspaceRouter = router({
       }
     }),
 
-  ensureMarketOrganization: workspaceProcedure.mutation(
-    async ({ ctx }): Promise<{ marketAccountId: number }> => ({
+  ensureMarketOrganization: workspaceProcedure
+    .input(z.object({ autoProvision: z.boolean().optional() }).optional())
+    .mutation(async ({ ctx }): Promise<{ created: boolean; marketAccountId: number }> => ({
+      // Self-hosted deployments derive a stable account id instead of
+      // provisioning a Community organization, so nothing is ever created.
+      created: false,
       marketAccountId: stableNumericId(ctx.workspaceId || ctx.userId),
-    }),
-  ),
+    })),
 
   list: workspaceProcedure.query(async ({ ctx }) => {
     if (await isSuperAdmin(ctx.serverDB, ctx.userId)) {
