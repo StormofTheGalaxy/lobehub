@@ -7,12 +7,13 @@ export * from './url';
 export const ENABLE_BUSINESS_FEATURES = true;
 
 /**
- * Master switch for the conversational agent-onboarding flow.
+ * Master switch for the (now removed) conversational agent-onboarding flow.
  *
- * Upstream keeps this soft-disabled; this deployment enables it so onboarding
- * uses the agent-driven flow instead of the classic form flow.
+ * Soft-disabled: kept in the codebase but permanently off. No client code
+ * reads this anymore now that the agent-onboarding flow has been deleted —
+ * this deployment's `true` pointed at a flow that no longer exists.
  */
-export const AGENT_ONBOARDING_ENABLED = true;
+export const AGENT_ONBOARDING_ENABLED = false;
 
 export const OFFICIAL_PROVIDER_DISABLE_ERROR = 'The official provider cannot be disabled.';
 
