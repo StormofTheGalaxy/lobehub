@@ -1,5 +1,5 @@
 import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
-import { Button, Select } from '@lobehub/ui/base-ui';
+import { Button, confirmModal, Select, toast } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Link2, ShieldCheck, UserPlus, UsersRound } from 'lucide-react';
 import { useState } from 'react';
@@ -8,6 +8,8 @@ import useSWR from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
+import AsyncSection from '../components/AsyncSection';
+import { runAction } from '../components/runAction';
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
 import { useWorkspaceManageRights } from '../hooks/useWorkspacePermission';
 
@@ -75,6 +77,29 @@ const roleOptions: { label: string; value: WorkspaceRole }[] = [
   { label: 'Наблюдатель', value: 'viewer' },
 ];
 
+/**
+ * Clipboard writes fail silently in insecure contexts and under permission
+ * policies, so every copy path reports what actually happened instead of
+ * assuming success.
+ */
+const copyLink = async (url: string, options?: { silent?: boolean }) => {
+  try {
+    await navigator.clipboard?.writeText(url);
+    if (!options?.silent) toast.success({ title: 'Ссылка скопирована' });
+
+    return true;
+  } catch {
+    if (!options?.silent) {
+      toast.error({
+        description: 'Скопируйте ссылку вручную из поля выше.',
+        title: 'Не удалось скопировать',
+      });
+    }
+
+    return false;
+  }
+};
+
 const roleLabel = (role: string) =>
   roleOptions.find((option) => option.value === role)?.label ?? 'Участник';
 
@@ -89,9 +114,13 @@ export default function WorkspaceMembers() {
   const [roleFilter, setRoleFilter] = useState<'all' | WorkspaceRole>('all');
   const [userId, setUserId] = useState('');
   const { canManage } = useWorkspaceManageRights();
-  const { data = [], mutate: mutateMembers } = useSWR(
-    workspace ? ['business/workspace-members', workspace.id] : null,
-    () => lambdaClient.workspaceMember.list.query({ workspaceId: workspace!.id }),
+  const {
+    data = [],
+    error: membersError,
+    isLoading: membersLoading,
+    mutate: mutateMembers,
+  } = useSWR(workspace ? ['business/workspace-members', workspace.id] : null, () =>
+    lambdaClient.workspaceMember.list.query({ workspaceId: workspace!.id }),
   );
   const { data: invitations = [], mutate: mutateInvitations } = useSWR(
     workspace && canManage ? ['business/workspace-invitations', workspace.id] : null,
@@ -104,34 +133,43 @@ export default function WorkspaceMembers() {
   const addMember = async () => {
     if (!userId.trim()) return;
     setAdding(true);
-    try {
-      await lambdaClient.workspaceMember.add.mutate({
-        role,
-        userId: userId.trim(),
-        workspaceId: workspace.id,
-      });
-      setUserId('');
-      await mutateMembers();
-    } finally {
-      setAdding(false);
-    }
+    const ok = await runAction(
+      () =>
+        lambdaClient.workspaceMember.add.mutate({
+          role,
+          userId: userId.trim(),
+          workspaceId: workspace.id,
+        }),
+      { errorTitle: 'Не удалось добавить участника', successTitle: 'Участник добавлен' },
+    );
+    setAdding(false);
+
+    if (!ok) return;
+    setUserId('');
+    await mutateMembers();
   };
 
   const inviteMember = async () => {
     setInviting(true);
-    try {
-      const invitation = await lambdaClient.workspaceMember.invite.mutate({
-        role,
-        workspaceId: workspace.id,
-      });
-      const origin = globalThis.location?.origin ?? '';
-      const inviteUrl = `${origin}/invite/${invitation.token}`;
-      setLastInviteUrl(inviteUrl);
-      await navigator.clipboard?.writeText(inviteUrl);
-      await mutateInvitations();
-    } finally {
-      setInviting(false);
-    }
+    const ok = await runAction(
+      async () => {
+        const invitation = await lambdaClient.workspaceMember.invite.mutate({
+          role,
+          workspaceId: workspace.id,
+        });
+        const origin = globalThis.location?.origin ?? '';
+        const inviteUrl = `${origin}/invite/${invitation.token}`;
+        setLastInviteUrl(inviteUrl);
+        // The link is on screen either way, so a blocked clipboard must not
+        // fail the invite — it only changes what the success copy promises.
+        await copyLink(inviteUrl, { silent: true });
+      },
+      { errorTitle: 'Не удалось создать приглашение' },
+    );
+    setInviting(false);
+
+    if (!ok) return;
+    await mutateInvitations();
   };
 
   const normalizedQuery = query.trim().toLowerCase();
@@ -195,10 +233,7 @@ export default function WorkspaceMembers() {
           {lastInviteUrl && (
             <Flexbox horizontal align="center" className={styles.mobileStack} gap={8}>
               <Input readOnly value={lastInviteUrl} />
-              <Button
-                icon={<Link2 size={16} />}
-                onClick={() => navigator.clipboard.writeText(lastInviteUrl)}
-              >
+              <Button icon={<Link2 size={16} />} onClick={() => void copyLink(lastInviteUrl)}>
                 Скопировать
               </Button>
               <Text fontSize={13} type="secondary">
@@ -246,15 +281,26 @@ export default function WorkspaceMembers() {
             />
           </Flexbox>
         </Flexbox>
-        {filteredMembers.length === 0 && (
-          <Flexbox align="center" className={styles.card} gap={4} padding={20}>
-            <Text weight={600}>Никого не нашли</Text>
-            <Text className={styles.muted} fontSize={13}>
-              Измените поиск или фильтр роли.
-            </Text>
-          </Flexbox>
-        )}
-        {filteredMembers.map((member) => (
+        <AsyncSection
+          error={membersError}
+          loading={membersLoading && data.length === 0}
+          skeletonRows={4}
+          onRetry={() => void mutateMembers()}
+        >
+          <Flexbox gap={8}>
+            {filteredMembers.length === 0 && (
+              <Flexbox align="center" className={styles.card} gap={4} padding={20}>
+                <Text weight={600}>
+                  {data.length === 0 ? 'В workspace пока только вы' : 'Никого не нашли'}
+                </Text>
+                <Text className={styles.muted} fontSize={13}>
+                  {data.length === 0
+                    ? 'Создайте invite-ссылку выше, чтобы позвать команду.'
+                    : 'Измените поиск или фильтр роли.'}
+                </Text>
+              </Flexbox>
+            )}
+            {filteredMembers.map((member) => (
           <div className={styles.item} key={`${member.workspaceId}-${member.userId}`}>
             <Flexbox gap={2}>
               <Text>{member.email || member.userId}</Text>
@@ -270,12 +316,22 @@ export default function WorkspaceMembers() {
                   style={{ width: 130 }}
                   value={member.role}
                   onChange={async (value) => {
-                    await lambdaClient.workspaceMember.updateRole.mutate({
-                      role: value as WorkspaceRole,
-                      userId: member.userId,
-                      workspaceId: workspace.id,
-                    });
+                    const ok = await runAction(
+                      () =>
+                        lambdaClient.workspaceMember.updateRole.mutate({
+                          role: value as WorkspaceRole,
+                          userId: member.userId,
+                          workspaceId: workspace.id,
+                        }),
+                      {
+                        errorTitle: 'Не удалось изменить роль',
+                        successTitle: `Роль изменена на «${roleLabel(value as string)}»`,
+                      },
+                    );
+                    // Revalidate either way: on failure the select must snap
+                    // back to the role the server still holds.
                     await mutateMembers();
+                    void ok;
                   }}
                 />
               ) : (
@@ -285,22 +341,41 @@ export default function WorkspaceMembers() {
               )}
               {canManage && (
                 <Button
+                  danger
                   size="small"
-                  onClick={async () => {
-                    if (!globalThis.confirm('Удалить пользователя из workspace?')) return;
-                    await lambdaClient.workspaceMember.remove.mutate({
-                      userId: member.userId,
-                      workspaceId: workspace.id,
-                    });
-                    await mutateMembers();
-                  }}
+                  onClick={() =>
+                    confirmModal({
+                      cancelText: 'Отмена',
+                      content: `${member.email || member.userId} потеряет доступ к агентам, знаниям и провайдерам этого workspace. Личные данные пользователя не удаляются.`,
+                      okButtonProps: { danger: true },
+                      okText: 'Удалить',
+                      onOk: async () => {
+                        const ok = await runAction(
+                          () =>
+                            lambdaClient.workspaceMember.remove.mutate({
+                              userId: member.userId,
+                              workspaceId: workspace.id,
+                            }),
+                          {
+                            errorTitle: 'Не удалось удалить участника',
+                            successTitle: 'Участник удален из workspace',
+                          },
+                        );
+                        await mutateMembers();
+                        void ok;
+                      },
+                      title: 'Удалить участника?',
+                    })
+                  }
                 >
                   Удалить
                 </Button>
               )}
             </Flexbox>
           </div>
-        ))}
+            ))}
+          </Flexbox>
+        </AsyncSection>
       </Flexbox>
       {canManage && invitations.length > 0 && (
         <Flexbox gap={8}>
@@ -320,7 +395,7 @@ export default function WorkspaceMembers() {
                 <Button
                   size="small"
                   onClick={() =>
-                    navigator.clipboard.writeText(
+                    void copyLink(
                       `${globalThis.location?.origin ?? ''}/invite/${invitation.token}`,
                     )
                   }
@@ -328,15 +403,32 @@ export default function WorkspaceMembers() {
                   Скопировать ссылку
                 </Button>
                 <Button
+                  danger
                   size="small"
-                  onClick={async () => {
-                    if (!globalThis.confirm('Отозвать это приглашение?')) return;
-                    await lambdaClient.workspaceMember.revokeInvitation.mutate({
-                      id: invitation.id,
-                      workspaceId: workspace.id,
-                    });
-                    await mutateInvitations();
-                  }}
+                  onClick={() =>
+                    confirmModal({
+                      cancelText: 'Отмена',
+                      content:
+                        'Ссылка перестанет работать. Тот, кому вы ее отправили, больше не сможет войти в workspace по ней.',
+                      okButtonProps: { danger: true },
+                      okText: 'Отозвать',
+                      onOk: async () => {
+                        await runAction(
+                          () =>
+                            lambdaClient.workspaceMember.revokeInvitation.mutate({
+                              id: invitation.id,
+                              workspaceId: workspace.id,
+                            }),
+                          {
+                            errorTitle: 'Не удалось отозвать приглашение',
+                            successTitle: 'Приглашение отозвано',
+                          },
+                        );
+                        await mutateInvitations();
+                      },
+                      title: 'Отозвать приглашение?',
+                    })
+                  }
                 >
                   Отозвать
                 </Button>

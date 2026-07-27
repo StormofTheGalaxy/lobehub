@@ -10,6 +10,7 @@ import useSWR from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
+import AsyncSection from '../components/AsyncSection';
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
@@ -82,7 +83,7 @@ const WorkspaceAuditLog = memo(() => {
     () => lambdaClient.workspaceAuditLog.listActions.query({ workspaceId: workspaceId! }),
   );
 
-  const { data, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     workspaceId ? ['business/workspace-audit', workspaceId, action, query, cursor] : null,
     () =>
       lambdaClient.workspaceAuditLog.list.query({
@@ -96,6 +97,9 @@ const WorkspaceAuditLog = memo(() => {
   );
 
   const items = useMemo(() => [...olderPages, ...(data?.items ?? [])], [olderPages, data]);
+  // A zero-result search is a different situation from an empty log, and only
+  // one of the two is fixed by clearing the filters.
+  const isFiltered = action !== 'all' || !!query.trim();
 
   const applyFilter = (apply: () => void) => {
     apply();
@@ -154,11 +158,38 @@ const WorkspaceAuditLog = memo(() => {
         </Flexbox>
       </Flexbox>
 
+      <AsyncSection
+        error={error}
+        loading={isLoading && items.length === 0}
+        skeletonRows={5}
+        onRetry={() => void mutate()}
+      >
       <Flexbox className={styles.card}>
         {items.length === 0 ? (
           <Flexbox gap={4} paddingBlock={12}>
-            <Text weight={600}>{t('workspace.auditLog.empty')}</Text>
-            <Text className={styles.meta}>{t('workspace.auditLog.desc')}</Text>
+            <Text weight={600}>
+              {isFiltered
+                ? t('workspace.auditLog.filters.allActions')
+                : t('workspace.auditLog.empty')}
+            </Text>
+            <Text className={styles.meta}>
+              {isFiltered ? t('workspace.auditLog.filters.reset') : t('workspace.auditLog.desc')}
+            </Text>
+            {isFiltered && (
+              <Flexbox align={'flex-start'} paddingBlock={8}>
+                <Button
+                  size={'small'}
+                  onClick={() =>
+                    applyFilter(() => {
+                      setAction('all');
+                      setQuery('');
+                    })
+                  }
+                >
+                  {t('workspace.auditLog.filters.reset')}
+                </Button>
+              </Flexbox>
+            )}
           </Flexbox>
         ) : (
           items.map((item) => (
@@ -200,6 +231,7 @@ const WorkspaceAuditLog = memo(() => {
           ))
         )}
       </Flexbox>
+      </AsyncSection>
 
       {data?.nextCursor && (
         <Flexbox align={'center'}>
