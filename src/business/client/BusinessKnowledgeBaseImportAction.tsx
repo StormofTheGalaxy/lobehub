@@ -1,4 +1,4 @@
-import { Button } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 
 import { lambdaClient } from '@/libs/trpc/client';
 

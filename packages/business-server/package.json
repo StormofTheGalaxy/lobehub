@@ -2,6 +2,9 @@
   "name": "@lobechat/business-server",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "test": "vitest run --silent='passed-only'"
+  },
   "exports": {
     "./enterprise/superAdmin": "./src/enterprise/superAdmin.ts",
     "./*": "./src/*.ts"

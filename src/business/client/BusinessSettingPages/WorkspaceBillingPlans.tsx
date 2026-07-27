@@ -1,4 +1,5 @@
-import { Button, Flexbox, Text } from '@lobehub/ui';
+import { Flexbox, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Map, ShieldCheck } from 'lucide-react';
 import useSWR from 'swr';
@@ -6,6 +7,7 @@ import useSWR from 'swr';
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
+import { useWorkspaceManageRights } from '../hooks/useWorkspacePermission';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
   card: css`
@@ -41,7 +43,7 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
 
 export default function WorkspaceBillingPlans() {
   const workspace = useActiveWorkspace();
-  const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
+  const { canOwn: canManage } = useWorkspaceManageRights();
   const { data, mutate } = useSWR(
     workspace ? ['business/workspace-plan', workspace.id] : null,
     () => lambdaClient.subscription.getWorkspacePlan.query({ workspaceId: workspace!.id }),

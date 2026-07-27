@@ -9,6 +9,7 @@ import useSWR from 'swr';
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
+import { useWorkspaceManageRights } from '../hooks/useWorkspacePermission';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
   card: css`
@@ -87,7 +88,7 @@ export default function WorkspaceMembers() {
   const [role, setRole] = useState<WorkspaceRole>('member');
   const [roleFilter, setRoleFilter] = useState<'all' | WorkspaceRole>('all');
   const [userId, setUserId] = useState('');
-  const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
+  const { canManage } = useWorkspaceManageRights();
   const { data = [], mutate: mutateMembers } = useSWR(
     workspace ? ['business/workspace-members', workspace.id] : null,
     () => lambdaClient.workspaceMember.list.query({ workspaceId: workspace!.id }),

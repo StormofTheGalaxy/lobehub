@@ -1,5 +1,5 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
-import { createModal, useModalContext } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button, createModal, useModalContext } from '@lobehub/ui/base-ui';
 import { MonitorSmartphone } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

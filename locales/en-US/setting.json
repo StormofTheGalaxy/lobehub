@@ -570,6 +570,8 @@
   "notification.item.workspace_subscription_expired": "Subscription ended",
   "notification.push.desc": "Send push notifications to your mobile devices (LobeHub mobile app required)",
   "notification.push.title": "Mobile Push Notifications",
+  "notification.scope.personal": "Applies to notifications outside any workspace. Each workspace keeps its own settings.",
+  "notification.scope.workspace": "Applies to this workspace only — your personal notification settings do not affect it.",
   "notification.title": "Notification Channels",
   "permission.accessTag.useOnlyTip": "Your member permission here is \"Can use\" — you can view and use it, but not edit. Ask the creator or a workspace owner for edit access.",
   "permission.accessTag.viewOnlyTip": "Your member permission here is \"Can view\" — you can view it, but not use or edit. Ask the creator or a workspace owner for more access.",

@@ -24,20 +24,35 @@ const workspaceProcedure = authedProcedure.use(serverDatabase).use(async (opts) 
   });
 });
 
-const assertOwner = async (
-  ctx: {
-    serverDB: LobeChatDatabase;
-    userId: string;
-    workspaceMemberModel: WorkspaceMemberModel;
-  },
-  workspaceId: string,
-) => {
+type WorkspaceGateContext = {
+  serverDB: LobeChatDatabase;
+  userId: string;
+  workspaceMemberModel: WorkspaceMemberModel;
+};
+
+const assertOwner = async (ctx: WorkspaceGateContext, workspaceId: string) => {
   const membership = await ctx.workspaceMemberModel.getMember(workspaceId, ctx.userId);
   if (await isSuperAdmin(ctx.serverDB, ctx.userId)) return;
   if (membership?.role !== 'owner') {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'Only workspace owners can perform this action',
+    });
+  }
+};
+
+/**
+ * Renaming a workspace and editing its profile is `WORKSPACE_UPDATE`, which the
+ * built-in matrix grants to Admin as well — the General settings form is shown
+ * to Admins, so the API accepts them. Deleting the workspace stays Owner-only.
+ */
+const assertAdmin = async (ctx: WorkspaceGateContext, workspaceId: string) => {
+  const membership = await ctx.workspaceMemberModel.getMember(workspaceId, ctx.userId);
+  if (await isSuperAdmin(ctx.serverDB, ctx.userId)) return;
+  if (membership?.role !== 'owner' && membership?.role !== 'admin') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Only workspace owners and admins can perform this action',
     });
   }
 };
@@ -139,7 +154,7 @@ export const workspaceRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...value } = input;
-      await assertOwner(ctx, id);
+      await assertAdmin(ctx, id);
 
       if (value.slug) {
         const existing = await ctx.workspaceModel.findBySlug(value.slug);

@@ -1,16 +1,18 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
+import { useWorkspaceManageRights } from '../hooks/useWorkspacePermission';
 import { WORKSPACE_LIST_KEY } from '../hooks/useWorkspaces';
 
 export default function WorkspaceGeneral() {
   const workspace = useActiveWorkspace();
   const { mutate } = useSWRConfig();
-  const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
+  const { canManage } = useWorkspaceManageRights();
   const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);

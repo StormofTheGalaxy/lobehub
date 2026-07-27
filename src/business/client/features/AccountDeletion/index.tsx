@@ -1,4 +1,5 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { useState } from 'react';
 
 import { lambdaClient } from '@/libs/trpc/client';

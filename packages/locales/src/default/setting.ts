@@ -649,6 +649,10 @@ export default {
   'notification.item.workspace_payment_method_removed': 'Payment method removed',
   'notification.item.workspace_primary_ownership_transferred': 'Primary ownership transferred',
   'notification.item.workspace_subscription_expired': 'Subscription ended',
+  'notification.scope.personal':
+    'Applies to notifications outside any workspace. Each workspace keeps its own settings.',
+  'notification.scope.workspace':
+    'Applies to this workspace only — your personal notification settings do not affect it.',
   'notification.title': 'Notification Channels',
   'myAgents.actions.cancel': 'Cancel',
   'myAgents.actions.confirmDeprecate': 'Confirm Deprecate',

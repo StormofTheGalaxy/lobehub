@@ -1,4 +1,5 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Coins, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -7,6 +8,7 @@ import useSWR from 'swr';
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
+import { useWorkspaceManageRights } from '../hooks/useWorkspacePermission';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
   card: css`
@@ -35,7 +37,7 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
 
 export default function WorkspaceBillingCredits() {
   const workspace = useActiveWorkspace();
-  const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
+  const { canOwn: canManage } = useWorkspaceManageRights();
   const [amount, setAmount] = useState('');
   const { data, mutate } = useSWR(
     workspace ? ['business/workspace-credits', workspace.id] : null,

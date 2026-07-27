@@ -366,6 +366,18 @@ jobs:
           S3_PUBLIC_DOMAIN: https://example.com
           APP_URL: https://home.com
 
+      # Business-layer tests (credit charging, workspace role gates,
+      # notification delivery) are DB-backed, so they run against the same
+      # Postgres service rather than in the packages job.
+      - name: Test Business Server
+        run: pnpm --filter @lobechat/business-server test
+        env:
+          DATABASE_TEST_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          DATABASE_DRIVER: node
+          KEY_VAULTS_SECRET: Kix2wcUONd4CX51E/ZPAd36BqM4wzJgKjPtz2sGztqQ=
+          S3_PUBLIC_DOMAIN: https://example.com
+          APP_URL: https://home.com
+
       - name: Upload Database coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
