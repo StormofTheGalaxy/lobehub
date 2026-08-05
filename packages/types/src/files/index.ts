@@ -16,6 +16,12 @@ export enum FileSource {
 }
 
 export interface FileItem {
+  /**
+   * Character count of the full document behind this file. `content` may hold
+   * only a bounded prefix (see `AGENT_KNOWLEDGE_FILE_CHAR_LIMIT`), so this is
+   * the field to trust for "how big is it really".
+   */
+  charCount?: number;
   content?: string;
   createdAt: Date;
   enabled?: boolean;

@@ -48,8 +48,16 @@ export interface ModelCapabilityChecker {
 export interface KnowledgeConfig {
   /** File contents to inject */
   fileContents?: FileContent[];
+  /**
+   * Max characters injected inline per file. Defaults to
+   * `AGENT_KNOWLEDGE_FILE_CHAR_LIMIT` — knowledge files ride along on every
+   * request of the topic, so they are budgeted rather than injected whole.
+   */
+  fileCharLimit?: number;
   /** Knowledge base metadata to inject */
   knowledgeBases?: KnowledgeBaseInfo[];
+  /** Max characters injected inline across all files combined */
+  totalCharLimit?: number;
 }
 
 /**
