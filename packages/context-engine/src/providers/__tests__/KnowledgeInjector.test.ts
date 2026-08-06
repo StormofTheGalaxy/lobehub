@@ -248,4 +248,38 @@ describe('KnowledgeInjector', () => {
       expect(result.messages[1].content).toBe('First question');
     });
   });
+
+  describe('char budget', () => {
+    it('should clip an oversized file instead of injecting it whole', async () => {
+      const provider = new KnowledgeInjector({
+        fileCharLimit: 50,
+        fileContents: [{ content: 'a'.repeat(10_000), fileId: 'file-1', filename: 'big.txt' }],
+      });
+
+      const context = createContext([{ content: 'Hello', id: 'user-1', role: 'user' }]);
+
+      const result = await provider.process(context);
+      const injected = result.messages[0].content as string;
+
+      expect(injected).toContain('truncated="true"');
+      expect(injected).not.toContain('a'.repeat(51));
+      expect(result.metadata.knowledgeFileCharsTotal).toBe(10_000);
+    });
+
+    it('should report the original size when content arrived pre-clipped', async () => {
+      const provider = new KnowledgeInjector({
+        fileContents: [
+          { charCount: 5_000_000, content: 'a'.repeat(100), fileId: 'file-1', filename: 'big.csv' },
+        ],
+      });
+
+      const context = createContext([{ content: 'Hello', id: 'user-1', role: 'user' }]);
+
+      const result = await provider.process(context);
+
+      expect(result.metadata.knowledgeFileCharsTotal).toBe(5_000_000);
+      // capped by the default total budget, not by the raw document size
+      expect(result.metadata.knowledgeFileCharsInjected).toBeLessThan(5_000_000);
+    });
+  });
 });

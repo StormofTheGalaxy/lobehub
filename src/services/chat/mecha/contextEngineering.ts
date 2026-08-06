@@ -344,7 +344,13 @@ export const contextEngineering = async ({
 
   const fileContents = agentFiles
     .filter((file) => file.enabled && file.content)
-    .map((file) => ({ content: file.content!, fileId: file.id, filename: file.name }));
+    .map((file) => ({
+      // `content` is a bounded prefix; `charCount` is the full document size
+      charCount: file.charCount,
+      content: file.content!,
+      fileId: file.id,
+      filename: file.name,
+    }));
 
   const knowledgeBases = agentKnowledgeBases
     .filter((kb) => kb.enabled)

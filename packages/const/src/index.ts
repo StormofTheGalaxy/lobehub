@@ -12,6 +12,7 @@ export * from './fetch';
 export * from './file';
 export * from './heterogeneousAgent';
 export * from './interests';
+export * from './knowledge';
 export * from './layoutTokens';
 export * from './llmGenerationTracing';
 export * from './lobehubSkill';

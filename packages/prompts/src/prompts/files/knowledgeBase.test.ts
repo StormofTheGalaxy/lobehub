@@ -1,3 +1,4 @@
+import { AGENT_KNOWLEDGE_FILE_CHAR_LIMIT, AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT } from '@lobechat/const';
 import { describe, expect, it } from 'vitest';
 
 import type { FileContent } from '../knowledgeBaseQA';
@@ -163,5 +164,91 @@ Line 5 with gap`,
 
     const result = promptAgentKnowledge({ fileContents });
     expect(result).toMatchSnapshot();
+  });
+
+  describe('char budget', () => {
+    it('should clip a file that exceeds the per-file limit', () => {
+      const fileContents: FileContent[] = [
+        { content: 'a'.repeat(5000), fileId: 'file1', filename: 'big.txt' },
+      ];
+
+      const result = promptAgentKnowledge({ fileContents, fileCharLimit: 100 });
+
+      expect(result).toContain('<file id="file1" name="big.txt" chars="5000" injectedChars="100"');
+      expect(result).toContain('truncated="true"');
+      expect(result).toContain('<truncation_notice>');
+      // only the budgeted slice made it in
+      expect(result).toContain('a'.repeat(100));
+      expect(result).not.toContain('a'.repeat(101));
+    });
+
+    it('should report the original size when content was already clipped upstream', () => {
+      const fileContents: FileContent[] = [
+        // DB handed us a prefix; charCount is the real document size
+        { charCount: 5_000_000, content: 'a'.repeat(100), fileId: 'file1', filename: 'huge.csv' },
+      ];
+
+      const result = promptAgentKnowledge({ fileContents, fileCharLimit: 100 });
+
+      expect(result).toContain(
+        '<file id="file1" name="huge.csv" chars="5000000" injectedChars="100"',
+      );
+      expect(result).toContain('<truncation_notice>');
+    });
+
+    it('should list files by name only once the total budget is spent', () => {
+      const fileContents: FileContent[] = [
+        { content: 'a'.repeat(100), fileId: 'file1', filename: 'first.txt' },
+        { content: 'b'.repeat(100), fileId: 'file2', filename: 'second.txt' },
+      ];
+
+      const result = promptAgentKnowledge({
+        fileContents,
+        fileCharLimit: 100,
+        totalCharLimit: 100,
+      });
+
+      // first file fits and is injected whole
+      expect(result).toContain(`<file id="file1" name="first.txt">\n${'a'.repeat(100)}\n</file>`);
+      // second file is advertised but carries no content
+      expect(result).toContain(
+        '<file id="file2" name="second.txt" chars="100" injectedChars="0" truncated="true" />',
+      );
+      expect(result).not.toContain('b'.repeat(100));
+    });
+
+    it('should not add a truncation notice when everything fits', () => {
+      const fileContents: FileContent[] = [
+        { content: 'small', fileId: 'file1', filename: 'small.txt' },
+      ];
+
+      const result = promptAgentKnowledge({ fileContents });
+
+      expect(result).not.toContain('<truncation_notice>');
+      expect(result).not.toContain('truncated="true"');
+    });
+
+    it('should keep errored files intact regardless of budget', () => {
+      const fileContents: FileContent[] = [
+        { content: '', error: 'File not found', fileId: 'file1', filename: 'missing.txt' },
+      ];
+
+      const result = promptAgentKnowledge({ fileContents, totalCharLimit: 0 });
+
+      expect(result).toContain('<file id="file1" name="missing.txt" error="File not found" />');
+      expect(result).not.toContain('<truncation_notice>');
+    });
+
+    it('should apply a default budget that bounds a multi-megabyte file', () => {
+      const fileContents: FileContent[] = [
+        { content: 'a'.repeat(5_000_000), fileId: 'file1', filename: 'huge.txt' },
+      ];
+
+      const result = promptAgentKnowledge({ fileContents });
+
+      expect(result.length).toBeLessThan(AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT + 2000);
+      expect(result).toContain('chars="5000000"');
+      expect(result).toContain(`injectedChars="${AGENT_KNOWLEDGE_FILE_CHAR_LIMIT}"`);
+    });
   });
 });

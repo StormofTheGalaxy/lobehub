@@ -323,7 +323,9 @@ export class MessagesEngine {
       // Knowledge (agent files + knowledge bases)
       new KnowledgeInjector({
         fileContents: knowledge?.fileContents,
+        fileCharLimit: knowledge?.fileCharLimit,
         knowledgeBases: knowledge?.knowledgeBases,
+        totalCharLimit: knowledge?.totalCharLimit,
       }),
       // Agent documents → before first user message
       new AgentDocumentContextInjector(agentDocConfig),
