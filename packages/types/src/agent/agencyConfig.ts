@@ -1,4 +1,5 @@
 import type { WorkingDirConfigValue } from '../device';
+import type { LobeAgentChatConfig } from './chatConfig';
 
 /**
  * Selector value that means "do not override the underlying CLI".
@@ -27,7 +28,7 @@ export interface ListHeterogeneousAgentModelsParams {
   command?: string;
   cwd?: string;
   env?: Record<string, string>;
-  type: 'opencode';
+  type: 'opencode' | 'pi';
 }
 
 export interface HeterogeneousAgentModelCatalogSuccess {
@@ -136,7 +137,7 @@ const CODEX_FAST_SERVICE_TIER_VALUES = ['fast', 'priority'] as const;
  *
  * Two families of hetero agents are supported:
  *
- * - **Local CLI** (`amp` | `claude-code` | `codex` | `opencode`): spawned as a child
+ * - **Local CLI** (`amp` | `claude-code` | `codex` | `opencode` | `pi`): spawned as a child
  *   process on the desktop or a connected device; uses `command`, `args`, `env`,
  *   `systemContext`.
  *
@@ -188,7 +189,7 @@ export interface HeterogeneousProviderConfig {
    */
   systemContext?: string;
   /** Agent runtime type. */
-  type: 'amp' | 'claude-code' | 'codex' | 'hermes' | 'opencode' | 'openclaw';
+  type: 'amp' | 'claude-code' | 'codex' | 'hermes' | 'opencode' | 'openclaw' | 'pi';
 }
 
 interface ClaudeCodeSelectionSource {
@@ -208,6 +209,7 @@ const CODEX_CONFIG_FLAGS = ['-c', '--config'] as const;
 const CODEX_MODEL_FLAGS = ['-m', '--model'] as const;
 const HETERO_EXEC_AGENT_ARG_FLAG = '--agent-arg';
 const OPENCODE_MODEL_FLAGS = ['-m', '--model'] as const;
+const PI_MODEL_FLAGS = ['--model'] as const;
 
 const hasCliFlag = (args: string[], flag: string): boolean =>
   args.some((arg) => arg === flag || arg.startsWith(`${flag}=`));
@@ -426,8 +428,8 @@ export const codexModelSupportsFastSpeed = (model: string): boolean =>
  * For `claude-code` and `codex`, the chat-input selector persists explicit
  * `model` + `effort` selections on the provider config; this is the single
  * place that maps those stored settings onto provider-specific argv for direct
- * local desktop spawns. OpenCode currently has no dedicated selector, but a
- * programmatically stored `model` is forwarded using its native `--model` flag.
+ * local desktop spawns. OpenCode and Pi use their device-local model catalogs
+ * and forward the selected provider/model id using the native `--model` flag.
  * Missing/default settings are resolved by the UI helpers for display only.
  * They are not appended here because CLI overrides must not mask each CLI's
  * own settings/env/account defaults. User-authored `args` win, so there is
@@ -444,7 +446,8 @@ export const buildHeteroSpawnArgs = (
   if (
     provider.type !== 'claude-code' &&
     provider.type !== 'codex' &&
-    provider.type !== 'opencode'
+    provider.type !== 'opencode' &&
+    provider.type !== 'pi'
   ) {
     return provider.args;
   }
@@ -491,6 +494,17 @@ export const buildHeteroSpawnArgs = (
     }
   }
 
+  if (provider.type === 'pi') {
+    const model = provider.model?.trim();
+    if (
+      model &&
+      model !== HETEROGENEOUS_AGENT_DEFAULT_SELECTION &&
+      !hasAnyCliFlag(baseArgs, PI_MODEL_FLAGS)
+    ) {
+      extraArgs.push('--model', model);
+    }
+  }
+
   if (extraArgs.length === 0) return provider.args;
   return [...baseArgs, ...extraArgs];
 };
@@ -513,7 +527,8 @@ export const buildHeteroExecArgs = (
     provider.type !== 'amp' &&
     provider.type !== 'claude-code' &&
     provider.type !== 'codex' &&
-    provider.type !== 'opencode'
+    provider.type !== 'opencode' &&
+    provider.type !== 'pi'
   ) {
     return provider.args;
   }
@@ -564,6 +579,17 @@ export const buildHeteroExecArgs = (
       model &&
       model !== HETEROGENEOUS_AGENT_DEFAULT_SELECTION &&
       !hasAnyCliFlag(baseArgs, OPENCODE_MODEL_FLAGS)
+    ) {
+      selectorArgs.push('--model', model);
+    }
+  }
+
+  if (provider.type === 'pi') {
+    const model = provider.model?.trim();
+    if (
+      model &&
+      model !== HETEROGENEOUS_AGENT_DEFAULT_SELECTION &&
+      !hasAnyCliFlag(baseArgs, PI_MODEL_FLAGS)
     ) {
       selectorArgs.push('--model', model);
     }
@@ -639,14 +665,24 @@ export interface LobeAgentAgencyConfig {
    */
   modelSelectionPolicy?: AgentModelSelectionPolicy;
   /**
-   * Default model used by sub-agents this agent spawns via
-   * `lobe-agent.callSubAgent`. When unset, sub-agents fall back to the global
-   * default (`DEFAULT_SUB_AGENT_MODEL`, e.g. deepseek-v4-flash) rather than
-   * inheriting the parent agent's main model. Configurable in the params panel.
+   * Model override for sub-agents this agent spawns via
+   * `lobe-agent.callSubAgent`. When unset (or nulled to clear a previous
+   * override), sub-agents follow the parent run's effective model — same
+   * provider, same model. Configurable in the params panel; `null` rather than
+   * `undefined` marks the cleared state because the config deep-merge skips
+   * `undefined` and would resurrect the old override.
    */
   subagent?: {
-    model?: string;
-    provider?: string;
+    /**
+     * chatConfig overrides (thinking / reasoning-effort extend params) for the
+     * overridden sub-agent model, merged over the parent's chatConfig at spawn.
+     * Only meaningful together with a `model` override — when sub-agents follow
+     * the parent model they inherit the parent's chatConfig wholesale, so the
+     * effort follows automatically.
+     */
+    chatConfig?: Partial<LobeAgentChatConfig> | null;
+    model?: string | null;
+    provider?: string | null;
   };
   /**
    * Ad-hoc verify criteria mounted directly on this agent, in addition to any

@@ -16,7 +16,7 @@ import { SessionModel } from '@/database/models/session';
 import { TaskModel } from '@/database/models/task';
 import { TOPIC_COMMENT_TRANSFER_HAS_FOREIGN_AUTHORS } from '@/database/models/topicComment';
 import { UserModel } from '@/database/models/user';
-import { WorkspaceUserSettingsModel } from '@/database/models/workspaceUserSettings';
+import type { ResourceAccessLevel } from '@/database/schemas';
 import { DEFAULT_RESOURCE_ACCESS_LEVELS, RESOURCE_ACCESS_LEVELS_BY_TYPE } from '@/database/schemas';
 import { router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
@@ -128,6 +128,25 @@ export const agentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      // Creating inside a Category has to land in that Category. The folder's
+      // visibility decides the new agent's, rather than the other way round:
+      // the sidebar resolves a public agent's folder only against public
+      // folders (and a private agent's only against private ones), so a
+      // default-public agent created from a private Category would render in
+      // Ungrouped — for its creator too. The "New Agent" action inside a
+      // private Category sends only `{ groupId }`, so this is the normal path,
+      // not a crafted one. An explicit conflicting `visibility` is refused
+      // rather than silently overridden.
+      const folderVisibility = input.groupId
+        ? await ctx.agentModel.getAssignableSessionGroupVisibility(input.groupId)
+        : undefined;
+
+      if (folderVisibility && input.visibility && input.visibility !== folderVisibility)
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `A ${input.visibility} agent cannot be created in a ${folderVisibility} folder`,
+        });
+
       const agent = await ctx.agentModel.create({
         ...input.config,
         // The DB-layer AgentItem (packages/database/src/schemas/agent.ts) is
@@ -139,7 +158,9 @@ export const agentRouter = router({
         // Router-level `visibility` wins over any nested config value so the
         // sidebar's "Create in Private" entry can't be overridden by a stale
         // default config.
-        ...(input.visibility ? { visibility: input.visibility } : {}),
+        ...(input.visibility || folderVisibility
+          ? { visibility: input.visibility ?? folderVisibility }
+          : {}),
       });
 
       if (ctx.workspaceId && agent.visibility !== 'private') {
@@ -151,17 +172,6 @@ export const agentRouter = router({
         );
       }
 
-      // Folder placement is per-member in workspace mode (the shared
-      // `sessionGroupId` column is ignored there), so a create-in-folder must
-      // also record the caller's own assignment for the new agent.
-      if (ctx.workspaceId && input.groupId) {
-        await new WorkspaceUserSettingsModel(
-          ctx.serverDB,
-          ctx.userId,
-          ctx.workspaceId,
-        ).setSidebarGroupAssignment(agent.id, input.groupId);
-      }
-
       return { agentId: agent.id };
     }),
 
@@ -169,7 +179,7 @@ export const agentRouter = router({
    * Publish a private agent into the workspace. Only the creator of a
    * still-private agent can run this; the underlying SQL enforces both rules.
    * The inverse transition (public → private) goes through
-   * `setAgentVisibility`, which is gated to the creator only (LOBE-11760).
+   * `setAgentVisibility`, which is gated to the creator only.
    */
   publishAgentToWorkspace: agentProcedure
     .use(withScopedPermission('agent:update'))
@@ -182,22 +192,25 @@ export const agentRouter = router({
     .mutation(async ({ input, ctx }) => {
       const result = await ctx.agentModel.publishToWorkspace(input.id);
       if (ctx.workspaceId) {
-        await new ResourcePermissionModel(ctx.serverDB, ctx.workspaceId).setAccessLevel(
-          'agent',
-          input.id,
-          input.accessLevel ?? DEFAULT_RESOURCE_ACCESS_LEVELS.agent,
-          ctx.userId,
-        );
+        const permissionModel = new ResourcePermissionModel(ctx.serverDB, ctx.workspaceId);
+        // An explicit request wins; otherwise keep whatever the creator already
+        // chose on the Permission page while the agent was still private —
+        // rewriting the default here would silently discard that decision.
+        const accessLevel =
+          input.accessLevel ??
+          (await permissionModel.getAccessLevel('agent', input.id)) ??
+          DEFAULT_RESOURCE_ACCESS_LEVELS.agent;
+        await permissionModel.setAccessLevel('agent', input.id, accessLevel, ctx.userId);
       }
       return result;
     }),
 
   /**
-   * Bidirectional visibility switch (LOBE-11551). Rules:
+   * Bidirectional visibility switch. Rules:
    * - builtin agents (LobeAI etc., identified by slug) can never change
    *   visibility — the workspace copy must stay shared;
    * - only the agent's creator may pull a published agent back to private
-   *   (LOBE-11760): a workspace owner demoting another member's agent would
+   *: a workspace owner demoting another member's agent would
    *   effectively appropriate it, so everyone else gets FORBIDDEN. The UI
    *   hides the entry for them, this is the server-side backstop.
    */
@@ -287,7 +300,7 @@ export const agentRouter = router({
       // Same source-level guard for group chats, but only for the supervisor
       // role: a private supervisor is unresolvable for every other viewer and
       // bricks the whole group. Regular members are not blocked — roster
-      // reads drop a non-visible member per viewer instead (LOBE-11772).
+      // reads drop a non-visible member per viewer instead.
       if (input.visibility === 'private') {
         const chatGroupModel = new ChatGroupModel(ctx.serverDB, ctx.userId, ctx.workspaceId);
         const blockingGroups = await chatGroupModel.countGroupsBlockingAgentDemotion(
@@ -306,19 +319,18 @@ export const agentRouter = router({
       const updated = await ctx.agentModel.setVisibility(input.id, input.visibility);
       if (!updated) throw new TRPCError({ code: 'NOT_FOUND', message: 'Agent not found' });
 
-      const accessLevel =
-        input.visibility === 'private'
-          ? 'edit'
-          : (input.accessLevel ?? DEFAULT_RESOURCE_ACCESS_LEVELS.agent);
+      let accessLevel: ResourceAccessLevel;
       if (input.visibility === 'private') {
+        accessLevel = 'edit';
         await permissionModel.removeAll('agent', input.id);
       } else {
-        await permissionModel.setAccessLevel(
-          'agent',
-          input.id,
-          input.accessLevel ?? DEFAULT_RESOURCE_ACCESS_LEVELS.agent,
-          ctx.userId,
-        );
+        // Same rule as `publishAgentToWorkspace`: promotion keeps a level the
+        // creator already set while private instead of resetting to the default.
+        accessLevel =
+          input.accessLevel ??
+          (await permissionModel.getAccessLevel('agent', input.id)) ??
+          DEFAULT_RESOURCE_ACCESS_LEVELS.agent;
+        await permissionModel.setAccessLevel('agent', input.id, accessLevel, ctx.userId);
       }
 
       return buildResourcePermissionState({
@@ -492,13 +504,6 @@ export const agentRouter = router({
           DEFAULT_RESOURCE_ACCESS_LEVELS.agent,
           ctx.userId,
         );
-        // Folder placement is per-member in workspace mode: keep the copy in
-        // the caller's folder when they had assigned the source agent there.
-        await new WorkspaceUserSettingsModel(
-          ctx.serverDB,
-          ctx.userId,
-          ctx.workspaceId,
-        ).copySidebarGroupAssignment(input.agentId, result.agentId);
       }
       return result;
     }),
@@ -1057,6 +1062,38 @@ export const agentRouter = router({
 
       // Use AgentService to update and return the updated agent data
       return ctx.agentService.updateAgentConfig(input.agentId, input.value);
+    }),
+
+  /**
+   * Resolve a slug to its agent id so `/agent/:slug` can open the agent.
+   *
+   * Read-only and ownership-scoped: an unknown slug and someone else's slug both
+   * return `null`, so this cannot be used to probe which slugs exist.
+   */
+  resolveAgentIdBySlug: agentProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const agentId = await ctx.agentModel.resolveIdBySlug(input.slug);
+      return { agentId };
+    }),
+
+  /**
+   * Rename an agent's url slug. Separate from `updateAgentConfig` because `slug`
+   * is immutable there by design — see `IMMUTABLE_AGENT_FIELDS`.
+   */
+  updateAgentSlug: agentProcedure
+    .use(withScopedPermission('agent:update'))
+    .input(z.object({ agentId: z.string(), slug: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await assertCanEditResource({
+        db: ctx.serverDB,
+        resourceId: input.agentId,
+        resourceType: 'agent',
+        userId: ctx.userId,
+        workspaceId: ctx.workspaceId ?? undefined,
+      });
+
+      return ctx.agentModel.updateSlug(input.agentId, input.slug);
     }),
 
   /**

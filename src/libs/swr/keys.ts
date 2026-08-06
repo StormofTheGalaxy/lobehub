@@ -40,6 +40,8 @@ interface LocalFilePreviewKeyParams {
   deviceId?: string;
   filePath: string;
   resourceScope?: 'workspace';
+  /** Topic scope when the previewed file lives in the topic's cloud sandbox. */
+  sandboxTopicId?: string;
   workingDirectory: string;
 }
 
@@ -175,6 +177,20 @@ export const agentKeys = {
   list: def('agent:list', (isLogin: boolean) => ['agent:list', isLogin]),
 };
 
+// ---- agent labels -------------------------------------------------------
+export const agentLabelKeys = {
+  /**
+   * Agent label registry (workspace-shared, or personal). Keyed by workspace:
+   * the registries are disjoint per scope, so a shared key would serve the
+   * previous workspace's labels across a switch.
+   */
+  list: def('agentLabel:list', (isLogin: boolean, workspaceId: string | null | undefined) => [
+    'agentLabel:list',
+    isLogin,
+    workspaceId ?? null,
+  ]),
+};
+
 // ---- agent builder (opening-suggestion chips) ---------------------------
 // Kept off `CACHE_TIERS` on purpose — these are ephemeral LLM-generated chips.
 // `contextSummary` is intentionally NOT part of the key so config autosaves for
@@ -232,6 +248,13 @@ export const recentKeys = {
     limit,
     scope,
   ]),
+  /** Home chat-only list; filtering happens before the server-side limit. */
+  topicList: def('recent:topicList', (limit: number, scope: string, view: 'mine' | 'team') => [
+    'recent:topicList',
+    limit,
+    scope,
+    view,
+  ]),
 };
 
 // ---- task ---------------------------------------------------------------
@@ -253,6 +276,12 @@ export const taskKeys = {
       visibility,
     ],
   ),
+  /**
+   * AgentSidebar task panel. Lives in the `task:` domain (not a `sidebar:`
+   * one) so the tiered cache provider persists it to IndexedDB and the second
+   * open renders from cache instead of a skeleton.
+   */
+  sidebarGroups: def('task:sidebarGroups', (agentId: string) => ['task:sidebarGroups', agentId]),
 };
 
 // ---- work ---------------------------------------------------------------
@@ -281,7 +310,12 @@ export const workKeys = {
 
 // ---- brief --------------------------------------------------------------
 export const briefKeys = {
-  list: def('brief:list', (isLogin: boolean) => ['brief:list', isLogin]),
+  /**
+   * Unresolved brief feed, keyed by login + identity scope. Briefs are per-user
+   * AND per-workspace rows, so an entry fetched in one scope must never be
+   * served in another — its ids are unreachable there.
+   */
+  list: def('brief:list', (isLogin: boolean, scope: string) => ['brief:list', isLogin, scope]),
 };
 
 // ---- home inbox ---------------------------------------------------------
@@ -803,7 +837,11 @@ export const messengerKeys = {
     tokenScopeKey,
   ]),
   peek: def('messenger:peek', (randomId: string) => ['messenger:peek', randomId]),
-  pushWindow: def('messenger:pushWindow', (platform: string) => ['messenger:pushWindow', platform]),
+  pushWindow: def('messenger:pushWindow', (platform: string, tenantId?: string) => [
+    'messenger:pushWindow',
+    platform,
+    tenantId ?? null,
+  ]),
 };
 
 // ---- verify (deliverable judging) ---------------------------------------
@@ -911,10 +949,11 @@ export const localFileKeys = {
       deviceId,
       filePath,
       resourceScope,
+      sandboxTopicId,
       workingDirectory,
     }: LocalFilePreviewKeyParams) => [
       'localFile:preview',
-      deviceId ?? 'local',
+      sandboxTopicId ? `sandbox:${sandboxTopicId}` : (deviceId ?? 'local'),
       filePath,
       workingDirectory,
       accept ?? 'any',
@@ -1060,9 +1099,6 @@ export const builtinAgentKeys = {
 export const imessageKeys = {
   bridgeStatus: def('imessage:bridgeStatus', () => ['imessage:bridgeStatus']),
 };
-export const sidebarKeys = {
-  taskGroups: def('sidebar:taskGroups', (agentId: string) => ['sidebar:taskGroups', agentId]),
-};
 // Desktop/electron IPC fetches — roots keep their existing `electron:getXxx` value.
 export const electronKeys = {
   appTrayVisible: def('electron:getAppTrayVisible', () => ['electron:getAppTrayVisible']),
@@ -1094,6 +1130,7 @@ export const swrKeys = {
   agentDocument: agentDocumentSWRKeys,
   agentHome: agentHomeKeys,
   agentKnowledge: agentKnowledgeKeys,
+  agentLabel: agentLabelKeys,
   agentProfile: agentProfileKeys,
   agentSignal: agentSignalKeys,
   aiModel: aiModelKeys,
@@ -1135,7 +1172,6 @@ export const swrKeys = {
   serverConfig: serverConfigKeys,
   session: sessionKeys,
   share: shareKeys,
-  sidebar: sidebarKeys,
   stats: statsKeys,
   task: taskKeys,
   taskTemplate: taskTemplateKeys,

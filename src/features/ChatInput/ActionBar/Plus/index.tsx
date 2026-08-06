@@ -3,6 +3,7 @@
 import { validateVideoFileSize } from '@lobechat/utils/client';
 import type { IconProps } from '@lobehub/ui';
 import { Icon, Popover, Tag } from '@lobehub/ui';
+import { toast } from '@lobehub/ui/base-ui';
 import { GlobeOffIcon, SkillsIcon } from '@lobehub/ui/icons';
 import { Upload } from 'antd';
 import { css, cssVar, cx } from 'antd-style';
@@ -25,11 +26,10 @@ import type { ReactNode } from 'react';
 import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { message } from '@/components/AntdStaticMethods';
 import { openAttachKnowledgeModal } from '@/features/LibraryModal';
 import { useIsDark } from '@/hooks/useIsDark';
+import { useMediaUploadAbility } from '@/hooks/useMediaUploadAbility';
 import { useModelSupportToolUse } from '@/hooks/useModelSupportToolUse';
-import { useVisualMediaUploadAbility } from '@/hooks/useVisualMediaUploadAbility';
 import { useAgentStore } from '@/store/agent';
 import { agentSelectors, chatConfigByIdSelectors } from '@/store/agent/selectors';
 import { aiModelSelectors, aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
@@ -332,7 +332,7 @@ const usePlusMenuItems = ({ close }: { close: () => void }): ActionDropdownMenuI
   const isMemoryEnabled = useMemoryEnabled(agentId);
   const [showTypoBar, setShowTypoBar] = useChatInputStore((s) => [s.showTypoBar, s.setShowTypoBar]);
   const editor = useChatInputStore((s) => s.editor);
-  const { canUploadImage, canUploadVideo, canUploadAudio } = useVisualMediaUploadAbility(
+  const { canUploadImage, canUploadVideo, canUploadAudio } = useMediaUploadAbility(
     model,
     provider,
     agentId,
@@ -488,7 +488,7 @@ const usePlusMenuItems = ({ close }: { close: () => void }): ActionDropdownMenuI
               if (file.type.startsWith('audio') && !canUploadAudio) return false;
               const validation = validateVideoFileSize(file);
               if (!validation.isValid) {
-                message.error(
+                toast.error(
                   t('upload.validation.videoSizeExceeded', {
                     actualSize: validation.actualSize,
                     maxSize: validation.maxSize,

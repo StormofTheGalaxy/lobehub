@@ -19,6 +19,7 @@ import { parseBrowserLanguage } from '@/utils/locale';
 import { DEFAULT_LANG, locales, RouteVariants } from '@/utils/server/routeVariants';
 
 import { authSpaRoutes, nextjsOnlyRoutes } from '../nextjsOnlyRoutes';
+import { isWorkbenchSpaRoute } from '../workbenchRoutes';
 import { createRouteMatcher } from './createRouteMatcher';
 
 // Create debug logger instances
@@ -196,6 +197,17 @@ export function defineConfig() {
       const response = NextResponse.rewrite(url);
       persistLocaleCookie(response, request, explicitlyLocale);
       persistRouteViewPreferenceCookie(response, routeViewPreference);
+
+      return response;
+    }
+
+    if (device.type === 'mobile' && isWorkbenchSpaRoute(url.pathname)) {
+      const workbenchPath = `/spa-workbench/${safeLocale}${url.pathname}`;
+      logDefault('Workbench SPA route, rewriting to: %s', workbenchPath);
+      url.pathname = workbenchPath;
+
+      const response = NextResponse.rewrite(url);
+      persistLocaleCookie(response, request, explicitlyLocale);
 
       return response;
     }

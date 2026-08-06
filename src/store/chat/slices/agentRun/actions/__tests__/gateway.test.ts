@@ -515,7 +515,6 @@ describe('GatewayActionImpl', () => {
       const connectToGateway = vi.fn();
       const internalDispatchTopic = vi.fn();
       const internalReplaceTopicId = vi.fn();
-      const internalUpdateTopicLoading = vi.fn();
       const onOperationCancel = vi.fn();
       const replaceMessages = vi.fn();
       const refreshTopic = vi.fn().mockResolvedValue(undefined);
@@ -536,7 +535,6 @@ describe('GatewayActionImpl', () => {
         connectToGateway,
         internal_dispatchTopic: internalDispatchTopic,
         internal_replaceTopicId: internalReplaceTopicId,
-        internal_updateTopicLoading: internalUpdateTopicLoading,
         moveQueuedMessages,
         onOperationCancel,
         replaceMessages,
@@ -565,7 +563,6 @@ describe('GatewayActionImpl', () => {
         get,
         internalDispatchTopic,
         internalReplaceTopicId,
-        internalUpdateTopicLoading,
         mockClient,
         moveQueuedMessages,
         onOperationCancel,
@@ -989,7 +986,6 @@ describe('GatewayActionImpl', () => {
         completeOperation,
         connectToGateway,
         getOperationAbortSignal: vi.fn(() => controller.signal),
-        internal_updateTopicLoading: vi.fn(),
         onOperationCancel,
         replaceMessages: vi.fn(),
         startOperation,
@@ -1065,7 +1061,6 @@ describe('GatewayActionImpl', () => {
         associateMessageWithOperation: vi.fn(),
         connectToGateway: vi.fn(),
         internal_dispatchTopic: vi.fn(),
-        internal_updateTopicLoading: vi.fn(),
         moveQueuedMessages: vi.fn(),
         onOperationCancel,
         replaceMessages: vi.fn(),
@@ -1117,7 +1112,7 @@ describe('GatewayActionImpl', () => {
       });
     });
 
-    // Regression (LOBE-12055): after an error run the gateway session completes
+    // Regression: after an error run the gateway session completes
     // and clears the SERVER-side topic metadata, but the local Zustand store copy
     // of `runningOperation` stayed set — so useGatewayReconnect kept firing a
     // reconnect for a dead op and looped 404s. onSessionComplete must ALSO clear
@@ -1493,7 +1488,6 @@ describe('GatewayActionImpl', () => {
         ...state,
         associateMessageWithOperation: vi.fn(),
         connectToGateway: vi.fn(),
-        internal_updateTopicLoading: vi.fn(),
         onOperationCancel: vi.fn(),
         startOperation,
       })) as any;
@@ -1586,7 +1580,6 @@ describe('GatewayActionImpl', () => {
         connectToGateway: (params: any) => {
           captured.onSessionComplete = params.onSessionComplete;
         },
-        internal_updateTopicLoading: vi.fn(),
         onOperationCancel: vi.fn(),
         startOperation,
         updateTopicStatus,
@@ -1682,7 +1675,7 @@ describe('GatewayActionImpl', () => {
 
     // Seeds a topic whose local metadata still carries a runningOperation, wires up
     // internal_dispatchTopic + connectToGateway capture, so we can assert the local
-    // store clear (LOBE-12055) on both the NOT_FOUND refresh path and onSessionComplete.
+    // store clear on both the NOT_FOUND refresh path and onSessionComplete.
     function createSeededReconnectHarness() {
       const captured: { onSessionComplete?: (p: any) => void } = {};
       const connectToGateway = vi.fn((params: any) => {
@@ -1740,7 +1733,7 @@ describe('GatewayActionImpl', () => {
       return { action, captured, connectToGateway, internalDispatchTopic };
     }
 
-    // Regression (LOBE-12055): a stale local runningOperation fires a reconnect,
+    // Regression: a stale local runningOperation fires a reconnect,
     // but the server already cleared its marker and answers refreshGatewayToken
     // with TRPC NOT_FOUND. The reconnect must clear the local marker and bail
     // silently (no connect, no throw) so the SWR fetcher resolves instead of

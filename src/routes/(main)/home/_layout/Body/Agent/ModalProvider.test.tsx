@@ -4,7 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AgentModalProvider, useAgentModal } from './ModalProvider';
 
 const mocks = vi.hoisted(() => ({
+  closeCreateAgentModal: vi.fn(),
   createAgent: vi.fn(),
+  createAgentModalProps: undefined as
+    | {
+        onCreateBlank: () => Promise<void> | void;
+        onOpenSkills?: (identifier: string) => void;
+      }
+    | undefined,
   navigate: vi.fn(),
   refreshAgentList: vi.fn(),
   sendAsAgent: vi.fn(),
@@ -21,11 +28,13 @@ vi.mock('@/features/Workspace/useWorkspaceAwareNavigate', () => ({
 }));
 
 vi.mock('@/components/ChatGroupWizard', () => ({
-  ChatGroupWizard: () => null,
+  ChatGroupWizard: ({ open }: { open: boolean }) =>
+    open ? <div>Deferred group wizard</div> : null,
 }));
 
 vi.mock('@/components/MemberSelectionModal', () => ({
-  MemberSelectionModal: () => null,
+  MemberSelectionModal: ({ open }: { open: boolean }) =>
+    open ? <div>Deferred member selection</div> : null,
 }));
 
 vi.mock('@/features/CreatePlatformAgent', () => ({
@@ -37,25 +46,17 @@ vi.mock('@/features/EditingPopover', () => ({
 }));
 
 vi.mock('@/routes/(main)/home/_layout/hooks/useCreateModal', () => ({
-  CreateAgentModal: ({
-    open,
-    onCreateBlank,
-    onOpenSkills,
-  }: {
+  openCreateAgentModal: (props: {
     onCreateBlank: () => Promise<void> | void;
     onOpenSkills?: (identifier: string) => void;
-    open: boolean;
-  }) =>
-    open ? (
-      <>
-        <button type="button" onClick={() => void onCreateBlank()}>
-          Start Blank
-        </button>
-        <button type="button" onClick={() => onOpenSkills?.('product-requirements-writer')}>
-          View in Skills
-        </button>
-      </>
-    ) : null,
+  }) => {
+    mocks.createAgentModalProps = props;
+    return { close: mocks.closeCreateAgentModal };
+  },
+}));
+
+vi.mock('@/features/WorkspaceSetting/Labels/LabelFormModal', () => ({
+  openLabelFormModal: vi.fn(),
 }));
 
 vi.mock('@/store/agent', () => ({
@@ -102,16 +103,24 @@ vi.mock('./Modals/ConfigGroupModal', () => ({
 }));
 
 vi.mock('./Modals/CreateGroupModal', () => ({
-  default: () => null,
+  openCreateGroupModal: vi.fn(),
 }));
 
 const OpenCreateAgentModalButton = () => {
-  const { openCreateModal } = useAgentModal();
+  const { openCreateModal, openGroupWizardModal, openMemberSelectionModal } = useAgentModal();
 
   return (
-    <button type="button" onClick={() => openCreateModal('agent')}>
-      Open create agent modal
-    </button>
+    <>
+      <button type="button" onClick={() => openCreateModal('agent')}>
+        Open create agent modal
+      </button>
+      <button type="button" onClick={() => openGroupWizardModal({})}>
+        Open group wizard
+      </button>
+      <button type="button" onClick={() => openMemberSelectionModal({})}>
+        Open member selection
+      </button>
+    </>
   );
 };
 
@@ -125,6 +134,7 @@ const renderProvider = () =>
 describe('AgentModalProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.createAgentModalProps = undefined;
     mocks.createAgent.mockResolvedValue({ agentId: 'agent-new' });
   });
 
@@ -136,7 +146,8 @@ describe('AgentModalProvider', () => {
     renderProvider();
 
     fireEvent.click(screen.getByText('Open create agent modal'));
-    fireEvent.click(screen.getByText('Start Blank'));
+    await waitFor(() => expect(mocks.createAgentModalProps).toBeDefined());
+    await mocks.createAgentModalProps!.onCreateBlank();
 
     await waitFor(() => {
       expect(mocks.createAgent).toHaveBeenCalledWith({ groupId: undefined });
@@ -150,10 +161,24 @@ describe('AgentModalProvider', () => {
     renderProvider();
 
     fireEvent.click(screen.getByText('Open create agent modal'));
-    fireEvent.click(screen.getByText('View in Skills'));
+    await waitFor(() => expect(mocks.createAgentModalProps).toBeDefined());
+    mocks.createAgentModalProps!.onOpenSkills?.('product-requirements-writer');
 
     expect(mocks.navigate).toHaveBeenCalledWith(
       '/settings/skill?skill=product-requirements-writer',
     );
+  });
+
+  it('loads deferred selection modals when their interactions request them', async () => {
+    renderProvider();
+
+    expect(screen.queryByText('Deferred group wizard')).not.toBeInTheDocument();
+    expect(screen.queryByText('Deferred member selection')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Open group wizard'));
+    expect(await screen.findByText('Deferred group wizard')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Open member selection'));
+    expect(await screen.findByText('Deferred member selection')).toBeInTheDocument();
   });
 });

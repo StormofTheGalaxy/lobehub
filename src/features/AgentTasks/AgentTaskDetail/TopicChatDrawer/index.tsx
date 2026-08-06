@@ -8,8 +8,10 @@ import { Copy, MoreHorizontal, Share2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ChatList, ConversationProvider, MessageItem } from '@/features/Conversation';
+import ChatList from '@/features/Conversation/ChatList';
+import { ConversationProvider } from '@/features/Conversation/ConversationProvider';
 import { TaskCardScopeProvider } from '@/features/Conversation/Markdown/plugins/Task';
+import MessageItem from '@/features/Conversation/Messages';
 import { useShareModal } from '@/features/ShareModal';
 import { LazySharePopover as SharePopover } from '@/features/SharePopover/lazy';
 import { useGatewayReconnect } from '@/hooks/useGatewayReconnect';
@@ -83,8 +85,8 @@ export const TopicChatDrawerBody = memo<TopicChatDrawerBodyProps>(
         hasInitMessages={!!messages}
         messages={messages}
         operationState={operationState}
-        onMessagesChange={(msgs, ctx) => {
-          replaceMessages(msgs, { context: ctx });
+        onMessagesChange={(msgs, ctx, meta) => {
+          replaceMessages(msgs, { context: ctx, source: meta?.source });
         }}
       >
         <TaskCardScopeProvider value={true}>

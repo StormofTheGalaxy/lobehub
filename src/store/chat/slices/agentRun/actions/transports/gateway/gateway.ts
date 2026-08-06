@@ -370,6 +370,12 @@ export class GatewayActionImpl {
    * then starts the agent. This method handles topic switching and WebSocket connection.
    */
   executeGatewayAgent = async (params: {
+    /**
+     * Client-minted ids for the rows this run creates (fresh sends only). The
+     * server honours them verbatim, so the optimistic topic / message rows keep
+     * their ids instead of diverging from the server-minted ones.
+     */
+    clientIds?: { assistantMessageId?: string; topicId?: string; userMessageId?: string };
     /** Agent/runtime context used to execute the server operation. */
     context: ConversationContext;
     /** File IDs of already-uploaded attachments to attach to the new user message */
@@ -406,6 +412,12 @@ export class GatewayActionImpl {
      */
     resumeApproval?: ResumeApprovalParam;
     /**
+     * Batch form of `resumeApproval` — every decision made in one "approve all"
+     * action. Forwarded so the server resolves the whole pending batch in a
+     * single op instead of one op (and one LLM continuation) per tool.
+     */
+    resumeApprovals?: ResumeApprovalParam[];
+    /**
      * Resume a paused op waiting on a human-intervention tool (e.g. lobe-agent
      * `askUserQuestion`). Forwarded to `aiAgentService.execAgentTask` so the new
      * server-side op writes the human answer as the tool result and resumes from
@@ -438,6 +450,7 @@ export class GatewayActionImpl {
     tempMessageIds?: string[];
   }): Promise<ExecAgentResult> => {
     const {
+      clientIds,
       context: executionContext,
       fileIds,
       message,
@@ -448,6 +461,7 @@ export class GatewayActionImpl {
       parentMessageId,
       parentOperationId,
       resumeApproval,
+      resumeApprovals,
       resumeToolResult,
       selectedToolIds,
       mentionedAgents,
@@ -457,7 +471,11 @@ export class GatewayActionImpl {
     const agentGatewayUrl =
       window.global_serverConfigStore!.getState().serverConfig.agentGatewayUrl!;
 
-    const isCreateNewTopic = !messageContext.topicId;
+    // The EXECUTION context decides whether the server creates a topic. The
+    // message context can already carry the client-minted topic id (the send
+    // adopted it up front so the streamed messages land in the on-screen
+    // bucket) while the topic still has no server row.
+    const isCreateNewTopic = !executionContext.topicId;
     const taskId =
       executionContext.viewedTask?.type === 'detail'
         ? executionContext.viewedTask.taskId
@@ -512,6 +530,9 @@ export class GatewayActionImpl {
     const result = await aiAgentService.execAgentTask(
       {
         agentId: executionContext.agentId,
+        // Fresh sends only — resume flows never pass this, and the server drops
+        // it defensively on resume-like params anyway.
+        clientIds,
         appContext: {
           agentDocumentId: executionContext.agentDocumentId,
           defaultTaskAssigneeAgentId: executionContext.defaultTaskAssigneeAgentId,
@@ -541,6 +562,7 @@ export class GatewayActionImpl {
         parentMessageId,
         prompt: message,
         resumeApproval,
+        resumeApprovals,
         resumeToolResult,
         selectedToolIds,
         trigger: metadata?.trigger,
@@ -613,6 +635,13 @@ export class GatewayActionImpl {
       messageMapKey(messageContext),
       messageMapKey(resolvedMessageContext),
     );
+    // Legacy queue location: follow-ups enqueued behind an op still registered
+    // under the pre-mint `_new` key.
+    if (isCreateNewTopic)
+      this.#get().moveQueuedMessages(
+        messageMapKey({ ...messageContext, topicId: null }),
+        messageMapKey(resolvedMessageContext),
+      );
 
     if (result.topicId) {
       void this.#get().updateTopicStatus?.({
@@ -748,7 +777,7 @@ export class GatewayActionImpl {
             .updateTopicMetadata(result.topicId, { runningOperation: null })
             .catch(() => {});
           // Also clear the local store copy — the server clear above does NOT touch
-          // the Zustand topic map that useGatewayReconnect reads (LOBE-12055).
+          // the Zustand topic map that useGatewayReconnect reads.
           this.clearLocalRunningOperation({
             agentId: resolvedMessageContext.agentId,
             groupId: resolvedMessageContext.groupId,
@@ -807,7 +836,7 @@ export class GatewayActionImpl {
     // TRPCError NOT_FOUND when it has no running operation on this topic — our
     // local marker is stale (e.g. an error run cleared the server marker but not
     // the store). Clear it and bail silently so the reconnect SWR fetcher resolves
-    // and does not retry the 404 forever (LOBE-12055).
+    // and does not retry the 404 forever.
     let token: string;
     try {
       ({ token } = await aiAgentService.refreshGatewayToken(topicId));
@@ -936,7 +965,7 @@ export class GatewayActionImpl {
         // doesn't get reconnected on every reload / task-drawer open.
         topicService.updateTopicMetadata(topicId, { runningOperation: null }).catch(() => {});
         // Mirror the clear into the local store — the server clear above leaves the
-        // Zustand topic map stale, which useGatewayReconnect keys off (LOBE-12055).
+        // Zustand topic map stale, which useGatewayReconnect keys off.
         this.clearLocalRunningOperation({ agentId: context.agentId, operationId, topicId });
       },
       operationId,
@@ -989,7 +1018,7 @@ export class GatewayActionImpl {
    * copy, so after an error run (e.g. insufficient credits) the stale marker keeps
    * firing `aiAgentService.refreshGatewayToken(topicId)`, which the server now answers
    * with NOT_FOUND (404 — the server-side marker is already null). Raw SWR retries the
-   * 404 forever and wedges the conversation (LOBE-12055).
+   * 404 forever and wedges the conversation.
    *
    * The `updateTopic` reducer shallow-merges `value.metadata` (`{...currentTopic, ...value}`),
    * so we spread the existing metadata to avoid dropping its other keys. Only dispatch when

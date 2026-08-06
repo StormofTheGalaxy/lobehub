@@ -32,6 +32,7 @@ import {
   logTimingSink as logTiming,
   runTimedSinkStage as runTimedStage,
 } from '@lobechat/utils';
+import { isPlainRecord } from '@lobechat/utils/object';
 import type { HeatmapsProps } from '@lobehub/charts';
 import dayjs from 'dayjs';
 import type { SQL } from 'drizzle-orm';
@@ -185,6 +186,14 @@ interface MessageThreadRelation {
   title: string | null;
 }
 
+interface ActiveBranchSnapshot {
+  activeBranchId?: string;
+  activeBranchIndex: number;
+  metadata: Record<PropertyKey, unknown>;
+  parentId: string;
+  wasOptimistic: boolean;
+}
+
 interface MessageFileRelations {
   documentsMap: Record<string, string>;
   relatedFileList: MessageRelatedFile[];
@@ -196,6 +205,19 @@ interface CreateUserAndAssistantMessagesParams {
 }
 
 interface CreateUserAndAssistantMessagesOptions {
+  /**
+   * Ids minted by the caller (the client) for the pair. Either side may be
+   * omitted, in which case this model mints that one — an older client that
+   * sends no ids keeps working unchanged.
+   *
+   * Honouring a caller-supplied id is what lets the UI render the pair under
+   * its final ids immediately, instead of showing placeholders and re-keying
+   * them once this insert returns.
+   */
+  ids?: {
+    assistantMessageId?: string;
+    userMessageId?: string;
+  };
   timing?: ModelTimingContext;
 }
 
@@ -692,7 +714,7 @@ export class MessageModel {
           // `asc + limit` truncated exactly the newest batch, which is the worst
           // possible slice for a chat transcript. The page is reversed back to
           // ascending immediately below, so every downstream consumer is
-          // unaffected; only *which* rows are fetched changed. See LOBE-12011.
+          // unaffected; only *which* rows are fetched changed. See.
           .orderBy(desc(messages.createdAt), desc(messages.id))
           .limit(pageSize)
           .offset(offset),
@@ -715,7 +737,7 @@ export class MessageModel {
     //
     // Scope: this only serves the single "most recent page" load (`current === 0`),
     // which is the only page the chat read path ever requests — `current`/`pageSize`
-    // offset paging is dead code here (the very premise of LOBE-12011). The trim is
+    // offset paging is dead code here (the very premise of). The trim is
     // deliberately NOT offset-exact: the rows it drops from page 0 also fall outside
     // page 1's `offset = pageSize` window, so a hypothetical offset walk would skip
     // them. That is acceptable because nothing offset-walks this path; loading older
@@ -1729,6 +1751,12 @@ export class MessageModel {
     });
   };
 
+  findByClientId = async (clientId: string) => {
+    return this.db.query.messages.findFirst({
+      where: and(eq(messages.clientId, clientId), this.ownership()),
+    });
+  };
+
   findLatestAssistantMessageByThread = async ({
     agentId,
     threadId,
@@ -2354,10 +2382,10 @@ export class MessageModel {
 
   createUserAndAssistantMessages = async (
     { userMessage, assistantMessage }: CreateUserAndAssistantMessagesParams,
-    { timing }: CreateUserAndAssistantMessagesOptions = {},
+    { ids, timing }: CreateUserAndAssistantMessagesOptions = {},
   ): Promise<{ assistantMessage: DBMessageItem; userMessage: DBMessageItem }> => {
-    const userMessageId = this.genId();
-    const assistantMessageId = this.genId();
+    const userMessageId = ids?.userMessageId ?? this.genId();
+    const assistantMessageId = ids?.assistantMessageId ?? this.genId();
     const createdAt = Date.now();
     const defaultUserCreatedAt = createdAt;
     const defaultAssistantCreatedAt = createdAt + 1;
@@ -2712,7 +2740,7 @@ export class MessageModel {
     startedAt: Date;
     threadId?: string | null;
     topicId: string;
-  }): Promise<Array<MessagePluginItem & { createdAt: Date }>> => {
+  }): Promise<Array<MessagePluginItem & { content?: string; createdAt: Date }>> => {
     const completedAt = params.completedAt ?? new Date();
 
     const withinWindow = and(
@@ -2729,6 +2757,11 @@ export class MessageModel {
         apiName: messagePlugins.apiName,
         arguments: messagePlugins.arguments,
         clientId: messagePlugins.clientId,
+        // The tool message's text body. Heterogeneous CLI adapters (claude-code
+        // Bash) persist the command's stdout here rather than in a structured
+        // `state` field, and the completion-time github Work scan reads the gh
+        // CLI's printed entity URL from it.
+        content: messages.content,
         createdAt: messages.createdAt,
         error: messagePlugins.error,
         id: messagePlugins.id,
@@ -2748,6 +2781,7 @@ export class MessageModel {
       apiName: row.apiName ?? undefined,
       arguments: row.arguments ?? undefined,
       clientId: row.clientId ?? undefined,
+      content: row.content ?? undefined,
       createdAt: row.createdAt,
       error: row.error ?? undefined,
       id: row.id,
@@ -3068,7 +3102,7 @@ export class MessageModel {
    * persist the new turn with `parentId: undefined` — a second root that forks
    * the conversation tree. The renderer walks that forest depth-first, so an
    * earlier root's long-running subtree gets emitted before a later root and the
-   * newest reply surfaces ABOVE older messages (LOBE-11489).
+   * newest reply surfaces ABOVE older messages.
    *
    * `role:'tool'` stays excluded: tool results are inline children of their
    * assistant turn, and anchoring a normal turn onto one orphans it under the
@@ -3163,6 +3197,105 @@ export class MessageModel {
 
   // **************** Delete *************** //
 
+  /**
+   * Preserve the selected branch by identity across a deletion. Branch metadata
+   * stores a positional index, while deleting or reparenting children can change
+   * that index space. If the selected branch itself is deleted, remove the stale
+   * index so conversation-flow can infer the remaining active branch instead of
+   * mistaking `index === branchCount` for an optimistic branch creation.
+   */
+  private captureActiveBranchSnapshots = async (
+    tx: Transaction,
+    parentIds: string[],
+  ): Promise<ActiveBranchSnapshot[]> => {
+    const uniqueParentIds = [...new Set(parentIds)];
+    if (uniqueParentIds.length === 0) return [];
+
+    const parentRows = await tx
+      .select({ id: messages.id, metadata: messages.metadata })
+      .from(messages)
+      .where(and(this.ownership(), inArray(messages.id, uniqueParentIds)));
+    const branchIdsByParent = await this.queryDirectBranchIds(tx, uniqueParentIds);
+    const snapshots: ActiveBranchSnapshot[] = [];
+
+    for (const parent of parentRows) {
+      if (!isPlainRecord(parent.metadata)) continue;
+
+      const activeBranchIndex = parent.metadata.activeBranchIndex;
+      if (typeof activeBranchIndex !== 'number' || activeBranchIndex < 0) continue;
+
+      const branchIds = branchIdsByParent.get(parent.id) ?? [];
+      snapshots.push({
+        activeBranchId: branchIds[activeBranchIndex],
+        activeBranchIndex,
+        metadata: parent.metadata,
+        parentId: parent.id,
+        wasOptimistic: activeBranchIndex === branchIds.length,
+      });
+    }
+
+    return snapshots;
+  };
+
+  private queryDirectBranchIds = async (tx: Transaction, parentIds: string[]) => {
+    const branchRows = await tx
+      .select({ id: messages.id, parentId: messages.parentId })
+      .from(messages)
+      .where(
+        and(
+          this.ownership(),
+          inArray(messages.parentId, parentIds),
+          not(eq(messages.role, 'tool')),
+        ),
+      )
+      .orderBy(asc(messages.createdAt), asc(messages.id));
+    const branchIdsByParent = new Map<string, string[]>();
+
+    for (const branch of branchRows) {
+      if (!branch.parentId) continue;
+      const branchIds = branchIdsByParent.get(branch.parentId) ?? [];
+      branchIds.push(branch.id);
+      branchIdsByParent.set(branch.parentId, branchIds);
+    }
+
+    return branchIdsByParent;
+  };
+
+  private reconcileActiveBranchSnapshots = async (
+    tx: Transaction,
+    snapshots: ActiveBranchSnapshot[],
+  ) => {
+    if (snapshots.length === 0) return;
+
+    const branchIdsByParent = await this.queryDirectBranchIds(
+      tx,
+      snapshots.map((snapshot) => snapshot.parentId),
+    );
+
+    for (const snapshot of snapshots) {
+      const branchIds = branchIdsByParent.get(snapshot.parentId) ?? [];
+      const survivingBranchIndex = snapshot.activeBranchId
+        ? branchIds.indexOf(snapshot.activeBranchId)
+        : -1;
+      const activeBranchIndex = snapshot.wasOptimistic
+        ? branchIds.length
+        : survivingBranchIndex >= 0
+          ? survivingBranchIndex
+          : undefined;
+
+      if (activeBranchIndex === snapshot.activeBranchIndex) continue;
+
+      const metadata = { ...snapshot.metadata };
+      delete metadata.activeBranchIndex;
+      if (activeBranchIndex !== undefined) metadata.activeBranchIndex = activeBranchIndex;
+
+      await tx
+        .update(messages)
+        .set({ metadata })
+        .where(and(eq(messages.id, snapshot.parentId), this.ownership()));
+    }
+  };
+
   deleteMessage = async (id: string) => {
     return this.db.transaction(async (tx) => {
       // 1. Query the complete information of the message to be deleted
@@ -3174,6 +3307,11 @@ export class MessageModel {
 
       // If the message to be deleted is not found, return directly
       if (message.length === 0) return;
+
+      const activeBranchSnapshots = await this.captureActiveBranchSnapshots(
+        tx,
+        message[0].parentId ? [message[0].parentId] : [],
+      );
 
       // 2. Update child messages' parentId to the current message's parentId
       // This preserves the tree structure when deleting a node
@@ -3206,6 +3344,8 @@ export class MessageModel {
       await tx
         .delete(messages)
         .where(and(this.ownership(), inArray(messages.id, messageIdsToDelete)));
+
+      await this.reconcileActiveBranchSnapshots(tx, activeBranchSnapshots);
 
       // 7. Keep the topic's usage rollup in sync (pure derived — a removed
       // assistant message must drop out of the topic totals).
@@ -3263,6 +3403,11 @@ export class MessageModel {
         findFinalAncestor(id);
       }
 
+      const activeBranchSnapshots = await this.captureActiveBranchSnapshots(
+        tx,
+        [...new Set(finalAncestorMap.values())].filter((id): id is string => id !== null),
+      );
+
       // 4. Query child messages whose parentId points to messages being deleted
       const children = await tx
         .select({ id: messages.id, parentId: messages.parentId })
@@ -3282,6 +3427,8 @@ export class MessageModel {
 
       // 6. Delete the messages
       await tx.delete(messages).where(and(this.ownership(), inArray(messages.id, ids)));
+
+      await this.reconcileActiveBranchSnapshots(tx, activeBranchSnapshots);
 
       // 7. Recompute the usage rollup for every affected topic (pure derived).
       const affectedTopicIds = [

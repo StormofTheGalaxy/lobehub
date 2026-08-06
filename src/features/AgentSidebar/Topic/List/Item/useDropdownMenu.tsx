@@ -2,7 +2,7 @@ import { AGENT_CHAT_TOPIC_URL } from '@lobechat/const';
 import type { ChatTopicStatus } from '@lobechat/types';
 import { type MenuProps } from '@lobehub/ui';
 import { Icon } from '@lobehub/ui';
-import { App } from 'antd';
+import { toast } from '@lobehub/ui/base-ui';
 import {
   Archive,
   ArchiveRestore,
@@ -55,7 +55,7 @@ export const useTopicItemDropdownMenu = ({
   title,
 }: TopicItemDropdownMenuProps) => {
   const { t } = useTranslation(['topic', 'common', 'chat']);
-  const { message } = App.useApp();
+
   const navigate = useWorkspaceAwareNavigate();
   const activeWorkspaceSlug = useActiveWorkspaceSlug();
   const { allowed: canCreateTopic } = usePermission('create_content');
@@ -88,7 +88,7 @@ export const useTopicItemDropdownMenu = ({
   const handleOpenShareModal = useCallback(() => {
     if (!id) return;
 
-    openShareModal({ context: { threadId: null, topicId: id } });
+    void openShareModal({ context: { threadId: null, topicId: id } });
   }, [id]);
 
   const dropdownMenu = useCallback(() => {
@@ -107,6 +107,7 @@ export const useTopicItemDropdownMenu = ({
             markTopicCompleted(id);
           }
         },
+        sfSymbol: isCompleted ? 'tray.and.arrow.up' : 'archivebox',
       },
       {
         disabled: !canEditTopic,
@@ -116,6 +117,7 @@ export const useTopicItemDropdownMenu = ({
         onClick: () => {
           favoriteTopic(id, !fav);
         },
+        sfSymbol: fav ? 'star.slash' : 'star',
       },
       {
         type: 'divider' as const,
@@ -128,6 +130,7 @@ export const useTopicItemDropdownMenu = ({
         onClick: () => {
           autoRenameTopicTitle(id);
         },
+        sfSymbol: 'wand.and.stars',
       },
       {
         disabled: !canEditTopic,
@@ -142,7 +145,7 @@ export const useTopicItemDropdownMenu = ({
               try {
                 await updateTopicTitle(id, newTitle);
               } catch (error) {
-                message.error(
+                toast.error(
                   isForbiddenError(error)
                     ? t('manageOnlyCreator', { ns: 'common' })
                     : t('operationFailed', { ns: 'common' }),
@@ -152,6 +155,7 @@ export const useTopicItemDropdownMenu = ({
             title: t('renameModal.title', { ns: 'topic' }),
           });
         },
+        sfSymbol: 'pencil',
       },
       {
         disabled: !canEditTopic,
@@ -161,6 +165,7 @@ export const useTopicItemDropdownMenu = ({
         onClick: () => {
           openTopicDoctorModal({ agentId: activeAgentId, topicId: id });
         },
+        sfSymbol: 'stethoscope',
       },
       {
         type: 'divider' as const,
@@ -200,7 +205,7 @@ export const useTopicItemDropdownMenu = ({
         label: t('actions.copySessionId'),
         onClick: () => {
           navigator.clipboard.writeText(id);
-          message.success(t('actions.copySessionIdSuccess'));
+          toast.success(t('actions.copySessionIdSuccess'));
         },
       },
       {
@@ -211,7 +216,7 @@ export const useTopicItemDropdownMenu = ({
           if (!activeAgentId) return;
           const url = `${appOrigin}${AGENT_CHAT_TOPIC_URL(activeAgentId, id)}`;
           navigator.clipboard.writeText(url);
-          message.success(t('actions.copyLinkSuccess'));
+          toast.success(t('actions.copyLinkSuccess'));
         },
       },
       {
@@ -254,6 +259,7 @@ export const useTopicItemDropdownMenu = ({
         key: 'share',
         label: t('shareModal.title', { ns: 'chat' }),
         onClick: handleOpenShareModal,
+        sfSymbol: 'square.and.arrow.up',
       },
       {
         type: 'divider' as const,
@@ -270,7 +276,7 @@ export const useTopicItemDropdownMenu = ({
               try {
                 await removeTopic(id, removeFiles);
               } catch (error) {
-                message.error(
+                toast.error(
                   isForbiddenError(error)
                     ? t('manageOnlyCreator', { ns: 'common' })
                     : t('operationFailed', { ns: 'common' }),
@@ -280,6 +286,7 @@ export const useTopicItemDropdownMenu = ({
             topicIds: [id],
           });
         },
+        sfSymbol: 'trash',
       },
     ].filter(Boolean) as MenuProps['items'];
   }, [
@@ -303,7 +310,6 @@ export const useTopicItemDropdownMenu = ({
     addTab,
     navigate,
     t,
-    message,
     handleOpenShareModal,
   ]);
   return { dropdownMenu };

@@ -1,8 +1,8 @@
 'use client';
 
-import { Center, Empty, Flexbox, Icon, Text } from '@lobehub/ui';
-import { Button } from '@lobehub/ui/base-ui';
-import { App } from 'antd';
+import type { VerifyAgentPlanConfig } from '@lobechat/types';
+import { Center, Empty, Flexbox, Icon, Tag, Text } from '@lobehub/ui';
+import { Button, toast } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,14 +21,18 @@ import { chatPortalSelectors } from '@/store/chat/selectors';
 const styles = createStaticStyles(({ css }) => ({
   body: css`
     overflow-y: auto;
+    flex: 1;
+
+    height: 100%;
+    min-height: 0;
     padding-block: 0 24px;
     padding-inline: 24px;
   `,
 }));
 
 const Body = memo(() => {
-  const { t } = useTranslation('chat');
-  const { message } = App.useApp();
+  const { t } = useTranslation(['chat', 'verify']);
+
   const portal = useChatStore(chatPortalSelectors.acceptanceCheckPortal);
   const openAcceptance = useChatStore((state) => state.openAcceptance);
   const { data, error, isLoading, mutate } = useAcceptanceBundle(portal?.acceptanceId ?? null);
@@ -44,9 +48,7 @@ const Body = memo(() => {
       await mutate();
       return true;
     } catch (cause) {
-      message.error(
-        cause instanceof Error ? cause.message : t('taskDetail.acceptance.reviewError'),
-      );
+      toast.error(cause instanceof Error ? cause.message : t('taskDetail.acceptance.reviewError'));
       return false;
     } finally {
       setReviewPending(false);
@@ -73,6 +75,10 @@ const Body = memo(() => {
   }
 
   const checkMeta = checkHeadMeta(check);
+  const verifierType = check.planItem?.verifierType ?? check.result?.verifierType;
+  const planConfig = (check.planItem?.verifierConfig ?? {}) as VerifyAgentPlanConfig;
+  const requiredEvidence = planConfig.requiredEvidence ?? [];
+  const usesMultimodalLlm = requiredEvidence.some((evidence) => evidence.type === 'screenshot');
 
   return (
     <Flexbox className={styles.body} gap={16}>
@@ -82,6 +88,31 @@ const Body = memo(() => {
           C{check.seq} · {check.title}
         </Text>
       </Flexbox>
+      {(verifierType || requiredEvidence.length > 0) && (
+        <Flexbox horizontal align={'center'} gap={16} wrap={'wrap'}>
+          {verifierType && (
+            <Flexbox horizontal align={'center'} gap={8}>
+              <Text fontSize={12} type={'secondary'}>
+                {t('taskDetail.acceptance.verifier')}
+              </Text>
+              <Tag>{t(`verifyConfig.verifierType.${verifierType}` as const)}</Tag>
+              {usesMultimodalLlm && <Tag>{t('taskDetail.acceptance.multimodalLlm')}</Tag>}
+            </Flexbox>
+          )}
+          {requiredEvidence.length > 0 && (
+            <Flexbox horizontal align={'center'} gap={8} wrap={'wrap'}>
+              <Text fontSize={12} type={'secondary'}>
+                {t('taskDetail.acceptance.requiredEvidence')}
+              </Text>
+              {requiredEvidence.map((evidence) => (
+                <Tag key={evidence.type}>
+                  {t(`report.evidence.medium.${evidence.type}` as const, { ns: 'verify' })}
+                </Tag>
+              ))}
+            </Flexbox>
+          )}
+        </Flexbox>
+      )}
       <FocusedCheckDetails
         canReview={data.isOwner}
         check={check}

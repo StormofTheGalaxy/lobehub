@@ -116,14 +116,15 @@ describe('agentRouter', () => {
       workspaceId: 'ws-1',
     });
     resourcePermissionModelMock = {
+      getAccessLevel: vi.fn().mockResolvedValue(undefined),
       getEffectiveAccessLevel: vi.fn().mockResolvedValue('use'),
       removeAll: vi.fn(),
       setAccessLevel: vi.fn(),
     };
     vi.mocked(ResourcePermissionModel).mockImplementation(() => resourcePermissionModelMock);
     workspaceUserSettingsModelMock = {
-      copySidebarGroupAssignment: vi.fn(),
-      setSidebarGroupAssignment: vi.fn(),
+      getPreference: vi.fn().mockResolvedValue({}),
+      updatePreference: vi.fn(),
     };
     vi.mocked(WorkspaceUserSettingsModel).mockImplementation(() => workspaceUserSettingsModelMock);
 
@@ -498,12 +499,9 @@ describe('agentRouter', () => {
         'use',
         userId,
       );
-      // Folder placement is per-member in workspace mode — the duplicate must
-      // inherit the caller's own assignment for the source agent.
-      expect(workspaceUserSettingsModelMock.copySidebarGroupAssignment).toHaveBeenCalledWith(
-        'public-agent',
-        'copied-agent',
-      );
+      // Folder placement is shared state, carried by AgentModel.duplicate's
+      // `sessionGroupId` copy — no per-member bookkeeping on top.
+      expect(workspaceUserSettingsModelMock.updatePreference).not.toHaveBeenCalled();
     });
   });
 
@@ -523,6 +521,41 @@ describe('agentRouter', () => {
         'agent',
         'agent-1',
         'view',
+        userId,
+      );
+    });
+
+    it('keeps a level the creator set while the agent was still private', async () => {
+      agentModelMock.publishToWorkspace.mockResolvedValue({
+        id: 'agent-1',
+        visibility: 'public',
+      });
+      resourcePermissionModelMock.getAccessLevel.mockResolvedValue('edit');
+
+      const caller = agentRouter.createCaller(wsCtx());
+      await caller.publishAgentToWorkspace({ id: 'agent-1' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agent',
+        'agent-1',
+        'edit',
+        userId,
+      );
+    });
+
+    it('falls back to the default when nothing was configured before publishing', async () => {
+      agentModelMock.publishToWorkspace.mockResolvedValue({
+        id: 'agent-1',
+        visibility: 'public',
+      });
+
+      const caller = agentRouter.createCaller(wsCtx());
+      await caller.publishAgentToWorkspace({ id: 'agent-1' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agent',
+        'agent-1',
+        'use',
         userId,
       );
     });
@@ -582,7 +615,7 @@ describe('agentRouter', () => {
       expect(agentModelMock.setVisibility).toHaveBeenCalledWith('agent-1', 'private');
     });
 
-    it('rejects demotion while the agent supervises group chats visible to others (LOBE-11772)', async () => {
+    it('rejects demotion while the agent supervises group chats visible to others ', async () => {
       chatGroupModelMock.countGroupsBlockingAgentDemotion.mockResolvedValue(1);
 
       const caller = agentRouter.createCaller(wsCtx());
@@ -598,7 +631,7 @@ describe('agentRouter', () => {
       expect(agentModelMock.setVisibility).not.toHaveBeenCalled();
     });
 
-    it('rejects demotion of another member agent even for a workspace owner (LOBE-11760)', async () => {
+    it('rejects demotion of another member agent even for a workspace owner ', async () => {
       agentModelMock.getAgentVisibilityMeta.mockResolvedValue({
         slug: null,
         userId: 'other-member',
@@ -669,6 +702,25 @@ describe('agentRouter', () => {
         'agent',
         'agent-1',
         'use',
+        userId,
+      );
+    });
+
+    it('keeps a pre-publish level when promoting through setAgentVisibility', async () => {
+      agentModelMock.getAgentVisibilityMeta.mockResolvedValue({
+        slug: null,
+        userId,
+        visibility: 'private',
+      });
+      resourcePermissionModelMock.getAccessLevel.mockResolvedValue('edit');
+
+      const caller = agentRouter.createCaller(wsCtx());
+      await caller.setAgentVisibility({ id: 'agent-1', visibility: 'public' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agent',
+        'agent-1',
+        'edit',
         userId,
       );
     });

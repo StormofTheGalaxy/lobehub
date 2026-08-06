@@ -1,3 +1,4 @@
+import { useActiveLocation } from '@/hooks/useActiveLocation';
 import { usePathname, useSearchParams } from '@/libs/router/navigation';
 import { ProfileTabs, SettingsTabs, SidebarTabKey } from '@/store/global/initialState';
 
@@ -34,7 +35,10 @@ export const getActiveTabKeyFromPathname = (
  * React Router version for SPA
  */
 export const useActiveTabKey = (options: ActiveTabKeyOptions = {}) => {
-  const pathname = usePathname();
+  // Pathname source is upstream's `useActiveLocation`; the segment mapping stays
+  // the fork's `getActiveTabKeyFromPathname`, which strips the `/:slug` workspace
+  // prefix before picking the tab (upstream has no workspace-scoped URLs).
+  const { pathname } = useActiveLocation();
   return getActiveTabKeyFromPathname(pathname, options);
 };
 

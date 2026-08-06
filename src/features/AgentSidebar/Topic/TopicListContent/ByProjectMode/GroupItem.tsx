@@ -1,10 +1,10 @@
 import { AGENT_CHAT_URL } from '@lobechat/const';
 import { AccordionItem, ActionIcon, Center, Flexbox, Icon, Text, Tooltip } from '@lobehub/ui';
 import { createStaticStyles, cssVar, cx } from 'antd-style';
+import isEqual from 'fast-deep-equal';
 import { FolderClosedIcon, FolderOpenIcon, type LucideIcon, PlusIcon } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
 
 import { useActiveWorkspaceSlug } from '@/business/client/hooks/useActiveWorkspaceSlug';
 import { TOPIC_STATUS_VISUALS } from '@/components/ExecutionStatus';
@@ -14,8 +14,9 @@ import { isDesktop } from '@/const/version';
 import { useCommitWorkingDirectory } from '@/features/ChatInput/ControlBar/useCommitWorkingDirectory';
 import { resolveExecutionTarget } from '@/helpers/executionTarget';
 import { useIsGatewayModeEnabled } from '@/helpers/gatewayMode';
+import { useActiveLocation } from '@/hooks/useActiveLocation';
+import { useActiveRouteParams } from '@/hooks/useActiveRouteParams';
 import { useQueryRoute } from '@/hooks/useQueryRoute';
-import { usePathname } from '@/libs/router/navigation';
 import { useAgentStore } from '@/store/agent';
 import { agentByIdSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
@@ -166,8 +167,8 @@ const GroupItem = memo<GroupItemComponentProps>(
     );
 
     const agentId = useAgentStore((s) => s.activeAgentId);
-    const { aid: routeAgentId } = useParams<{ aid?: string }>();
-    const pathname = usePathname();
+    const { aid: routeAgentId } = useActiveRouteParams<{ aid?: string }>();
+    const { pathname } = useActiveLocation();
     const agentRoute = useMemo(() => parseAgentPathname(pathname), [pathname]);
     const targetAgentId = routeAgentId ?? agentRoute?.agentId ?? agentId;
     const currentAgentId = targetAgentId ?? agentId;
@@ -216,10 +217,9 @@ const GroupItem = memo<GroupItemComponentProps>(
     const isDeviceMode = effectiveTarget === 'device' && !!agencyConfig?.boundDeviceId;
     const canAddTopic = (isDesktop || isDeviceMode) && !!workingDirectory;
 
-    const loadingTopicIds = useChatStore((s) => s.topicLoadingIds);
-    const statusCounts = useMemo(
-      () => getProjectTopicStatusCounts(children, new Set(loadingTopicIds)),
-      [children, loadingTopicIds],
+    const statusCounts = useChatStore(
+      (s) => getProjectTopicStatusCounts(children, operationSelectors.visiblyRunningTopicIds(s)),
+      isEqual,
     );
     const childTopicIds = useMemo(() => children.map((topic) => topic.id), [children]);
     const unreadCount = useChatStore(

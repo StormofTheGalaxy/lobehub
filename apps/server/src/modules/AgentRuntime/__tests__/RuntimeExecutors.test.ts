@@ -160,6 +160,13 @@ vi.mock('@/database/models/work', () => ({
   })),
 }));
 
+const { mockFindPlanDocuments } = vi.hoisted(() => ({ mockFindPlanDocuments: vi.fn() }));
+vi.mock('@/database/models/topicDocument', () => ({
+  TopicDocumentModel: vi.fn().mockImplementation(() => ({
+    findByTopicId: mockFindPlanDocuments,
+  })),
+}));
+
 describe('RuntimeExecutors', { timeout: 60_000 }, () => {
   let mockMessageModel: any;
   let mockStreamManager: any;
@@ -178,6 +185,8 @@ describe('RuntimeExecutors', { timeout: 60_000 }, () => {
     mockRegisterDocument.mockResolvedValue({ id: 'doc-work-1' });
     mockRegisterTask.mockReset();
     mockRegisterTask.mockResolvedValue({ id: 'work-1' });
+    mockFindPlanDocuments.mockReset();
+    mockFindPlanDocuments.mockResolvedValue([]);
     vi.mocked(initModelRuntimeFromDB).mockReset();
     mockCreateCompressionGroup.mockReset();
     mockCancelCompression.mockReset();
@@ -2140,6 +2149,177 @@ describe('RuntimeExecutors', { timeout: 60_000 }, () => {
         engineSpy.mockRestore();
       });
 
+      const stateWithLobeAgent = (overrides?: Partial<AgentState>) =>
+        createMockState({
+          operationToolSet: {
+            enabledToolIds: ['lobe-agent'],
+            executorMap: {},
+            manifestMap: {},
+            sourceMap: {},
+            tools: [],
+          },
+          ...overrides,
+        });
+
+      const callWithMessages = async (
+        messages: any[],
+        state: AgentState,
+        contextOverrides?: Partial<RuntimeExecutorContext>,
+      ) => {
+        const ctxWithConfig: RuntimeExecutorContext = {
+          ...ctx,
+          agentConfig: { plugins: [], systemRole: 'test' },
+          ...contextOverrides,
+        };
+        await createRuntimeExecutors(ctxWithConfig).call_llm!(
+          {
+            payload: { messages, model: 'gpt-4', provider: 'openai' },
+            type: 'call_llm',
+          },
+          state,
+        );
+
+        return mockChat.mock.calls[0][0].messages.find(
+          (message: { role?: string }) => message.role === 'user',
+        )?.content as string;
+      };
+
+      it('injects the newest valid message TODO state and skips Notebook', async () => {
+        mockFindPlanDocuments.mockResolvedValue([
+          {
+            metadata: { todos: [{ status: 'todo', text: 'Stale metadata task' }] },
+            updatedAt: new Date(),
+          },
+        ]);
+        const content = await callWithMessages(
+          [
+            {
+              content: 'old result',
+              pluginState: {
+                todos: { items: [{ status: 'todo', text: 'Old task' }], updatedAt: 'old' },
+              },
+              role: 'tool',
+            },
+            {
+              content: 'new result',
+              pluginState: {
+                todos: { items: [{ status: 'processing', text: 'New task' }], updatedAt: 'new' },
+              },
+              role: 'tool',
+            },
+            { content: 'Continue', role: 'user' },
+          ],
+          stateWithLobeAgent(),
+        );
+
+        expect(content).toContain('New task');
+        expect(content).not.toContain('Old task');
+        expect(content).not.toContain('Stale metadata task');
+        expect(mockFindPlanDocuments).not.toHaveBeenCalled();
+      });
+
+      it.each([{ items: [], updatedAt: 'canonical-clear' }, []])(
+        'treats canonical and legacy empty message states as clear tombstones',
+        async (todos) => {
+          mockFindPlanDocuments.mockResolvedValue([
+            {
+              metadata: {
+                todos: { items: [{ status: 'todo', text: 'Stale metadata task' }] },
+              },
+              updatedAt: new Date(),
+            },
+          ]);
+
+          const content = await callWithMessages(
+            [
+              { content: 'cleared', pluginState: { todos }, role: 'tool' },
+              { content: 'Continue', role: 'user' },
+            ],
+            stateWithLobeAgent(),
+          );
+
+          expect(content).not.toContain('<todo_context>');
+          expect(content).not.toContain('Stale metadata task');
+          expect(mockFindPlanDocuments).not.toHaveBeenCalled();
+        },
+      );
+
+      it.each([
+        {
+          items: [{ status: 'todo', text: 'Canonical metadata task' }],
+          updatedAt: 'metadata-time',
+        },
+        [{ status: 'todo', text: 'Legacy metadata task' }],
+      ])('falls back to canonical and legacy Notebook metadata', async (todos) => {
+        mockFindPlanDocuments.mockResolvedValue([
+          { metadata: { todos }, updatedAt: new Date('2026-01-01T00:00:00.000Z') },
+        ]);
+
+        const content = await callWithMessages(
+          [{ content: 'Continue', role: 'user' }],
+          stateWithLobeAgent(),
+        );
+
+        expect(content).toContain('metadata task');
+        expect(mockFindPlanDocuments).toHaveBeenCalledWith('topic-123', {
+          type: 'agent/plan',
+        });
+      });
+
+      it('treats empty legacy Notebook metadata as a clear tombstone', async () => {
+        mockFindPlanDocuments.mockResolvedValue([
+          { metadata: { todos: [] }, updatedAt: new Date('2026-01-01T00:00:00.000Z') },
+        ]);
+
+        const content = await callWithMessages(
+          [{ content: 'Continue', role: 'user' }],
+          stateWithLobeAgent(),
+        );
+
+        expect(content).not.toContain('<todo_context>');
+        expect(mockFindPlanDocuments).toHaveBeenCalledOnce();
+      });
+
+      it('uses the runtime context topic for Notebook fallback', async () => {
+        mockFindPlanDocuments.mockResolvedValue([
+          {
+            metadata: {
+              todos: [{ status: 'todo', text: 'Runtime context metadata task' }],
+            },
+            updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+          },
+        ]);
+
+        const content = await callWithMessages(
+          [{ content: 'Continue', role: 'user' }],
+          stateWithLobeAgent({ metadata: { agentId: 'agent-123' } }),
+          { topicId: 'context-topic' },
+        );
+
+        expect(content).toContain('Runtime context metadata task');
+        expect(mockFindPlanDocuments).toHaveBeenCalledWith('context-topic', {
+          type: 'agent/plan',
+        });
+      });
+
+      it('does not query Notebook when lobe-agent is disabled', async () => {
+        await callWithMessages([{ content: 'Continue', role: 'user' }], createMockState());
+
+        expect(mockFindPlanDocuments).not.toHaveBeenCalled();
+      });
+
+      it('continues the rollout when the Notebook query fails', async () => {
+        mockFindPlanDocuments.mockRejectedValue(new Error('database unavailable'));
+
+        const content = await callWithMessages(
+          [{ content: 'Continue', role: 'user' }],
+          stateWithLobeAgent(),
+        );
+
+        expect(content).toContain('Continue');
+        expect(content).not.toContain('<todo_context>');
+      });
+
       it('should process messages through serverMessagesEngine when agentConfig is set', async () => {
         const ctxWithConfig: RuntimeExecutorContext = {
           ...ctx,
@@ -3969,7 +4149,7 @@ describe('RuntimeExecutors', { timeout: 60_000 }, () => {
       expect(result.newState.messages[2].id).toBe('tool-msg-1');
     });
 
-    it('should return last tool message ID as parentMessageId in nextContext', async () => {
+    it('anchors the next turn on the calling assistant, not the last tool message', async () => {
       let callCount = 0;
       mockMessageModel.create.mockImplementation(() => {
         callCount++;
@@ -4004,9 +4184,12 @@ describe('RuntimeExecutors', { timeout: 60_000 }, () => {
 
       const result = await executors.call_tools_batch!(instruction, state);
 
-      // parentMessageId should be the last created tool message ID
+      // A step is one LLM call, and the batch's tool rows are inline data of
+      // that call — so the continuation anchors on the assistant that emitted
+      // the batch. Anchoring on a tool row made the spine depend on which tool
+      // `Promise.all` settled last.
       const payload = result.nextContext!.payload as { parentMessageId?: string };
-      expect(payload.parentMessageId).toBe('created-tool-msg-2');
+      expect(payload.parentMessageId).toBe('assistant-msg-123');
       expect(result.nextContext!.phase).toBe('tools_batch_result');
     });
 

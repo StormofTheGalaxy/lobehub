@@ -65,6 +65,11 @@ export type AcceptanceCheckState = AcceptanceCheck['state'];
 type AcceptanceEvidence = AcceptanceCheck['evidence'][number];
 type AcceptanceCheckReviewEntry = AcceptanceCheck['reviews'][number];
 
+export const CHECK_GROUPING_THRESHOLD = 10;
+
+/** Small checklists stay flat; grouping only earns its hierarchy once the list grows beyond 10. */
+export const shouldGroupChecks = (checkCount: number) => checkCount > CHECK_GROUPING_THRESHOLD;
+
 /** What the user asked the page to record — the page owns the service call. */
 export interface CheckReviewInput {
   action: 'accept' | 'ignore' | 'reject';
@@ -84,6 +89,10 @@ export const userReviewState = (check: AcceptanceCheck): UserReviewState => {
   if (review.action === 'ignore') return 'ignored';
   return review.stale ? 'pending' : 'rejected';
 };
+
+/** Accepted and ignored checks are terminal — there is no remaining work to send back. */
+export const isCheckWorkActionable = (check: AcceptanceCheck): boolean =>
+  ['pending', 'rejected'].includes(userReviewState(check));
 
 /** Every reviewable check in the group is user-accepted — settled business. */
 export const isGroupFullyAccepted = (checks: AcceptanceCheck[]): boolean => {
@@ -133,11 +142,18 @@ export const isException = (check: AcceptanceCheck) =>
   check.state === 'failed' || check.state === 'uncertain';
 
 const VISUAL_EVIDENCE = new Set(['gif', 'screenshot', 'video']);
+const ANNOTATABLE_EVIDENCE = new Set(['gif', 'screenshot']);
 
 const isVisual = (item: AcceptanceEvidence) =>
   Boolean(item.fileUrl) && VISUAL_EVIDENCE.has(item.type);
 
 export const hasVisualEvidence = (check: AcceptanceCheck) => check.evidence.some(isVisual);
+
+const isAnnotatable = (item: AcceptanceEvidence) =>
+  Boolean(item.fileUrl) && ANNOTATABLE_EVIDENCE.has(item.type);
+
+export const hasAnnotatableEvidence = (check: AcceptanceCheck) =>
+  check.evidence.some(isAnnotatable);
 
 const styles = createStaticStyles(({ css }) => ({
   caption: css`
@@ -262,6 +278,13 @@ const styles = createStaticStyles(({ css }) => ({
   `,
   row: css`
     border-block-start: 1px solid ${cssVar.colorBorderSecondary};
+
+    /* The card already draws the outer border — a first row's separator would
+       stack on it and read as a 2px top edge. Grouped lists are unaffected:
+       their first child is the group header, so rows are never first. */
+    &:first-child {
+      border-block-start: none;
+    }
   `,
   /** Stable check label ("C3") — referenced by feedback and annotations. */
   seqChip: css`
@@ -623,7 +646,7 @@ const IterationTimeline = memo<{
   check: AcceptanceCheck;
   evidenceById: Map<string, AcceptanceEvidence>;
   historyReviews: AcceptanceCheckReviewEntry[];
-  onRound: (round: number) => void;
+  onRound?: (round: number) => void;
 }>(({ check, evidenceById, historyReviews, onRound }) => {
   const { t } = useTranslation('verify');
 
@@ -702,15 +725,21 @@ const IterationTimeline = memo<{
               {!isLast && <div className={styles.stepRail} />}
             </Flexbox>
             <Flexbox flex={1} gap={6} style={{ minWidth: 0, paddingBlockEnd: isLast ? 0 : 20 }}>
-              <Tooltip title={t('acceptance.history.jump', { round: step.roundIndex })}>
-                <Text
-                  strong
-                  style={{ cursor: 'pointer', fontSize: 12, lineHeight: '19px' }}
-                  onClick={() => onRound(step.roundIndex)}
-                >
+              {onRound ? (
+                <Tooltip title={t('acceptance.history.jump', { round: step.roundIndex })}>
+                  <Text
+                    strong
+                    style={{ cursor: 'pointer', fontSize: 12, lineHeight: '19px' }}
+                    onClick={() => onRound(step.roundIndex)}
+                  >
+                    {t('acceptance.round', { round: step.roundIndex })}
+                  </Text>
+                </Tooltip>
+              ) : (
+                <Text strong style={{ fontSize: 12, lineHeight: '19px' }}>
                   {t('acceptance.round', { round: step.roundIndex })}
                 </Text>
-              </Tooltip>
+              )}
               <Text style={{ fontSize: 12 }}>{step.title}</Text>
               {step.evidence.length > 0 && (
                 <Flexbox horizontal gap={8} wrap={'wrap'}>
@@ -761,7 +790,7 @@ const CheckRow = memo<{
   detailMode?: boolean;
   expanded: boolean;
   onReview: (input: CheckReviewInput) => Promise<boolean>;
-  onRound: (round: number) => void;
+  onRound?: (round: number) => void;
   onToggle: () => void;
   reviewPending: boolean;
 }>(({ canReview, check, detailMode, expanded, onReview, onRound, onToggle, reviewPending }) => {
@@ -794,16 +823,20 @@ const CheckRow = memo<{
       checkTitle: `C${check.seq} · ${check.title}`,
       draftKey: check.id,
       evidence: check.evidence
-        .filter((item) => isVisual(item))
+        .filter((item) => isAnnotatable(item))
         .map((item) => ({ fileUrl: item.fileUrl!, id: item.id })),
-      onConfirm: ({ annotations, comment, fileIds }) =>
-        onReview({
+      initialComment: reviewComment,
+      onConfirm: async ({ annotations, comment, fileIds }) => {
+        const ok = await onReview({
           action: 'reject',
           annotations: annotations.length > 0 ? annotations : undefined,
           checkItemIds: [check.id],
           comment: comment || undefined,
           fileIds: fileIds.length > 0 ? fileIds : undefined,
-        }),
+        });
+        if (ok) setReviewComment('');
+        return ok;
+      },
     });
 
   // Accepting settles the check — the row folds itself away once the write
@@ -998,7 +1031,7 @@ const CheckRow = memo<{
             {/* The iteration mark stays compact — [↻ N]; the words (verified N
               rounds · introduced in round X) live in its tooltip. Clicking
               jumps to the round the concern first appeared in. */}
-            {check.revisions > 1 && (
+            {onRound && check.revisions > 1 && (
               <Tooltip
                 title={[
                   check.titleChanged
@@ -1024,7 +1057,7 @@ const CheckRow = memo<{
                 </span>
               </Tooltip>
             )}
-            {check.resultRound !== undefined && check.resultRound !== null && (
+            {onRound && check.resultRound !== undefined && check.resultRound !== null && (
               <Tooltip title={t('acceptance.checks.finalRoundHint')}>
                 <span
                   className={cx(styles.chip, styles.chipClickable)}
@@ -1190,6 +1223,19 @@ const CheckRow = memo<{
             !activeReview &&
             (detailMode ? (
               <Flexbox gap={10} style={{ marginBlockStart: 6 }}>
+                {hasAnnotatableEvidence(check) && (
+                  <Button
+                    icon={<Icon icon={Images} />}
+                    style={{ alignSelf: 'flex-start' }}
+                    type={'text'}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openReject();
+                    }}
+                  >
+                    {t('acceptance.review.annotate')}
+                  </Button>
+                )}
                 <TextArea
                   autoSize={{ maxRows: 8, minRows: 3 }}
                   placeholder={t('acceptance.review.detailPlaceholder')}
@@ -1287,7 +1333,7 @@ interface FocusedCheckDetailsProps {
   canReview: boolean;
   check: AcceptanceCheck;
   onReview: (input: CheckReviewInput) => Promise<boolean>;
-  onRound: (round: number) => void;
+  onRound?: (round: number) => void;
   reviewPending: boolean;
 }
 
@@ -1381,7 +1427,7 @@ interface CheckListProps {
   onGroupFeedback: (category: string, comment: string, fileIds: string[]) => Promise<boolean>;
   /** Record the user's verdict; resolves true when the write landed. */
   onReview: (input: CheckReviewInput) => Promise<boolean>;
-  onRound: (round: number) => void;
+  onRound?: (round: number) => void;
   onToggleGroup: (key: string) => void;
   onToggleGroupItems: (ids: string[], open: boolean) => void;
   onToggleItem: (id: string) => void;
@@ -1418,6 +1464,14 @@ const CheckList = memo<CheckListProps>(
         round === undefined ||
         check.timeline.some((step) => step.roundIndex === round));
 
+    const visibleRows = checks
+      .filter(visible)
+      .sort(
+        (a, b) =>
+          SEVERITY[a.state] - SEVERITY[b.state] ||
+          (hasVisualEvidence(b) ? 1 : 0) - (hasVisualEvidence(a) ? 1 : 0) ||
+          a.introducedAtRound - b.introducedAtRound,
+      );
     const groups = groupChecks(checks, t('acceptance.group.uncategorized'))
       .map((group) => ({
         ...group,
@@ -1436,7 +1490,7 @@ const CheckList = memo<CheckListProps>(
     // a blank bordered card — each filter gets its own reassuring line. But an
     // EMPTY pending bucket where every check is signed off isn't "nothing here"
     // — it's the finish line, so it earns a celebration instead of a flat line.
-    if (groups.length === 0) {
+    if (visibleRows.length === 0) {
       const allAccepted = filter === 'pending' && isGroupFullyAccepted(checks);
       return (
         <Flexbox align={'center'} className={styles.emptyCard} gap={12} justify={'center'}>
@@ -1467,6 +1521,25 @@ const CheckList = memo<CheckListProps>(
               )}
             />
           )}
+        </Flexbox>
+      );
+    }
+
+    if (!shouldGroupChecks(checks.length)) {
+      return (
+        <Flexbox className={styles.groupCard}>
+          {visibleRows.map((check) => (
+            <CheckRow
+              canReview={canReview}
+              check={check}
+              expanded={expanded.has(check.id)}
+              key={check.id}
+              reviewPending={reviewPending}
+              onReview={onReview}
+              onRound={onRound}
+              onToggle={() => onToggleItem(check.id)}
+            />
+          ))}
         </Flexbox>
       );
     }
@@ -1704,27 +1777,6 @@ const CheckList = memo<CheckListProps>(
                     onToggle={() => onToggleItem(check.id)}
                   />
                 ))}
-              {/* Bottom escape hatch — after scrolling through the group's rows,
-                  collapse it without travelling back to the header. Labeled:
-                  a bare icon at this distance from the header reads as noise. */}
-              {!collapsed && (
-                <Flexbox
-                  align={'center'}
-                  paddingBlock={4}
-                  style={{ borderBlockStart: `1px solid ${cssVar.colorBorderSecondary}` }}
-                >
-                  <Button
-                    icon={<Icon icon={ChevronsDownUp} />}
-                    size={'small'}
-                    // Quiet escape hatch — tertiary text, not a competing action.
-                    style={{ color: cssVar.colorTextTertiary }}
-                    type={'text'}
-                    onClick={() => onToggleGroup(key)}
-                  >
-                    {t('acceptance.group.collapse', { label })}
-                  </Button>
-                </Flexbox>
-              )}
             </Fragment>
           );
         })}

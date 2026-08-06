@@ -16,6 +16,7 @@ import {
   ForwardMessageDispatcher,
   MessageForwardFooter,
 } from '@/features/Conversation/MessageForward';
+import { useAgentContext } from '@/features/Conversation/useAgentContext';
 import { mergeConversationHooks } from '@/features/Conversation/utils/mergeConversationHooks';
 import { useGatewayReconnect } from '@/hooks/useGatewayReconnect';
 import { useOperationState } from '@/hooks/useOperationState';
@@ -32,7 +33,6 @@ import MainChatInput from './MainChatInput';
 import MessageFromUrl from './MainChatInput/MessageFromUrl';
 import ThreadHydration from './ThreadHydration';
 import { useActionsBarConfig } from './useActionsBarConfig';
-import { useAgentContext } from './useAgentContext';
 
 const log = debug('lobe-render:agent:ConversationArea');
 
@@ -124,8 +124,8 @@ const Conversation = memo(() => {
       hooks={hooks}
       messages={messages}
       operationState={operationState}
-      onMessagesChange={(messages, ctx) => {
-        replaceMessages(messages, { context: ctx });
+      onMessagesChange={(messages, ctx, meta) => {
+        replaceMessages(messages, { context: ctx, source: meta?.source });
       }}
     >
       <Flexbox

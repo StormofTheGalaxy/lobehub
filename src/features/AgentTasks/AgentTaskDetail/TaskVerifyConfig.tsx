@@ -3,7 +3,6 @@
 import {
   ActionIcon,
   Block,
-  Drawer,
   type DropdownItem,
   DropdownMenu,
   Flexbox,
@@ -13,8 +12,7 @@ import {
   Text,
   TextArea,
 } from '@lobehub/ui';
-import { Button, Checkbox, Select } from '@lobehub/ui/base-ui';
-import { App } from 'antd';
+import { Button, Checkbox, Drawer, Select, toast } from '@lobehub/ui/base-ui';
 import { createStaticStyles, cssVar } from 'antd-style';
 import {
   ChevronRight,
@@ -108,7 +106,7 @@ export const toTemplateCriterionDrafts = (drafts: DraftItem[]): VerifyCriterionD
 
 const TaskVerifyConfig = memo(() => {
   const { t } = useTranslation(['chat', 'verify']);
-  const { message } = App.useApp();
+
   const { allowed: canEditTask } = usePermission('create_content');
 
   const taskId = useTaskStore(taskDetailSelectors.activeTaskId);
@@ -359,12 +357,12 @@ const TaskVerifyConfig = memo(() => {
         commit(items, { enabled: true, requirement: goal });
       } catch (error) {
         console.error('[TaskVerifyConfig] generate failed:', error);
-        message.error(t('verifyConfig.generateFailed'));
+        toast.error(t('verifyConfig.generateFailed'));
       } finally {
         setGenerating(false);
       }
     },
-    [commit, generating, message, model, provider, t, taskName],
+    [commit, generating, model, provider, t, taskName],
   );
 
   const handleGenerate = useCallback(async () => {
@@ -460,11 +458,11 @@ const TaskVerifyConfig = memo(() => {
         rubric.id,
         templateCriterionIds.map((criterionId) => ({ criterionId })),
       );
-      message.success(t('verifyConfig.saveAsTemplateSuccess'));
+      toast.success(t('verifyConfig.saveAsTemplateSuccess'));
     } catch (e) {
       console.error('[TaskVerifyConfig] save as template failed:', e);
     }
-  }, [drafts, verify?.verifyCriteriaIds, requirement, t, message]);
+  }, [drafts, verify?.verifyCriteriaIds, requirement, t]);
 
   const rubricOptions = useMemo(
     () => (rubrics ?? []).map((r) => ({ label: r.title, value: r.id })),
@@ -752,10 +750,9 @@ const TaskVerifyConfig = memo(() => {
         ) : null}
       </Flexbox>
       <Drawer
-        destroyOnHidden
         open={Boolean(selectedCriterionId)}
         placement={'right'}
-        styles={{ body: { padding: 0 } }}
+        styles={{ bodyContent: { padding: 0 } }}
         title={t('verifyConfig.detail.title')}
         width={'min(92vw, 440px)'}
         onClose={() => setSelectedCriterionId(null)}
