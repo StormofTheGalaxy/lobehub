@@ -20,9 +20,11 @@ import {
 } from '@/business/client/BusinessDesktopRoutes';
 import ContentLoading from '@/components/Loading/ContentLoading';
 import { agentDocumentRouteMeta } from '@/features/AgentDocumentPage/routeMeta';
+import { goalsRouteMeta } from '@/features/AgentGoals/routeMeta';
 import { taskRouteMeta, tasksRouteMeta } from '@/features/AgentTasks/routeMeta';
 import { agentsRouteMeta } from '@/features/AgentViewAll/routeMeta';
 import { pageRouteMeta } from '@/features/Pages/routeMeta';
+import { settingsRouteMeta } from '@/features/Settings/features/routeMeta';
 import { workspaceHomeRouteMeta } from '@/features/Workspace/routeMeta';
 import {
   agentChannelRouteMeta,
@@ -33,7 +35,6 @@ import {
   topicsRouteMeta,
 } from '@/routes/(main)/agent/features/routeMeta';
 import { groupProfileRouteMeta, groupRouteMeta } from '@/routes/(main)/group/features/routeMeta';
-import { settingsRouteMeta } from '@/routes/(main)/settings/features/routeMeta';
 import AppShellSkeleton, { APP_SHELL_FALLBACK_ID } from '@/spa/BootShell/AppShellSkeleton';
 import { loadRouteWithBuiltinToolSurfaces } from '@/spa/initialize/toolSurfaces';
 import { routeMeta } from '@/spa/router/routeMeta';
@@ -119,6 +120,22 @@ export const sharedMainAreaChildren: RouteObject[] = [
               'Desktop > Chat > DocumentLayout',
             ),
             path: 'docs',
+          },
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/agent/goals'),
+              'Desktop > Chat > Goals',
+            ),
+            handle: { meta: goalsRouteMeta },
+            path: 'goals',
+          },
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/agent/goal/[goalId]'),
+              'Desktop > Chat > Goal Detail',
+            ),
+            handle: { meta: goalsRouteMeta },
+            path: 'goal/:goalId',
           },
           {
             element: dynamicElement(

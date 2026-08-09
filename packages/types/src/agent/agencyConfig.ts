@@ -1,5 +1,10 @@
 import type { WorkingDirConfigValue } from '../device';
 import type { LobeAgentChatConfig } from './chatConfig';
+import type { HeterogeneousAgentType, LocalHeterogeneousAgentType } from './heterogeneousAgent';
+import {
+  HETEROGENEOUS_AGENT_CONFIGS,
+  REMOTE_HETEROGENEOUS_AGENT_CONFIGS,
+} from './heterogeneousAgent';
 
 /**
  * Selector value that means "do not override the underlying CLI".
@@ -16,11 +21,13 @@ export type HeterogeneousAgentModelCatalogErrorCode =
 
 /** One model reported by a heterogeneous CLI's device-local model catalog. */
 export interface HeterogeneousAgentModel {
-  /** Complete provider/model identifier. Treat as opaque when persisting or spawning. */
+  /** Exact value accepted by the CLI's model-selection flag. Treat as opaque. */
   id: string;
-  /** Everything after the first slash. May itself contain slashes. */
+  /** Optional human-readable model label. */
+  label?: string;
+  /** Model identifier shown when the CLI does not provide a separate display label. */
   modelId: string;
-  /** Everything before the first slash, used only for display grouping. */
+  /** Provider or CLI family, used only for display grouping. */
   providerId: string;
 }
 
@@ -28,7 +35,7 @@ export interface ListHeterogeneousAgentModelsParams {
   command?: string;
   cwd?: string;
   env?: Record<string, string>;
-  type: 'opencode' | 'pi';
+  type: 'opencode' | 'pi' | 'qoder';
 }
 
 export interface HeterogeneousAgentModelCatalogSuccess {
@@ -137,13 +144,13 @@ const CODEX_FAST_SERVICE_TIER_VALUES = ['fast', 'priority'] as const;
  *
  * Two families of hetero agents are supported:
  *
- * - **Local CLI** (`amp` | `claude-code` | `codex` | `opencode` | `pi`): spawned as a child
+ * - **Local CLI** (`amp` | `claude-code` | `codex` | `opencode` | `pi` | `qoder`): spawned as a child
  *   process on the desktop or a connected device; uses `command`, `args`, `env`,
  *   `systemContext`.
  *
- * - **Remote platform** (`openclaw` | `hermes`): dispatched to a machine
- *   connected via `lh connect`; device is identified by `LobeAgentAgencyConfig.boundDeviceId`.
- *   `platformAgentId` selects the named agent on the remote platform (defaults to `'main'`).
+ * - **Platform task** (`openclaw` | `hermes`): runs on this desktop when
+ *   `executionTarget` is `local`, or on a machine connected via `lh connect`
+ *   when it is `device`. `platformAgentId` selects the named platform agent.
  */
 export interface HeterogeneousProviderConfig {
   /** Additional CLI arguments for the agent command (local CLI only). */
@@ -188,9 +195,76 @@ export interface HeterogeneousProviderConfig {
    * Combined with any runtime-generated context (e.g. cloned repo list).
    */
   systemContext?: string;
-  /** Agent runtime type. */
-  type: 'amp' | 'claude-code' | 'codex' | 'hermes' | 'opencode' | 'openclaw' | 'pi';
+  /** Agent runtime type, derived from the shared heterogeneous-agent descriptor catalog. */
+  type: HeterogeneousAgentType;
 }
+
+const HETEROGENEOUS_AGENT_TYPES = new Set<string>([
+  ...HETEROGENEOUS_AGENT_CONFIGS.map(({ type }) => type),
+  ...REMOTE_HETEROGENEOUS_AGENT_CONFIGS.map(({ type }) => type),
+]);
+
+const LEGACY_COMMAND_INFERENCE_TYPES = new Set<LocalHeterogeneousAgentType>([
+  'claude-code',
+  'codex',
+]);
+
+interface LegacyHeterogeneousProviderConfig extends HeterogeneousProviderConfig {
+  adapterType?: unknown;
+}
+
+const resolveKnownHeterogeneousAgentType = (value: unknown): HeterogeneousAgentType | undefined => {
+  if (typeof value !== 'string' || !value) return;
+  if (!HETEROGENEOUS_AGENT_TYPES.has(value)) {
+    throw new Error(`Unknown heterogeneous agent type: "${value}"`);
+  }
+  return value as HeterogeneousAgentType;
+};
+
+/**
+ * Upgrade a persisted provider config written before `type` became required.
+ *
+ * New callers must always write `type`; this compatibility path exists because
+ * `agents.agency_config` is JSONB and older rows are not runtime-schema parsed
+ * or backfilled. The old renderer preferred `adapterType`, then recognized
+ * Claude/Codex from `command`, and otherwise defaulted to Claude Code.
+ */
+export const normalizeHeterogeneousProviderConfig = (
+  config: HeterogeneousProviderConfig,
+): HeterogeneousProviderConfig => {
+  const legacyConfig = config as LegacyHeterogeneousProviderConfig;
+  const explicitType = resolveKnownHeterogeneousAgentType(legacyConfig.type);
+  if (explicitType && legacyConfig.adapterType === undefined) return config;
+
+  const adapterType = explicitType
+    ? undefined
+    : resolveKnownHeterogeneousAgentType(legacyConfig.adapterType);
+  const normalizedCommand = config.command?.trim().toLowerCase();
+  const inferredType = normalizedCommand
+    ? HETEROGENEOUS_AGENT_CONFIGS.find(
+        ({ defaultCommand, type }) =>
+          LEGACY_COMMAND_INFERENCE_TYPES.has(type) &&
+          normalizedCommand.includes(defaultCommand.toLowerCase()),
+      )?.type
+    : undefined;
+  const type = explicitType ?? adapterType ?? inferredType ?? 'claude-code';
+  const normalizedConfig = { ...legacyConfig };
+  delete normalizedConfig.adapterType;
+
+  return { ...normalizedConfig, type };
+};
+
+const normalizeAgencyConfigHeterogeneousProvider = (
+  agencyConfig: LobeAgentAgencyConfig | null | undefined,
+): LobeAgentAgencyConfig | undefined => {
+  const base = agencyConfig ?? undefined;
+  if (!base?.heterogeneousProvider) return base;
+
+  const heterogeneousProvider = normalizeHeterogeneousProviderConfig(base.heterogeneousProvider);
+  return heterogeneousProvider === base.heterogeneousProvider
+    ? base
+    : { ...base, heterogeneousProvider };
+};
 
 interface ClaudeCodeSelectionSource {
   args?: string[];
@@ -210,6 +284,7 @@ const CODEX_MODEL_FLAGS = ['-m', '--model'] as const;
 const HETERO_EXEC_AGENT_ARG_FLAG = '--agent-arg';
 const OPENCODE_MODEL_FLAGS = ['-m', '--model'] as const;
 const PI_MODEL_FLAGS = ['--model'] as const;
+const QODER_MODEL_FLAGS = ['-m', '--model'] as const;
 
 const hasCliFlag = (args: string[], flag: string): boolean =>
   args.some((arg) => arg === flag || arg.startsWith(`${flag}=`));
@@ -428,8 +503,8 @@ export const codexModelSupportsFastSpeed = (model: string): boolean =>
  * For `claude-code` and `codex`, the chat-input selector persists explicit
  * `model` + `effort` selections on the provider config; this is the single
  * place that maps those stored settings onto provider-specific argv for direct
- * local desktop spawns. OpenCode and Pi use their device-local model catalogs
- * and forward the selected provider/model id using the native `--model` flag.
+ * local desktop spawns. OpenCode, Pi, and Qoder use their device-local model
+ * catalogs and forward the selected model using the native `--model` flag.
  * Missing/default settings are resolved by the UI helpers for display only.
  * They are not appended here because CLI overrides must not mask each CLI's
  * own settings/env/account defaults. User-authored `args` win, so there is
@@ -447,7 +522,8 @@ export const buildHeteroSpawnArgs = (
     provider.type !== 'claude-code' &&
     provider.type !== 'codex' &&
     provider.type !== 'opencode' &&
-    provider.type !== 'pi'
+    provider.type !== 'pi' &&
+    provider.type !== 'qoder'
   ) {
     return provider.args;
   }
@@ -505,6 +581,17 @@ export const buildHeteroSpawnArgs = (
     }
   }
 
+  if (provider.type === 'qoder') {
+    const model = provider.model?.trim();
+    if (
+      model &&
+      model !== HETEROGENEOUS_AGENT_DEFAULT_SELECTION &&
+      !hasAnyCliFlag(baseArgs, QODER_MODEL_FLAGS)
+    ) {
+      extraArgs.push('--model', model);
+    }
+  }
+
   if (extraArgs.length === 0) return provider.args;
   return [...baseArgs, ...extraArgs];
 };
@@ -528,7 +615,8 @@ export const buildHeteroExecArgs = (
     provider.type !== 'claude-code' &&
     provider.type !== 'codex' &&
     provider.type !== 'opencode' &&
-    provider.type !== 'pi'
+    provider.type !== 'pi' &&
+    provider.type !== 'qoder'
   ) {
     return provider.args;
   }
@@ -595,6 +683,17 @@ export const buildHeteroExecArgs = (
     }
   }
 
+  if (provider.type === 'qoder') {
+    const model = provider.model?.trim();
+    if (
+      model &&
+      model !== HETEROGENEOUS_AGENT_DEFAULT_SELECTION &&
+      !hasAnyCliFlag(baseArgs, QODER_MODEL_FLAGS)
+    ) {
+      selectorArgs.push('--model', model);
+    }
+  }
+
   const args = [...wrapperArgs, ...selectorArgs];
   return args.length > 0 ? args : undefined;
 };
@@ -606,11 +705,11 @@ export const buildHeteroExecArgs = (
  *               automatically; with several online the model selects one via the
  *               remote-device tool. The ONLY mode that touches a device the user
  *               did not explicitly select. Opt-in: never a silent default.
- * - `local`   : in-process spawn on the user's Electron desktop (desktop only)
+ * - `local`   : run on the user's Electron desktop (desktop only)
  * - `device`  : dispatched to an `lh connect` device identified by `boundDeviceId`
  * - `sandbox` : server-spawned cloud sandbox
  *
- * Remote hetero agents (`openclaw` | `hermes`) are always `device`.
+ * Platform task agents (`openclaw` | `hermes`) support `local` and `device` targets.
  */
 export type DeviceExecutionTarget = 'auto' | 'device' | 'local' | 'none' | 'sandbox';
 
@@ -640,14 +739,12 @@ export type AgentModelSelectionPolicy = 'fixed' | 'member';
 export interface LobeAgentAgencyConfig {
   /**
    * Device ID of the machine connected via `lh connect`.
-   * Required when `executionTarget === 'device'` (and always set for remote
-   * hetero agents `openclaw` / `hermes`).
+   * Required when `executionTarget === 'device'`.
    */
   boundDeviceId?: string;
   /**
    * Execution target for the hetero agent. When omitted, resolves to a
-   * platform default: `'local'` on desktop, `'none'` on web (or `'device'` for
-   * remote hetero providers).
+   * platform default: `'local'` on desktop and `'none'` on web.
    */
   executionTarget?: DeviceExecutionTarget;
   /**
@@ -755,7 +852,7 @@ export const resolveAgencyConfig = (
   agencyConfig: LobeAgentAgencyConfig | null | undefined,
   override: Pick<LobeAgentAgencyConfig, 'boundDeviceId' | 'executionTarget'> | null | undefined,
 ): LobeAgentAgencyConfig | undefined => {
-  const base = agencyConfig ?? undefined;
+  const base = normalizeAgencyConfigHeterogeneousProvider(agencyConfig);
   if (base?.executionTargetSelectionPolicy === 'fixed') return base;
   if (!override) return base;
   const hasTarget = override.executionTarget !== undefined;
@@ -788,12 +885,12 @@ export const resolveAgentAgencyConfig = (
   override: Pick<LobeAgentAgencyConfig, 'boundDeviceId' | 'executionTarget'> | null | undefined,
   context: AgentAgencyConfigContext,
 ): LobeAgentAgencyConfig | undefined => {
+  const base = normalizeAgencyConfigHeterogeneousProvider(agencyConfig);
   const isPublicWorkspaceAgent =
     !!context.workspaceId && context.visibility !== 'private' && context.canManage !== true;
 
-  if (isPublicWorkspaceAgent) return resolveAgencyConfig(agencyConfig, override);
+  if (isPublicWorkspaceAgent) return resolveAgencyConfig(base, override);
 
-  const base = agencyConfig ?? undefined;
   if (!base?.executionTargetSelectionPolicy) return base;
 
   const { executionTargetSelectionPolicy, ...ownerConfig } = base;
