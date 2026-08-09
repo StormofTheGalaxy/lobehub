@@ -4,6 +4,7 @@ import isEqual from 'fast-deep-equal';
 import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspaceId';
 import { useFetchSessions } from '@/hooks/useFetchSessions';
 import { useGlobalStore } from '@/store/global';
 import { systemStatusSelectors } from '@/store/global/selectors';
@@ -20,7 +21,7 @@ import Inbox from './Inbox';
 import SessionList from './List';
 import MobileAgentDirectory from './MobileAgentDirectory';
 import ConfigGroupModal from './Modals/ConfigGroupModal';
-import RenameGroupModal from './Modals/RenameGroupModal';
+import { openRenameGroupModal } from './Modals/RenameGroupModal';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
   recentChats: css`
@@ -39,8 +40,6 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
 const DefaultMode = memo(() => {
   const { t } = useTranslation('chat');
 
-  const [activeGroupId, setActiveGroupId] = useState<string>();
-  const [renameGroupModalOpen, setRenameGroupModalOpen] = useState(false);
   const [configGroupModalOpen, setConfigGroupModalOpen] = useState(false);
 
   useFetchSessions();
@@ -70,10 +69,11 @@ const DefaultMode = memo(() => {
   );
   const shouldShowRecentChats = recentChatSessions.length > 0;
 
-  const [sessionGroupKeys, updateSystemStatus] = useGlobalStore((s) => [
-    systemStatusSelectors.sessionGroupKeys(s),
-    s.updateSystemStatus,
-  ]);
+  const activeWorkspaceId = useActiveWorkspaceId();
+  const sessionGroupKeys = useGlobalStore(
+    systemStatusSelectors.sessionGroupKeys(activeWorkspaceId),
+  );
+  const updateSystemStatus = useGlobalStore((s) => s.updateSystemStatus);
 
   const items = useMemo(
     () =>
@@ -92,10 +92,7 @@ const DefaultMode = memo(() => {
               isCustomGroup
               id={id}
               openConfigModal={() => setConfigGroupModalOpen(true)}
-              openRenameModal={() => setRenameGroupModalOpen(true)}
-              onOpenChange={(isOpen) => {
-                if (isOpen) setActiveGroupId(id);
-              }}
+              openRenameModal={() => openRenameGroupModal(id)}
             />
           ),
           key: id,
@@ -140,13 +137,6 @@ const DefaultMode = memo(() => {
           updateSystemStatus({ expandSessionGroupKeys });
         }}
       />
-      {activeGroupId && (
-        <RenameGroupModal
-          id={activeGroupId}
-          open={renameGroupModalOpen}
-          onCancel={() => setRenameGroupModalOpen(false)}
-        />
-      )}
       <ConfigGroupModal
         open={configGroupModalOpen}
         onCancel={() => setConfigGroupModalOpen(false)}

@@ -4,12 +4,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AgentModalProvider, useAgentModal } from './ModalProvider';
 
 const mocks = vi.hoisted(() => ({
+  closeCreateAgentModal: vi.fn(),
   createAgent: vi.fn(),
+  createAgentModalProps: undefined as
+    | {
+        onCreateBlank: () => Promise<void> | void;
+        onOpenSkills?: (identifier: string) => void;
+      }
+    | undefined,
   navigate: vi.fn(),
   refreshAgentList: vi.fn(),
   sendAsAgent: vi.fn(),
   sendAsGroup: vi.fn(),
-  sendMessage: vi.fn(),
   toggleAgentBuilderPanel: vi.fn(),
 }));
 
@@ -22,11 +28,13 @@ vi.mock('@/features/Workspace/useWorkspaceAwareNavigate', () => ({
 }));
 
 vi.mock('@/components/ChatGroupWizard', () => ({
-  ChatGroupWizard: () => null,
+  ChatGroupWizard: ({ open }: { open: boolean }) =>
+    open ? <div>Deferred group wizard</div> : null,
 }));
 
 vi.mock('@/components/MemberSelectionModal', () => ({
-  MemberSelectionModal: () => null,
+  MemberSelectionModal: ({ open }: { open: boolean }) =>
+    open ? <div>Deferred member selection</div> : null,
 }));
 
 vi.mock('@/features/CreatePlatformAgent', () => ({
@@ -38,58 +46,30 @@ vi.mock('@/features/EditingPopover', () => ({
 }));
 
 vi.mock('@/routes/(main)/home/_layout/hooks/useCreateModal', () => ({
-  CreateAgentModal: ({
-    inboxAgentName,
-    open,
-    onCreateBlank,
-    onOpenSkills,
-    onTryInLobeAI,
-  }: {
-    inboxAgentName?: string;
+  openCreateAgentModal: (props: {
     onCreateBlank: () => Promise<void> | void;
     onOpenSkills?: (identifier: string) => void;
-    onTryInLobeAI?: () => Promise<void> | void;
-    open: boolean;
-  }) =>
-    open ? (
-      <>
-        <button type="button" onClick={() => void onCreateBlank()}>
-          Start Blank
-        </button>
-        <button type="button" onClick={() => onOpenSkills?.('product-requirements-writer')}>
-          View in Skills
-        </button>
-        <button type="button" onClick={() => void onTryInLobeAI?.()}>
-          Use in LobeAI
-        </button>
-        <span>Inbox name: {inboxAgentName}</span>
-      </>
-    ) : null,
+  }) => {
+    mocks.createAgentModalProps = props;
+    return { close: mocks.closeCreateAgentModal };
+  },
+}));
+
+vi.mock('@/features/WorkspaceSetting/Labels/LabelFormModal', () => ({
+  openLabelFormModal: vi.fn(),
 }));
 
 vi.mock('@/store/agent', () => ({
   useAgentStore: (
-    selector: (state: {
-      agentMap: Record<string, { title?: string }>;
-      createAgent: typeof mocks.createAgent;
-      inboxAgentId: string;
-    }) => unknown,
+    selector: (state: { createAgent: typeof mocks.createAgent; inboxAgentId: string }) => unknown,
   ) =>
     selector({
-      agentMap: {
-        'inbox-agent': { title: 'Nova' },
-      },
       createAgent: mocks.createAgent,
       inboxAgentId: 'inbox-agent',
     }),
 }));
 
 vi.mock('@/store/agent/selectors', () => ({
-  agentSelectors: {
-    getAgentMetaById:
-      (agentId: string) => (state: { agentMap: Record<string, { title?: string }> }) =>
-        state.agentMap[agentId] ?? {},
-  },
   builtinAgentSelectors: {
     inboxAgentId: (state: { inboxAgentId: string }) => state.inboxAgentId,
   },
@@ -118,28 +98,29 @@ vi.mock('@/store/home', () => ({
     }),
 }));
 
-vi.mock('@/store/chat', () => ({
-  useChatStore: (selector: (state: { sendMessage: typeof mocks.sendMessage }) => unknown) =>
-    selector({
-      sendMessage: mocks.sendMessage,
-    }),
-}));
-
 vi.mock('./Modals/ConfigGroupModal', () => ({
   default: () => null,
 }));
 
 vi.mock('./Modals/CreateGroupModal', () => ({
-  default: () => null,
+  openCreateGroupModal: vi.fn(),
 }));
 
 const OpenCreateAgentModalButton = () => {
-  const { openCreateModal } = useAgentModal();
+  const { openCreateModal, openGroupWizardModal, openMemberSelectionModal } = useAgentModal();
 
   return (
-    <button type="button" onClick={() => openCreateModal('agent')}>
-      Open create agent modal
-    </button>
+    <>
+      <button type="button" onClick={() => openCreateModal('agent')}>
+        Open create agent modal
+      </button>
+      <button type="button" onClick={() => openGroupWizardModal({})}>
+        Open group wizard
+      </button>
+      <button type="button" onClick={() => openMemberSelectionModal({})}>
+        Open member selection
+      </button>
+    </>
   );
 };
 
@@ -153,6 +134,7 @@ const renderProvider = () =>
 describe('AgentModalProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.createAgentModalProps = undefined;
     mocks.createAgent.mockResolvedValue({ agentId: 'agent-new' });
   });
 
@@ -164,7 +146,8 @@ describe('AgentModalProvider', () => {
     renderProvider();
 
     fireEvent.click(screen.getByText('Open create agent modal'));
-    fireEvent.click(screen.getByText('Start Blank'));
+    await waitFor(() => expect(mocks.createAgentModalProps).toBeDefined());
+    await mocks.createAgentModalProps!.onCreateBlank();
 
     await waitFor(() => {
       expect(mocks.createAgent).toHaveBeenCalledWith({ groupId: undefined });
@@ -178,28 +161,24 @@ describe('AgentModalProvider', () => {
     renderProvider();
 
     fireEvent.click(screen.getByText('Open create agent modal'));
-    fireEvent.click(screen.getByText('View in Skills'));
+    await waitFor(() => expect(mocks.createAgentModalProps).toBeDefined());
+    mocks.createAgentModalProps!.onOpenSkills?.('product-requirements-writer');
 
     expect(mocks.navigate).toHaveBeenCalledWith(
-      '/settings/skill?tab=skill&skill=product-requirements-writer',
+      '/settings/skill?skill=product-requirements-writer',
     );
   });
 
-  it('navigates to LobeAI without sending the original create-agent prompt', async () => {
+  it('loads deferred selection modals when their interactions request them', async () => {
     renderProvider();
 
-    fireEvent.click(screen.getByText('Open create agent modal'));
-    fireEvent.click(screen.getByText('Use in LobeAI'));
+    expect(screen.queryByText('Deferred group wizard')).not.toBeInTheDocument();
+    expect(screen.queryByText('Deferred member selection')).not.toBeInTheDocument();
 
-    expect(mocks.sendMessage).not.toHaveBeenCalled();
-    expect(mocks.navigate).toHaveBeenCalledWith('/agent/inbox-agent');
-  });
+    fireEvent.click(screen.getByText('Open group wizard'));
+    expect(await screen.findByText('Deferred group wizard')).toBeInTheDocument();
 
-  it('passes the customized inbox agent name to the create modal', async () => {
-    renderProvider();
-
-    fireEvent.click(screen.getByText('Open create agent modal'));
-
-    expect(screen.getByText('Inbox name: Nova')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Open member selection'));
+    expect(await screen.findByText('Deferred member selection')).toBeInTheDocument();
   });
 });

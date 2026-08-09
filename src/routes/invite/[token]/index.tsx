@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Center, Flexbox, Tag, Text } from '@lobehub/ui';
+import { Center, Flexbox, Tag, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { CheckCircle2, Clock3, ShieldAlert, UsersRound } from 'lucide-react';
 import { useState } from 'react';
@@ -148,10 +149,12 @@ const InvitePage = () => {
               владельца workspace отправить новое приглашение.
             </Text>
             <Flexbox horizontal gap={8}>
-              <Button type="primary" onClick={() => navigate('/', { replace: true })}>
-                На главную
+              {/* Retry re-runs the accept call in place — reloading the page
+                  would throw away the explanation the user is reading. */}
+              <Button type="primary" onClick={accept}>
+                Повторить
               </Button>
-              <Button onClick={() => globalThis.location.reload()}>Повторить</Button>
+              <Button onClick={() => navigate('/', { replace: true })}>На главную</Button>
             </Flexbox>
           </Flexbox>
         )}

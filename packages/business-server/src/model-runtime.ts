@@ -7,22 +7,21 @@ import type { LobeChatDatabase, Transaction } from '@/database/type';
 
 const STARTER_CREDITS = 100_000;
 
+// `createError(type, payload)` puts `payload` straight into the error body the
+// chat card reads (`error.body.message`), so the message must sit at the top
+// level — an extra `{ error: … }` wrapper hides it behind a generic failure.
 const createInsufficientQuotaError = (workspaceId?: string) =>
   AgentRuntimeError.createError(AgentRuntimeErrorType.InsufficientQuota, {
-    error: {
-      message: workspaceId
-        ? 'В workspace закончились токены. Пополните баланс в настройках workspace.'
-        : 'В личном аккаунте закончились токены. Обратитесь к super-admin или пополните баланс.',
-    },
+    message: workspaceId
+      ? 'В workspace закончились токены. Пополните баланс в настройках workspace.'
+      : 'В личном аккаунте закончились токены. Обратитесь к super-admin или пополните баланс.',
   });
 
 const createFrozenWorkspaceError = (reason?: string | null) =>
   AgentRuntimeError.createError(AgentRuntimeErrorType.ProviderBizError, {
-    error: {
-      message: reason
-        ? `Workspace заморожен: ${reason}`
-        : 'Workspace заморожен. Обратитесь к администратору.',
-    },
+    message: reason
+      ? `Workspace заморожен: ${reason}`
+      : 'Workspace заморожен. Обратитесь к администратору.',
   });
 
 const getUsageTokens = (usage?: { totalTokens?: number; total_tokens?: number }) => {

@@ -2,7 +2,7 @@ import { toast } from '@lobehub/ui/base-ui';
 import { act, renderHook } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { notification } from '@/components/AntdStaticMethods';
+import { fileService } from '@/services/file';
 import { agentByIdSelectors } from '@/store/agent/selectors';
 
 import { useFileStore as useStore } from '../../store';
@@ -25,13 +25,6 @@ vi.mock('zustand/traditional');
 
 vi.mock('@lobehub/ui/base-ui', () => ({
   toast: {
-    error: vi.fn(),
-  },
-}));
-
-// Mock necessary modules and functions
-vi.mock('@/components/AntdStaticMethods', () => ({
-  notification: {
     error: vi.fn(),
   },
 }));
@@ -169,7 +162,7 @@ describe('useFileStore:chat', () => {
     expect(uploadWithProgress).toHaveBeenCalledTimes(1);
   });
 
-  it('shows a permission denied description when upload is rejected by RBAC', async () => {
+  it('keeps a permission-denied upload in place with a retryable error', async () => {
     mockAgentMode({ enableAgentMode: false, heterogeneous: false });
 
     const { result } = renderHook(() => useStore());
@@ -184,9 +177,51 @@ describe('useFileStore:chat', () => {
       await result.current.uploadChatFiles([file], AGENT_ID);
     });
 
-    expect(notification.error).toHaveBeenCalledWith({
-      description: 'You do not have permission to upload files in this workspace.',
-      message: 'File upload failed.',
+    expect(result.current.chatUploadFileList).toEqual([
+      expect.objectContaining({
+        agentId: AGENT_ID,
+        error: 'You do not have permission to upload files in this workspace.',
+        id: 'test.txt',
+        status: 'error',
+      }),
+    ]);
+  });
+
+  describe('removeChatUploadFile', () => {
+    it('deletes the underlying file for a normal uploaded item', async () => {
+      const removeFile = vi.spyOn(fileService, 'removeFile').mockResolvedValue(undefined);
+      const { result } = renderHook(() => useStore());
+
+      act(() => {
+        useStore.setState({ chatUploadFileList: [{ id: 'file-1' }] as any });
+      });
+
+      await act(async () => {
+        await result.current.removeChatUploadFile('file-1');
+      });
+
+      expect(result.current.chatUploadFileList).toEqual([]);
+      expect(removeFile).toHaveBeenCalledWith('file-1');
+    });
+
+    it('skips file deletion for a restored item (skipRemoveFile)', async () => {
+      const removeFile = vi.spyOn(fileService, 'removeFile').mockResolvedValue(undefined);
+      const { result } = renderHook(() => useStore());
+
+      act(() => {
+        useStore.setState({
+          chatUploadFileList: [{ id: 'file-1', skipRemoveFile: true }] as any,
+        });
+      });
+
+      await act(async () => {
+        await result.current.removeChatUploadFile('file-1');
+      });
+
+      // draft entry is dropped, but the persisted file backing the original
+      // message must NOT be deleted
+      expect(result.current.chatUploadFileList).toEqual([]);
+      expect(removeFile).not.toHaveBeenCalled();
     });
   });
 });

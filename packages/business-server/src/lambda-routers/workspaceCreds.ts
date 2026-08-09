@@ -7,8 +7,8 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 
 import {
+  assertWorkspaceAdmin,
   assertWorkspaceMember,
-  assertWorkspaceOwner,
   getWorkspaceSettings,
   updateWorkspaceSettings,
   type WorkspaceControlContext,
@@ -80,7 +80,7 @@ export const workspaceCredsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       const creds = await getCreds(ctx, workspaceId);
       const now = new Date().toISOString();
       const cred: WorkspaceCredential = {
@@ -101,13 +101,13 @@ export const workspaceCredsRouter = router({
         key: z.string().min(1).max(100),
         name: z.string().min(1).max(255),
         type: z.enum(['kv-env', 'kv-header']),
-        values: z.record(z.string()),
+        values: z.record(z.string(), z.string()),
         workspaceId: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       const creds = await getCreds(ctx, workspaceId);
       const now = new Date().toISOString();
       const cred: WorkspaceCredential = {
@@ -132,7 +132,7 @@ export const workspaceCredsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       const creds = await getCreds(ctx, workspaceId);
       const now = new Date().toISOString();
       const cred: WorkspaceCredential = {
@@ -150,7 +150,7 @@ export const workspaceCredsRouter = router({
     .input(z.object({ id: z.number(), workspaceId: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       await saveCreds(
         ctx,
         workspaceId,
@@ -163,7 +163,7 @@ export const workspaceCredsRouter = router({
     .input(z.object({ key: z.string(), workspaceId: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       await saveCreds(
         ctx,
         workspaceId,
@@ -271,13 +271,13 @@ export const workspaceCredsRouter = router({
         description: z.string().optional(),
         id: z.number(),
         name: z.string().optional(),
-        values: z.record(z.string()).optional(),
+        values: z.record(z.string(), z.string()).optional(),
         workspaceId: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const workspaceId = resolveWorkspaceId(ctx, input);
-      await assertWorkspaceOwner(ctx, workspaceId);
+      await assertWorkspaceAdmin(ctx, workspaceId);
       const creds = await getCreds(ctx, workspaceId);
       const now = new Date().toISOString();
       const updated = creds.map((cred) =>

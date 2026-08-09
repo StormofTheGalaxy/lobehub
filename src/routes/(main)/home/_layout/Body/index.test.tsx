@@ -71,11 +71,15 @@ vi.mock('@/utils/navigation', () => ({
   isModifierClick: () => false,
 }));
 
-vi.mock('@/routes/(main)/home/features/Recents', () => ({
+vi.mock('@/features/Home/Recents', () => ({
   default: ({ itemKey }: { itemKey: string }) => <div data-testid={`sidebar-item-${itemKey}`} />,
 }));
 
 vi.mock('./Agent', () => ({
+  default: ({ itemKey }: { itemKey: string }) => <div data-testid={`sidebar-item-${itemKey}`} />,
+}));
+
+vi.mock('./Private', () => ({
   default: ({ itemKey }: { itemKey: string }) => <div data-testid={`sidebar-item-${itemKey}`} />,
 }));
 

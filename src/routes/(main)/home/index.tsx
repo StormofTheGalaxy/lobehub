@@ -4,10 +4,9 @@ import { useLocation } from 'react-router';
 
 import { useActiveWorkspaceSlug } from '@/business/client/hooks/useActiveWorkspaceSlug';
 import HomePageTracker from '@/components/Analytics/HomePageTracker';
-import NavHeader from '@/features/NavHeader';
+import HomeContent from '@/features/Home';
+import HomeNavHeader from '@/features/Home/HomeNavHeader';
 import WideScreenContainer from '@/features/WideScreenContainer';
-
-import HomeContent from './features';
 
 const Home: FC = () => {
   const { pathname } = useLocation();
@@ -18,13 +17,22 @@ const Home: FC = () => {
   return (
     <>
       <HomePageTracker />
-      <NavHeader />
+      <HomeNavHeader />
+      {/* The page scrolls here, at full pane width, rather than inside the
+          centered column: it puts the scrollbar against the app frame instead
+          of floating it in the margin beside the content, and a native
+          overflow container takes no tab stop — a scroll viewport would, and
+          its focus ring would trace a box around the entire dashboard. */}
       <Flexbox
         height={'100%'}
-        style={{ overflowY: 'auto', paddingBlock: '44px 16vh' }}
+        style={{ overflowY: 'auto', paddingBlock: '32px 24px', paddingInline: 24 }}
         width={'100%'}
       >
-        <WideScreenContainer>
+        <WideScreenContainer
+          fullWidth
+          style={{ marginInline: 'auto', maxWidth: 1240 }}
+          wrapperStyle={{ flex: 'none' }}
+        >
           <HomeContent />
         </WideScreenContainer>
       </Flexbox>

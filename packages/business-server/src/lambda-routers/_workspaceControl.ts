@@ -41,10 +41,35 @@ export const assertWorkspaceMember = async (ctx: WorkspaceControlContext, worksp
   return membership;
 };
 
+/**
+ * Owner-only gate. Reserve it for actions that move money or change who the
+ * workspace belongs to (credit balance, top-ups, subscription, destructive data
+ * operations, deleting the workspace). Everything else that the built-in role
+ * matrix grants to Admin must use {@link assertWorkspaceAdmin} instead —
+ * otherwise the workspace-settings UI (which is gated on the `manage_settings`
+ * permission Admin holds) shows controls the API rejects.
+ */
 export const assertWorkspaceOwner = async (ctx: WorkspaceControlContext, workspaceId: string) => {
   const membership = await assertWorkspaceMember(ctx, workspaceId);
   if (membership.role !== 'owner') {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Требуется роль владельца workspace' });
+  }
+
+  return membership;
+};
+
+/**
+ * Admin-level gate: Owner and Admin pass, Member and Viewer do not. Mirrors
+ * `WORKSPACE_ROLE_PERMISSIONS[ADMIN]` — workspace settings, members, audit log
+ * and shared workspace configuration.
+ */
+export const assertWorkspaceAdmin = async (ctx: WorkspaceControlContext, workspaceId: string) => {
+  const membership = await assertWorkspaceMember(ctx, workspaceId);
+  if (membership.role !== 'owner' && membership.role !== 'admin') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Требуется роль администратора или владельца workspace',
+    });
   }
 
   return membership;

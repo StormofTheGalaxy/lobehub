@@ -1,17 +1,23 @@
+import { toast } from '@lobehub/ui/base-ui';
 import isEqual from 'fast-deep-equal';
-import {
-  type AiModelSortMap,
-  type AiProviderModelListItem,
-  type CreateAiModelParams,
-  type ToggleAiModelEnableParams,
+import { t } from 'i18next';
+import type {
+  AiModelSortMap,
+  AiProviderModelListItem,
+  CreateAiModelParams,
+  ToggleAiModelEnableParams,
 } from 'model-bank';
-import { type SWRResponse } from 'swr';
+import type { SWRResponse } from 'swr';
 
 import { mutate, useClientDataSWR } from '@/libs/swr';
 import { aiModelKeys } from '@/libs/swr/keys';
 import { aiModelService } from '@/services/aiModel';
-import { type AiInfraStore } from '@/store/aiInfra/store';
-import { type StoreSetter } from '@/store/types';
+import type { AiInfraStore } from '@/store/aiInfra/store';
+import type { StoreSetter } from '@/store/types';
+
+import { deduplicateRemoteModels } from './utils';
+
+const MAX_DUPLICATE_MODEL_IDS_IN_WARNING = 3;
 
 type Setter = StoreSetter<AiInfraStore>;
 export const createAiModelSlice = (set: Setter, get: () => AiInfraStore, _api?: unknown) =>
@@ -63,25 +69,59 @@ export class AiModelActionImpl {
 
     const data = await modelsService.getModels(providerId);
     if (data) {
-      await this.#get().batchUpdateAiModels(
-        data.map((model) => ({
-          ...model,
-          abilities: {
-            files: model.files,
-            functionCall: model.functionCall,
-            imageOutput: model.imageOutput,
-            reasoning: model.reasoning,
-            search: model.search,
-            video: model.video,
-            vision: model.vision,
-          },
-          enabled: model.enabled || false,
-          source: 'remote',
-          type: model.type || 'chat',
-        })),
+      const currentEnabledState = new Map(
+        this.#get().aiProviderModelList.map(({ enabled, id }) => [id, enabled]),
       );
+      const remoteModels = data.map<AiProviderModelListItem>((model) => {
+        const hasAnyAbility =
+          model.files ||
+          model.functionCall ||
+          model.imageOutput ||
+          model.reasoning ||
+          model.search ||
+          model.video ||
+          model.vision;
 
-      await this.#get().refreshAiModelList();
+        return {
+          ...model,
+          ...(hasAnyAbility && {
+            abilities: {
+              files: model.files,
+              functionCall: model.functionCall,
+              imageOutput: model.imageOutput,
+              reasoning: model.reasoning,
+              search: model.search,
+              video: model.video,
+              vision: model.vision,
+            },
+          }),
+          enabled: currentEnabledState.get(model.id) ?? model.enabled ?? false,
+          source: 'remote',
+          type: model.type ?? 'chat',
+        };
+      });
+      const { duplicateIds, models, removedCount } = deduplicateRemoteModels(remoteModels);
+
+      await this.#get().batchUpdateAiModels(models);
+
+      if (removedCount > 0) {
+        const visibleDuplicateIds = duplicateIds.slice(0, MAX_DUPLICATE_MODEL_IDS_IN_WARNING);
+        const remainingCount = duplicateIds.length - visibleDuplicateIds.length;
+
+        toast.warning(
+          t(
+            remainingCount > 0
+              ? 'providerModels.list.fetcher.duplicatesRemovedWithMore'
+              : 'providerModels.list.fetcher.duplicatesRemoved',
+            {
+              count: removedCount,
+              ids: visibleDuplicateIds.join(', '),
+              ns: 'modelProvider',
+              remainingCount,
+            },
+          ),
+        );
+      }
     }
   };
 
@@ -106,6 +146,22 @@ export class AiModelActionImpl {
   removeAiModel = async (id: string, providerId: string): Promise<void> => {
     await aiModelService.deleteAiModel({ id, providerId });
     await this.#get().refreshAiModelList();
+  };
+
+  /**
+   * Toggle a model of an arbitrary provider, without requiring the provider settings
+   * page context (`activeAiProvider`). Used by ModelSelect to re-enable a persisted
+   * model that is no longer in the enabled list.
+   */
+  toggleProviderModelEnabled = async (params: ToggleAiModelEnableParams): Promise<void> => {
+    this.#get().internal_toggleAiModelLoading(params.id, true);
+
+    try {
+      await aiModelService.toggleModelEnabled(params);
+      await this.#get().refreshAiProviderRuntimeState();
+    } finally {
+      this.#get().internal_toggleAiModelLoading(params.id, false);
+    }
   };
 
   toggleModelEnabled = async (

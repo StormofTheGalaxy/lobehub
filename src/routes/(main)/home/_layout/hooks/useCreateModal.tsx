@@ -1,5 +1,5 @@
-import { ActionIcon, Block, Button, Flexbox, Text } from '@lobehub/ui';
-import { Modal } from '@lobehub/ui/base-ui';
+import { ActionIcon, Block, Flexbox, Text } from '@lobehub/ui';
+import { Button, createModal, type ModalInstance } from '@lobehub/ui/base-ui';
 import { cssVar } from 'antd-style';
 import { Blocks, CheckCircle2, Lightbulb, PencilLineIcon, RefreshCw, X } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -11,7 +11,7 @@ import {
   ChatInputProvider,
   DesktopChatInput,
 } from '@/features/ChatInput';
-import { useRandomQuestions } from '@/routes/(main)/home/features/SuggestQuestions/useRandomQuestions';
+import { useRandomQuestions } from '@/features/Home/SuggestQuestions/useRandomQuestions';
 import { agentSkillService } from '@/services/skill';
 import { useToolStore } from '@/store/tool';
 import type { DiscoverSkillItem } from '@/types/discover';
@@ -135,98 +135,95 @@ const SkillSuggestionPanel = memo<SkillSuggestionPanelProps>(
 );
 
 interface SkillInstalledPanelProps {
-  inboxAgentName: string;
   onClose: () => void;
   onOpenSkills?: (identifier: string) => void;
   skill: InstalledSkill;
 }
 
-const SkillInstalledPanel = memo<SkillInstalledPanelProps>(
-  ({ inboxAgentName, onClose, onOpenSkills, skill }) => {
-    const { t } = useTranslation('chat');
+const SkillInstalledPanel = memo<SkillInstalledPanelProps>(({ onClose, onOpenSkills, skill }) => {
+  const { t } = useTranslation('chat');
 
-    return (
-      <Flexbox
-        align={'center'}
-        gap={20}
-        style={{
-          paddingBlock: 8,
-        }}
-      >
-        <Flexbox align={'center'} gap={8} style={{ textAlign: 'center' }}>
-          <Flexbox
-            align={'center'}
-            justify={'center'}
-            style={{
-              background: cssVar.colorSuccessBg,
-              borderRadius: '50%',
-              height: 48,
-              width: 48,
-            }}
-          >
-            <CheckCircle2 color={cssVar.colorSuccess} size={28} />
-          </Flexbox>
-          <Text fontSize={18} style={{ fontWeight: 600 }}>
-            {t('createModal.skillSuggestion.installed.title')}
-          </Text>
-          <Text
-            color={cssVar.colorTextSecondary}
-            fontSize={13}
-            style={{ maxWidth: 360, textAlign: 'center' }}
-          >
-            {t('createModal.skillSuggestion.installed.description', { name: inboxAgentName })}
-          </Text>
-        </Flexbox>
+  return (
+    <Flexbox
+      align={'center'}
+      gap={20}
+      style={{
+        paddingBlock: 8,
+      }}
+    >
+      <Flexbox align={'center'} gap={8} style={{ textAlign: 'center' }}>
         <Flexbox
-          horizontal
           align={'center'}
-          gap={12}
-          justify={'space-between'}
+          justify={'center'}
           style={{
-            background: cssVar.colorFillQuaternary,
-            border: `1px solid ${cssVar.colorFillTertiary}`,
-            borderRadius: 12,
-            padding: 12,
-            width: '100%',
+            background: cssVar.colorSuccessBg,
+            borderRadius: '50%',
+            height: 48,
+            width: 48,
           }}
         >
-          <Flexbox
-            align={'center'}
-            justify={'center'}
-            style={{
-              background: cssVar.colorBgContainer,
-              border: `1px solid ${cssVar.colorFillTertiary}`,
-              borderRadius: 10,
-              flex: 'none',
-              height: 38,
-              width: 38,
-            }}
-          >
-            <Blocks color={cssVar.colorTextSecondary} size={18} />
-          </Flexbox>
-          <Flexbox flex={1} gap={4} style={{ minWidth: 0 }}>
-            <Text ellipsis fontSize={13} style={{ fontWeight: 500 }}>
-              {skill.name}
-            </Text>
-            <Text color={cssVar.colorTextTertiary} fontSize={12}>
-              {t('createModal.skillSuggestion.installed.ready', { name: inboxAgentName })}
-            </Text>
-          </Flexbox>
+          <CheckCircle2 color={cssVar.colorSuccess} size={28} />
         </Flexbox>
-        <Flexbox horizontal align={'center'} gap={8} justify={'center'} style={{ width: '100%' }}>
-          {onOpenSkills && (
-            <Button onClick={() => onOpenSkills(skill.identifier)}>
-              {t('createModal.skillSuggestion.actions.openSkills')}
-            </Button>
-          )}
-          <Button type={'primary'} onClick={onClose}>
-            {t('createModal.skillSuggestion.actions.tryInLobeAI', { name: inboxAgentName })}
-          </Button>
+        <Text fontSize={18} style={{ fontWeight: 600 }}>
+          {t('createModal.skillSuggestion.installed.title')}
+        </Text>
+        <Text
+          color={cssVar.colorTextSecondary}
+          fontSize={13}
+          style={{ maxWidth: 360, textAlign: 'center' }}
+        >
+          {t('createModal.skillSuggestion.installed.description')}
+        </Text>
+      </Flexbox>
+      <Flexbox
+        horizontal
+        align={'center'}
+        gap={12}
+        justify={'space-between'}
+        style={{
+          background: cssVar.colorFillQuaternary,
+          border: `1px solid ${cssVar.colorFillTertiary}`,
+          borderRadius: 12,
+          padding: 12,
+          width: '100%',
+        }}
+      >
+        <Flexbox
+          align={'center'}
+          justify={'center'}
+          style={{
+            background: cssVar.colorBgContainer,
+            border: `1px solid ${cssVar.colorFillTertiary}`,
+            borderRadius: 10,
+            flex: 'none',
+            height: 38,
+            width: 38,
+          }}
+        >
+          <Blocks color={cssVar.colorTextSecondary} size={18} />
+        </Flexbox>
+        <Flexbox flex={1} gap={4} style={{ minWidth: 0 }}>
+          <Text ellipsis fontSize={13} style={{ fontWeight: 500 }}>
+            {skill.name}
+          </Text>
+          <Text color={cssVar.colorTextTertiary} fontSize={12}>
+            {t('createModal.skillSuggestion.installed.ready')}
+          </Text>
         </Flexbox>
       </Flexbox>
-    );
-  },
-);
+      <Flexbox horizontal align={'center'} gap={8} justify={'center'} style={{ width: '100%' }}>
+        {onOpenSkills && (
+          <Button onClick={() => onOpenSkills(skill.identifier)}>
+            {t('createModal.skillSuggestion.actions.openSkills')}
+          </Button>
+        )}
+        <Button type={'primary'} onClick={onClose}>
+          {t('createModal.skillSuggestion.actions.tryInLobeAI')}
+        </Button>
+      </Flexbox>
+    </Flexbox>
+  );
+});
 
 interface ExampleItemProps {
   description: string;
@@ -310,30 +307,23 @@ const Examples = memo<ExamplesProps>(({ suggestMode, onExampleClick }) => {
 
 export interface CreateAgentModalProps {
   agentId?: string;
-  inboxAgentName?: string;
+  /**
+   * The panel narrows once a skill has been installed, and imperative modals
+   * take their width at creation — hand the instance back so the content can
+   * resize the panel it lives in.
+   */
+  modalRef?: { current?: ModalInstance };
   onClose: () => void;
   onCreateBlank: () => Promise<void> | void;
   onOpenSkills?: (identifier: string) => void;
   onSubmit: (prompt: string) => Promise<void> | void;
   onTryInLobeAI?: () => Promise<void> | void;
-  open: boolean;
   type: 'agent' | 'group';
 }
 
 export const CreateAgentModal = memo<CreateAgentModalProps>(
-  ({
-    open,
-    type,
-    agentId,
-    inboxAgentName,
-    onClose,
-    onOpenSkills,
-    onSubmit,
-    onCreateBlank,
-    onTryInLobeAI,
-  }) => {
+  ({ type, agentId, modalRef, onClose, onOpenSkills, onSubmit, onCreateBlank, onTryInLobeAI }) => {
     const { t } = useTranslation('chat');
-    const displayInboxAgentName = inboxAgentName || t('inbox.title');
     const editorRef = useRef<ChatInputEditor | null>(null);
     const contentRef = useRef('');
     const examplePromptRef = useRef('');
@@ -359,13 +349,10 @@ export const CreateAgentModal = memo<CreateAgentModalProps>(
     }, []);
 
     useEffect(() => {
-      if (!open) return;
-      resetInputTracking();
-      setInstalledSkill(undefined);
-      setInstallingSkillIdentifier(undefined);
-      setSkillInstallError(false);
-      setSkillSuggestion(undefined);
-    }, [open, resetInputTracking]);
+      modalRef?.current?.update({
+        width: installedSkill ? INSTALLED_SKILL_MODAL_WIDTH : CREATE_MODAL_WIDTH,
+      });
+    }, [installedSkill, modalRef]);
 
     const handleClose = useCallback(() => {
       resetInputTracking();
@@ -546,26 +533,13 @@ export const CreateAgentModal = memo<CreateAgentModalProps>(
     );
 
     return (
-      <Modal
-        centered
-        destroyOnHidden
-        closable={false}
-        footer={null}
-        open={open}
-        title={false}
-        width={installedSkill ? INSTALLED_SKILL_MODAL_WIDTH : CREATE_MODAL_WIDTH}
-        styles={{
-          body: { padding: 0 },
-        }}
-        onCancel={handleClose}
-      >
+      <>
         {installedSkill ? (
           <Flexbox gap={12} paddingBlock={'12px 24px'} paddingInline={24}>
             <Flexbox horizontal align="center" justify="flex-end">
               <ActionIcon icon={X} onClick={handleClose} />
             </Flexbox>
             <SkillInstalledPanel
-              inboxAgentName={displayInboxAgentName}
               skill={installedSkill}
               onClose={handleTryInLobeAI}
               onOpenSkills={onOpenSkills ? handleOpenInstalledSkill : undefined}
@@ -636,7 +610,50 @@ export const CreateAgentModal = memo<CreateAgentModalProps>(
             )}
           </Flexbox>
         )}
-      </Modal>
+      </>
     );
   },
 );
+
+CreateAgentModal.displayName = 'CreateAgentModal';
+
+export interface OpenCreateAgentModalOptions extends Omit<
+  CreateAgentModalProps,
+  'modalRef' | 'onClose'
+> {
+  /** Runs once the modal has been dismissed, for whatever reason. */
+  onClosed?: () => void;
+}
+
+export const openCreateAgentModal = ({
+  onClosed,
+  ...contentProps
+}: OpenCreateAgentModalOptions) => {
+  const modalRef: { current?: ModalInstance } = {};
+
+  const instance = createModal({
+    content: (
+      <CreateAgentModal
+        {...contentProps}
+        modalRef={modalRef}
+        onClose={() => modalRef.current?.close()}
+      />
+    ),
+    footer: null,
+    // NOT `onOpenChange`: that only fires for user dismissal (Escape, backdrop,
+    // the header close button). `instance.close()` — which the in-content close
+    // and the post-create path both call — just flips the stack entry, so the
+    // provider would never learn the modal went away and could not reopen it.
+    // `createModal` only ever completes with `false`, but the open flag is
+    // honored so this does not depend on that renderer detail.
+    onOpenChangeComplete: (open) => {
+      if (!open) onClosed?.();
+    },
+    styles: { content: { padding: 0 } },
+    width: CREATE_MODAL_WIDTH,
+  });
+
+  modalRef.current = instance;
+
+  return instance;
+};

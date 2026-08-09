@@ -11,8 +11,13 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 
 import { isSuperAdmin } from '../enterprise/superAdmin';
+import {
+  notifyWorkspaceMemberInvited,
+  notifyWorkspaceMemberJoined,
+  notifyWorkspaceMemberRemoved,
+} from '../notification/workspaceMembership';
 
-const memberRoleSchema = z.enum(['owner', 'member', 'viewer']);
+const memberRoleSchema = z.enum(['owner', 'admin', 'member', 'viewer']);
 
 const assertWorkspaceMember = async (
   ctx: { serverDB: LobeChatDatabase; userId: string; workspaceMemberModel: WorkspaceMemberModel },
@@ -27,16 +32,49 @@ const assertWorkspaceMember = async (
   return membership;
 };
 
-const assertWorkspaceOwner = async (
+/**
+ * Member management (invite / add / remove / role change) is an Admin-level
+ * capability in the built-in role matrix — the workspace-settings UI shows the
+ * Members controls to Admins, so the API must accept them too. Owner-only steps
+ * keep their own narrower guards: granting Owner goes through
+ * `transferPrimaryOwnership` (primary-owner only) and the member model refuses
+ * to remove or demote the primary owner.
+ */
+const assertWorkspaceManager = async (
   ctx: { serverDB: LobeChatDatabase; userId: string; workspaceMemberModel: WorkspaceMemberModel },
   workspaceId: string,
 ) => {
   const membership = await assertWorkspaceMember(ctx, workspaceId);
-  if (membership.role !== 'owner') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Only workspace owners can manage members' });
+  if (membership.role !== 'owner' && membership.role !== 'admin') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Only workspace owners and admins can manage members',
+    });
   }
 
   return membership;
+};
+
+/**
+ * Notifications are a side channel: a delivery failure must never fail the
+ * membership change that triggered it.
+ */
+const notifyBestEffort = (send: Promise<unknown>) => {
+  void send.catch((error) => {
+    console.error('[workspace-member] notification failed', error);
+  });
+};
+
+/** Workspace managers who should hear about membership changes. */
+const listWorkspaceManagerIds = async (
+  ctx: { workspaceMemberModel: WorkspaceMemberModel },
+  workspaceId: string,
+) => {
+  const members = await ctx.workspaceMemberModel.listMembers(workspaceId);
+
+  return members
+    .filter((member) => member.role === 'owner' || member.role === 'admin')
+    .map((member) => member.userId);
 };
 
 const findEmailInvitationByWorkspaceSlug = async (
@@ -118,6 +156,17 @@ export const workspaceMemberRouter = router({
 
       const workspace = await ctx.workspaceModel.findById(invitation.workspaceId);
 
+      notifyBestEffort(
+        listWorkspaceManagerIds(ctx, invitation.workspaceId).then((notifyUserIds) =>
+          notifyWorkspaceMemberJoined(ctx.serverDB, {
+            memberUserId: ctx.userId,
+            notifyUserIds,
+            role: member.role,
+            workspaceId: invitation.workspaceId,
+          }),
+        ),
+      );
+
       return { ...member, workspace };
     }),
 
@@ -164,6 +213,17 @@ export const workspaceMemberRouter = router({
         workspaceId: pending.workspace.id,
       });
 
+      notifyBestEffort(
+        listWorkspaceManagerIds(ctx, pending.workspace.id).then((notifyUserIds) =>
+          notifyWorkspaceMemberJoined(ctx.serverDB, {
+            memberUserId: ctx.userId,
+            notifyUserIds,
+            role: member.role,
+            workspaceId: pending.workspace.id,
+          }),
+        ),
+      );
+
       return { member, workspace: pending.workspace };
     }),
 
@@ -176,7 +236,7 @@ export const workspaceMemberRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await assertWorkspaceOwner(ctx, input.workspaceId);
+      await assertWorkspaceManager(ctx, input.workspaceId);
 
       const member = await ctx.workspaceMemberModel.addMember(input);
       await ctx.workspaceAuditLogModel.create({
@@ -203,7 +263,7 @@ export const workspaceMemberRouter = router({
   listInvitations: memberProcedure
     .input(z.object({ workspaceId: z.string() }))
     .query(async ({ ctx, input }) => {
-      await assertWorkspaceOwner(ctx, input.workspaceId);
+      await assertWorkspaceManager(ctx, input.workspaceId);
 
       return ctx.workspaceMemberModel.listPendingInvitations(input.workspaceId);
     }),
@@ -237,7 +297,7 @@ export const workspaceMemberRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await assertWorkspaceOwner(ctx, input.workspaceId);
+      await assertWorkspaceManager(ctx, input.workspaceId);
 
       const invitation = await ctx.workspaceMemberModel.createInvitation({
         ...input,
@@ -253,6 +313,16 @@ export const workspaceMemberRouter = router({
         workspaceId: input.workspaceId,
       });
 
+      notifyBestEffort(
+        notifyWorkspaceMemberInvited(ctx.serverDB, {
+          email: invitation.email,
+          invitationId: invitation.id,
+          inviterUserId: ctx.userId,
+          role: invitation.role,
+          workspaceId: input.workspaceId,
+        }),
+      );
+
       return invitation;
     }),
 
@@ -260,12 +330,39 @@ export const workspaceMemberRouter = router({
     .input(z.object({ userId: z.string(), workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const actor = await ctx.workspaceMemberModel.getMember(input.workspaceId, ctx.userId);
+      const actorCanManage = actor?.role === 'owner' || actor?.role === 'admin';
       const actorIsSuperAdmin = await isSuperAdmin(ctx.serverDB, ctx.userId);
-      if (!actorIsSuperAdmin && actor?.role !== 'owner' && input.userId !== ctx.userId) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only owners can remove other members' });
+      if (!actorIsSuperAdmin && !actorCanManage && input.userId !== ctx.userId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Only owners and admins can remove other members',
+        });
+      }
+
+      // An Admin must not be able to strip the workspace of its Owner or push
+      // out a peer Admin — those stay with the Owner (and the model refuses to
+      // remove the primary owner in any case).
+      if (!actorIsSuperAdmin && actor?.role === 'admin' && input.userId !== ctx.userId) {
+        const target = await ctx.workspaceMemberModel.getMember(input.workspaceId, input.userId);
+        if (target?.role === 'owner' || target?.role === 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Only the workspace owner can remove owners and admins',
+          });
+        }
       }
 
       await ctx.workspaceMemberModel.removeMember(input.workspaceId, input.userId);
+
+      if (input.userId !== ctx.userId) {
+        notifyBestEffort(
+          notifyWorkspaceMemberRemoved(ctx.serverDB, {
+            removedUserId: input.userId,
+            workspaceId: input.workspaceId,
+          }),
+        );
+      }
+
       await ctx.workspaceAuditLogModel.create({
         action: input.userId === ctx.userId ? 'member.left' : 'member.removed',
         ipAddress: ctx.clientIp ?? undefined,
@@ -279,7 +376,7 @@ export const workspaceMemberRouter = router({
   revokeInvitation: memberProcedure
     .input(z.object({ id: z.string(), workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await assertWorkspaceOwner(ctx, input.workspaceId);
+      await assertWorkspaceManager(ctx, input.workspaceId);
 
       await ctx.workspaceMemberModel.revokeInvitation(input.id, input.workspaceId);
       await ctx.workspaceAuditLogModel.create({
@@ -295,18 +392,24 @@ export const workspaceMemberRouter = router({
   updateRole: memberProcedure
     .input(z.object({ role: memberRoleSchema, userId: z.string(), workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await assertWorkspaceOwner(ctx, input.workspaceId);
+      await assertWorkspaceManager(ctx, input.workspaceId);
       const actorIsSuperAdmin = await isSuperAdmin(ctx.serverDB, ctx.userId);
 
       if (input.role === 'owner') {
-        if (actorIsSuperAdmin) {
-          await ctx.workspaceMemberModel.addMember({
-            role: 'owner',
-            userId: input.userId,
-            workspaceId: input.workspaceId,
-          });
-        } else {
-          await ctx.workspaceModel.promoteToOwner(input.workspaceId, input.userId);
+        // A workspace has exactly one active owner (unique partial index on
+        // `workspace_members`), so granting Owner is an ownership transfer: the
+        // current owner steps down to Admin in the same transaction.
+        const workspace = await ctx.workspaceModel.findById(input.workspaceId);
+        if (!workspace) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Workspace not found' });
+        }
+
+        if (workspace.primaryOwnerId !== input.userId) {
+          const actorId = actorIsSuperAdmin ? workspace.primaryOwnerId : ctx.userId;
+          await new WorkspaceModel(ctx.serverDB, actorId).transferPrimaryOwnership(
+            input.workspaceId,
+            input.userId,
+          );
         }
       } else {
         const workspace = await ctx.workspaceModel.findById(input.workspaceId);

@@ -1,14 +1,13 @@
 import { BRANDING_NAME, BRANDING_URL } from '@lobechat/business-const';
 
-import type { ChatModelCard, ModelProviderCard } from '@/types/llm';
-
 import cometapiModels from '../aiModels/cometapi';
+import type { ChatModelCard, ModelProviderCard } from '../types';
 import type { AIChatModelCard } from '../types/aiModel';
 
 const featuredModels = [
   'gpt-5-chat-latest',
   'gpt-5-mini',
-  'claude-sonnet-4-5',
+  'claude-3-7-sonnet-latest',
   'gemini-2.5-pro',
   'deepseek-chat',
 ];
@@ -45,7 +44,7 @@ export default LobeHub;
 
 export const planCardModels = [
   'gpt-5-chat-latest',
-  'claude-sonnet-4-5',
+  'claude-3-7-sonnet-latest',
   'gemini-2.5-pro',
   'deepseek-chat',
 ];

@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Center, Flexbox, Text } from '@lobehub/ui';
+import { Center, Flexbox, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router';
@@ -18,6 +19,11 @@ import { useWorkspaceFromSlug } from './useWorkspaceFromSlug';
  * - Calls `useWorkspaceFromSlug` to resolve the slug → status.
  * - Renders a 404-style empty state when the slug doesn't match any workspace.
  * - Renders `<Outlet />` when the workspace is found (or still loading).
+ *
+ * A billing-inactive workspace is intentionally NOT blocked here — the member
+ * should still be able to browse shared content. The "subscription inactive"
+ * banner lives in the UserPanel and the chat-level error card surfaces when a
+ * spend operation is attempted.
  */
 const WorkspaceSlugBoundary: FC = () => {
   const { t } = useTranslation('error');

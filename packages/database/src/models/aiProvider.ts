@@ -15,6 +15,7 @@ import { merge } from '@/utils/merge';
 import type { AiProviderSelectItem } from '../schemas';
 import { aiModels, aiProviders } from '../schemas';
 import type { LobeChatDatabase } from '../type';
+import { buildWorkspacePayload, buildWorkspaceWhere } from '../utils/workspace';
 
 type DecryptUserKeyVaults = (encryptKeyVaultsStr: string | null) => Promise<any>;
 
@@ -22,33 +23,36 @@ type EncryptUserKeyVaults = (keyVaults: string) => Promise<string>;
 
 export class AiProviderModel {
   private userId: string;
-  private db: LobeChatDatabase;
   private workspaceId?: string;
+  private db: LobeChatDatabase;
 
   constructor(db: LobeChatDatabase, userId: string, workspaceId?: string) {
     this.userId = userId;
-    this.db = db;
     this.workspaceId = workspaceId;
+    this.db = db;
   }
 
   private scopeWhere = () =>
-    this.workspaceId
-      ? and(eq(aiProviders.userId, this.userId), eq(aiProviders.workspaceId, this.workspaceId))
-      : and(eq(aiProviders.userId, this.userId), isNull(aiProviders.workspaceId));
+    buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, aiProviders);
 
-  private scopedValues = () => ({
-    userId: this.userId,
-    ...(this.workspaceId ? { workspaceId: this.workspaceId } : {}),
-  });
+  private modelScopeWhere = () =>
+    buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, aiModels);
 
-  private conflictTarget = () => ({
-    target: this.workspaceId
-      ? [aiProviders.id, aiProviders.userId, aiProviders.workspaceId]
-      : [aiProviders.id, aiProviders.userId],
-    targetWhere: this.workspaceId
-      ? isNotNull(aiProviders.workspaceId)
-      : isNull(aiProviders.workspaceId),
-  });
+  private values<T extends object>(base: T) {
+    return buildWorkspacePayload({ userId: this.userId, workspaceId: this.workspaceId }, base);
+  }
+
+  private conflictTarget() {
+    return this.workspaceId
+      ? {
+          target: [aiProviders.id, aiProviders.userId, aiProviders.workspaceId],
+          targetWhere: isNotNull(aiProviders.workspaceId),
+        }
+      : {
+          target: [aiProviders.id, aiProviders.userId],
+          targetWhere: isNull(aiProviders.workspaceId),
+        };
+  }
 
   create = async (
     { keyVaults: userKey, ...params }: CreateAiProviderParams,
@@ -60,13 +64,14 @@ export class AiProviderModel {
 
     const [result] = await this.db
       .insert(aiProviders)
-      .values({
-        ...params,
-        // each new ai provider we will set it to enabled by default
-        enabled: true,
-        keyVaults,
-        ...this.scopedValues(),
-      })
+      .values(
+        this.values({
+          ...params,
+          // each new ai provider we will set it to enabled by default
+          enabled: true,
+          keyVaults,
+        }),
+      )
       .returning();
 
     return result;
@@ -75,17 +80,7 @@ export class AiProviderModel {
   delete = async (id: string) => {
     return this.db.transaction(async (trx) => {
       // 1. delete all models of the provider
-      await trx
-        .delete(aiModels)
-        .where(
-          and(
-            eq(aiModels.providerId, id),
-            eq(aiModels.userId, this.userId),
-            this.workspaceId
-              ? eq(aiModels.workspaceId, this.workspaceId)
-              : isNull(aiModels.workspaceId),
-          ),
-        );
+      await trx.delete(aiModels).where(and(eq(aiModels.providerId, id), this.modelScopeWhere()));
 
       // 2. delete the provider
       await trx.delete(aiProviders).where(and(eq(aiProviders.id, id), this.scopeWhere()));
@@ -145,10 +140,16 @@ export class AiProviderModel {
     const decrypt = decryptor ?? JSON.parse;
 
     // Merge keyVaults with existing values to preserve OAuth tokens
-    // when updating from form values that don't include them
+    // when updating from form values that don't include them.
+    // The merge seeds from the workspace-scoped row on purpose: provider
+    // vaults are workspace-shared and config writes are owner-gated at the
+    // router, so a second owner editing the shared provider must still
+    // preserve the hidden fields of a row created by another workspace member.
     let mergedKeyVaults = value.keyVaults || {};
 
-    const existing = await this.findById(id);
+    const existing = await this.db.query.aiProviders.findFirst({
+      where: and(eq(aiProviders.id, id), this.scopeWhere()),
+    });
     if (existing?.keyVaults) {
       try {
         const existingKeyVaults = await decrypt(existing.keyVaults);
@@ -170,12 +171,7 @@ export class AiProviderModel {
 
     return this.db
       .insert(aiProviders)
-      .values({
-        ...commonFields,
-        id,
-        source: this.getProviderSource(id),
-        ...this.scopedValues(),
-      })
+      .values(this.values({ ...commonFields, id, source: this.getProviderSource(id) }))
       .onConflictDoUpdate({
         set: commonFields,
         ...this.conflictTarget(),
@@ -185,13 +181,9 @@ export class AiProviderModel {
   toggleProviderEnabled = async (id: string, enabled: boolean) => {
     return this.db
       .insert(aiProviders)
-      .values({
-        enabled,
-        id,
-        source: this.getProviderSource(id),
-        updatedAt: new Date(),
-        ...this.scopedValues(),
-      })
+      .values(
+        this.values({ enabled, id, source: this.getProviderSource(id), updatedAt: new Date() }),
+      )
       .onConflictDoUpdate({
         set: { enabled },
         ...this.conflictTarget(),
@@ -203,14 +195,15 @@ export class AiProviderModel {
       const updates = sortMap.map(({ id, sort }) => {
         return tx
           .insert(aiProviders)
-          .values({
-            enabled: true,
-            id,
-            sort,
-            source: this.getProviderSource(id),
-            updatedAt: new Date(),
-            ...this.scopedValues(),
-          })
+          .values(
+            this.values({
+              enabled: true,
+              id,
+              sort,
+              source: this.getProviderSource(id),
+              updatedAt: new Date(),
+            }),
+          )
           .onConflictDoUpdate({
             set: { sort, updatedAt: new Date() },
             ...this.conflictTarget(),
@@ -250,7 +243,7 @@ export class AiProviderModel {
       if (this.isBuiltInProvider(id)) {
         await this.db
           .insert(aiProviders)
-          .values({ id, source: 'builtin', ...this.scopedValues() })
+          .values(this.values({ id, source: 'builtin' }))
           .onConflictDoNothing();
 
         const resultAgain = await query;

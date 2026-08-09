@@ -1,13 +1,15 @@
 'use client';
 
-import { Button, Flexbox, Input, Tag, Text } from '@lobehub/ui';
-import { Select } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Button, confirmModal, Select } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Building2, Coins, Gauge, ShieldCheck, Snowflake, UsersRound } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
+
+import AsyncSection from '../components/AsyncSection';
 
 const styles = createStaticStyles(({ css, cssVar }) => ({
   card: css`
@@ -106,9 +108,11 @@ export default function BusinessAdminConsole() {
     );
   };
 
+  // A rejected overview is an authorization answer, not a transient failure —
+  // it keeps its own explanation instead of offering a pointless retry.
   if (error) {
     return (
-      <Flexbox className={styles.card} gap={10}>
+      <Flexbox className={styles.card} gap={10} style={{ maxWidth: 720, padding: 24 }}>
         <Text weight={700}>Нет доступа к super-admin console</Text>
         <Text type="secondary">
           Эта страница доступна только пользователям с ролью super_admin.
@@ -119,9 +123,10 @@ export default function BusinessAdminConsole() {
 
   if (!data) {
     return (
-      <Flexbox className={styles.card} gap={10} style={{ maxWidth: 720, padding: 24 }}>
-        <Text weight={700}>Загружаем Business Control Center…</Text>
-        <Text type="secondary">Проверяем права super-admin и свежие B2B метрики.</Text>
+      <Flexbox gap={18} style={{ maxWidth: 1180, padding: 24 }}>
+        <AsyncSection loading skeletonRows={6}>
+          {null}
+        </AsyncSection>
       </Flexbox>
     );
   }
@@ -280,53 +285,65 @@ export default function BusinessAdminConsole() {
                   disabled={busyAction !== null}
                   icon={<Gauge size={15} />}
                   loading={busyAction === `topup:${workspace.id}`}
-                  onClick={async () => {
+                  onClick={() => {
                     const amount = Number(workspaceAmount[workspace.id]);
                     if (!Number.isFinite(amount) || amount <= 0) return;
-                    if (
-                      !window.confirm(
-                        `Пополнить ${workspace.name} на ${amount.toLocaleString('ru-RU')} кредитов?`,
-                      )
-                    ) {
-                      return;
-                    }
-                    await runAction(
-                      `topup:${workspace.id}`,
-                      async () => {
-                        await lambdaClient.businessAdmin.topUpWorkspaceCredits.mutate({
-                          amount,
-                          note: 'Пополнение из super-admin console',
-                          workspaceId: workspace.id,
-                        });
-                        setWorkspaceAmount((prev) => ({ ...prev, [workspace.id]: '' }));
-                        await mutate();
-                      },
-                      `Баланс workspace ${workspace.name} пополнен`,
-                    );
+
+                    confirmModal({
+                      cancelText: 'Отмена',
+                      content: `Баланс workspace вырастет на ${fmt(amount)} кредитов. Операция попадет в историю с вашим super-admin id.`,
+                      okText: 'Пополнить',
+                      onOk: () =>
+                        runAction(
+                          `topup:${workspace.id}`,
+                          async () => {
+                            await lambdaClient.businessAdmin.topUpWorkspaceCredits.mutate({
+                              amount,
+                              note: 'Пополнение из super-admin console',
+                              workspaceId: workspace.id,
+                            });
+                            setWorkspaceAmount((prev) => ({ ...prev, [workspace.id]: '' }));
+                            await mutate();
+                          },
+                          `Баланс workspace ${workspace.name} пополнен`,
+                        ),
+                      title: `Пополнить «${workspace.name}»?`,
+                    });
                   }}
                 >
                   Пополнить
                 </Button>
                 <Button
+                  danger={!workspace.frozen}
                   disabled={busyAction !== null}
                   icon={<Snowflake size={15} />}
                   loading={busyAction === `freeze:${workspace.id}`}
-                  onClick={async () => {
-                    const verb = workspace.frozen ? 'разморозить' : 'заморозить';
-                    if (!window.confirm(`Точно ${verb} workspace ${workspace.name}?`)) return;
-                    await runAction(
-                      `freeze:${workspace.id}`,
-                      async () => {
-                        await lambdaClient.businessAdmin.setWorkspaceFrozen.mutate({
-                          frozen: !workspace.frozen,
-                          reason: !workspace.frozen ? 'Заморожено super-admin' : undefined,
-                          workspaceId: workspace.id,
-                        });
-                        await mutate();
-                      },
-                      `Workspace ${workspace.name} ${workspace.frozen ? 'разморожен' : 'заморожен'}`,
-                    );
-                  }}
+                  onClick={() =>
+                    confirmModal({
+                      cancelText: 'Отмена',
+                      content: workspace.frozen
+                        ? 'Участники снова смогут запускать модели и работать с общими агентами.'
+                        : 'Все запросы к моделям из этого workspace будут отклоняться, пока вы не снимете заморозку. Данные остаются на месте.',
+                      okButtonProps: { danger: !workspace.frozen },
+                      okText: workspace.frozen ? 'Разморозить' : 'Заморозить',
+                      onOk: () =>
+                        runAction(
+                          `freeze:${workspace.id}`,
+                          async () => {
+                            await lambdaClient.businessAdmin.setWorkspaceFrozen.mutate({
+                              frozen: !workspace.frozen,
+                              reason: workspace.frozen ? undefined : 'Заморожено super-admin',
+                              workspaceId: workspace.id,
+                            });
+                            await mutate();
+                          },
+                          `Workspace ${workspace.name} ${workspace.frozen ? 'разморожен' : 'заморожен'}`,
+                        ),
+                      title: workspace.frozen
+                        ? `Разморозить «${workspace.name}»?`
+                        : `Заморозить «${workspace.name}»?`,
+                    })
+                  }
                 >
                   {workspace.frozen ? 'Разморозить' : 'Freeze'}
                 </Button>

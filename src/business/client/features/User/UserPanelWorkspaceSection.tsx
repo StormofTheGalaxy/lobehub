@@ -1,5 +1,5 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
-import { createModal, useModalContext } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button, createModal, useModalContext } from '@lobehub/ui/base-ui';
 import { MonitorSmartphone } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,11 +7,11 @@ import { useNavigate } from 'react-router';
 import { useSWRConfig } from 'swr';
 
 import { openMobileVersion } from '@/features/RouteViewSwitch/url';
-import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspaceId } from '../../hooks/useActiveWorkspaceId';
 import { useSwitchWorkspace } from '../../hooks/useSwitchWorkspace';
 import { useWorkspaces, WORKSPACE_LIST_KEY } from '../../hooks/useWorkspaces';
+import { openCreateWorkspaceModal } from './createWorkspaceModal';
 
 interface UserPanelWorkspaceSectionProps {
   onSwitch?: () => void;
@@ -22,26 +22,16 @@ export default function UserPanelWorkspaceSection({ onSwitch }: UserPanelWorkspa
   const navigate = useNavigate();
   const { t } = useTranslation('common');
   const { mutate } = useSWRConfig();
-  const [creating, setCreating] = useState(false);
   const { switchToPersonal, switchWorkspace } = useSwitchWorkspace();
   const workspaces = useWorkspaces();
 
-  const createWorkspace = async () => {
-    setCreating(true);
-    try {
-      const suffix = Date.now().toString(36);
-      const workspace = await lambdaClient.workspace.create.mutate({
-        name: 'My Workspace',
-        slug: `workspace-${suffix}`,
-      });
+  const createWorkspace = () =>
+    openCreateWorkspaceModal(async (workspace) => {
       await mutate(WORKSPACE_LIST_KEY);
       await switchWorkspace(workspace.id);
       navigate(`/${workspace.slug}`);
       onSwitch?.();
-    } finally {
-      setCreating(false);
-    }
-  };
+    });
 
   const openInviteModal = async () => {
     createModal({
@@ -95,7 +85,7 @@ export default function UserPanelWorkspaceSection({ onSwitch }: UserPanelWorkspa
       <Button block size="small" onClick={openInviteModal}>
         Принять приглашение
       </Button>
-      <Button block loading={creating} size="small" onClick={createWorkspace}>
+      <Button block size="small" onClick={createWorkspace}>
         Создать workspace
       </Button>
       <Button

@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { formatIntergerNumber } from '@lobechat/utils/format';
+import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Coins, ShieldCheck } from 'lucide-react';
 import { memo, useState } from 'react';
@@ -8,18 +10,27 @@ import useSWR from 'swr';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
+import AsyncSection from '../components/AsyncSection';
+import { runAction } from '../components/runAction';
+import SettingCard from '../components/SettingCard';
+
 const styles = createStaticStyles(({ css, cssVar }) => ({
-  card: css`
-    padding: 20px;
-    border: 1px solid ${cssVar.colorBorderSecondary};
-    border-radius: 22px;
-    background: ${cssVar.colorBgContainer};
+  balance: css`
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
   `,
-  grant: css`
-    border-color: ${cssVar.colorPrimary};
-    background:
-      radial-gradient(circle at 100% 0, ${cssVar.colorPrimaryBg} 0, transparent 42%),
-      ${cssVar.colorBgContainer};
+  ledgerRow: css`
+    padding-block: 12px;
+
+    & + & {
+      border-block-start: 1px solid ${cssVar.colorBorderSecondary};
+    }
+
+    @media (width <= 720px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   `,
   mobileStack: css`
     @media (width <= 720px) {
@@ -36,9 +47,6 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
   `,
 }));
 
-const format = (value: number | undefined) =>
-  new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value ?? 0);
-
 interface PersonalCreditLedgerItem {
   amount: number;
   at: string;
@@ -46,126 +54,168 @@ interface PersonalCreditLedgerItem {
   type: string;
 }
 
+const ledgerLabel = (type: string) =>
+  type === 'admin_grant'
+    ? 'Начисление super-admin'
+    : type === 'starter_grant'
+      ? 'Стартовый баланс'
+      : type;
+
 const Credits = memo(() => {
   const [amount, setAmount] = useState('');
   const [targetUser, setTargetUser] = useState('');
   const [note, setNote] = useState('');
   const [granting, setGranting] = useState(false);
-  const { data, mutate } = useSWR('business/personal-billing', () =>
+  const { data, error, isLoading, mutate } = useSWR('business/personal-billing', () =>
     lambdaClient.personalBilling.get.query(),
   );
 
+  const parsedAmount = Number(amount);
+  const amountIsValid = Number.isFinite(parsedAmount) && parsedAmount > 0;
+  // The button explains what it is waiting for instead of silently ignoring a
+  // click, which is what the previous `if (!valid) return` did.
+  const grantBlockedReason = !targetUser.trim()
+    ? 'Укажите user id или email получателя.'
+    : amount && !amountIsValid
+      ? 'Сумма должна быть положительным числом.'
+      : undefined;
+
   const grant = async () => {
-    const value = Number(amount);
-    if (!targetUser.trim() || !Number.isFinite(value) || value <= 0) return;
+    if (!targetUser.trim() || !amountIsValid) return;
 
     setGranting(true);
-    try {
-      await lambdaClient.personalBilling.grantCredits.mutate({
-        amount: value,
-        note: note.trim() || undefined,
-        user: targetUser.trim(),
-      });
-      setAmount('');
-      setNote('');
-      setTargetUser('');
-      await mutate();
-    } finally {
-      setGranting(false);
-    }
+    const ok = await runAction(
+      () =>
+        lambdaClient.personalBilling.grantCredits.mutate({
+          amount: parsedAmount,
+          note: note.trim() || undefined,
+          user: targetUser.trim(),
+        }),
+      {
+        errorTitle: 'Не удалось выдать кредиты',
+        successTitle: `Начислено ${formatIntergerNumber(parsedAmount)} токенов`,
+      },
+    );
+    setGranting(false);
+
+    if (!ok) return;
+    setAmount('');
+    setNote('');
+    setTargetUser('');
+    await mutate();
   };
+
+  const credits = data?.credits ?? 0;
+  const ledger = (data?.ledger ?? []) as PersonalCreditLedgerItem[];
 
   return (
     <Flexbox gap={18} style={{ maxWidth: 860 }}>
-      <Flexbox className={styles.card} gap={16}>
-        <Flexbox horizontal align="center" gap={10}>
-          <Coins size={24} />
-          <Text as="h1" style={{ fontSize: 28, fontWeight: 800, margin: 0 }}>
-            Личный баланс
-          </Text>
-        </Flexbox>
-        <Text className={styles.muted}>
-          По умолчанию у пользователя 0 токенов Acensus AI. Баланс выдается вручную super-admin и
-          используется для личного окружения без workspace.
-        </Text>
-        <Flexbox horizontal align="center" gap={10}>
-          <Text style={{ fontSize: 38, fontWeight: 800 }}>{format(data?.credits)}</Text>
-          <Tag>{data?.currency ?? 'internal'}</Tag>
-          <Tag color={(data?.credits ?? 0) > 0 ? 'green' : 'default'}>
-            {(data?.credits ?? 0) > 0 ? 'Доступно' : '0 токенов'}
-          </Tag>
-        </Flexbox>
-      </Flexbox>
+      <AsyncSection
+        error={error}
+        loading={isLoading && !data}
+        skeletonRows={4}
+        onRetry={() => void mutate()}
+      >
+        <Flexbox gap={18}>
+          <SettingCard
+            icon={Coins}
+            title={'Личный баланс'}
+            variant={'hero'}
+            description={
+              'По умолчанию у пользователя 0 токенов Acensus AI. Баланс выдается вручную super-admin и используется для личного окружения без workspace.'
+            }
+          >
+            <Flexbox horizontal align={'center'} gap={10} wrap={'wrap'}>
+              <Text className={styles.balance}>{formatIntergerNumber(credits)}</Text>
+              <Tag>{data?.currency ?? 'tokens'}</Tag>
+              <Tag color={credits > 0 ? 'green' : 'default'}>
+                {credits > 0 ? 'Доступно' : 'Баланс исчерпан'}
+              </Tag>
+            </Flexbox>
+          </SettingCard>
 
-      {data?.isSuperAdmin && (
-        <Flexbox className={`${styles.card} ${styles.grant}`} gap={14}>
-          <Flexbox horizontal align="center" gap={10}>
-            <ShieldCheck size={22} />
-            <Text weight={700}>Super-admin: выдать кредиты</Text>
-          </Flexbox>
-          <Text className={styles.muted}>
-            Укажите user id или email. Начисление попадет в историю пользователя с вашим admin id.
-          </Text>
-          <Flexbox horizontal className={styles.mobileStack} gap={8}>
-            <Input
-              placeholder="User id или email"
-              value={targetUser}
-              onChange={(e) => setTargetUser(e.target.value)}
-            />
-            <Input
-              placeholder="Сумма"
-              style={{ width: 160 }}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-            <Button loading={granting} type="primary" onClick={grant}>
-              Выдать
-            </Button>
-          </Flexbox>
-          <Input
-            placeholder="Комментарий для аудита"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-        </Flexbox>
-      )}
-
-      <Flexbox className={styles.card} gap={12}>
-        <Text weight={700}>История начислений</Text>
-        {data?.ledger?.length ? (
-          data.ledger
-            .slice()
-            .reverse()
-            .map((item: PersonalCreditLedgerItem, index: number) => (
-              <Flexbox
-                horizontal
-                align="center"
-                className={styles.mobileStack}
-                gap={12}
-                justify="space-between"
-                key={`${item.at}-${index}`}
-              >
-                <Flexbox gap={2}>
-                  <Text>{item.type === 'admin_grant' ? 'Начисление super-admin' : item.type}</Text>
-                  <Text className={styles.muted} fontSize={13}>
-                    {new Date(item.at).toLocaleString('ru-RU')} · {item.note || 'без комментария'}
-                  </Text>
-                </Flexbox>
-                <Tag color="green">+{format(item.amount)}</Tag>
+          {data?.isSuperAdmin && (
+            <SettingCard
+              highlight
+              icon={ShieldCheck}
+              title={'Super-admin: выдать кредиты'}
+              description={
+                'Укажите user id или email. Начисление попадет в историю пользователя с вашим admin id.'
+              }
+            >
+              <Flexbox horizontal className={styles.mobileStack} gap={8}>
+                <Input
+                  placeholder={'User id или email'}
+                  value={targetUser}
+                  onChange={(e) => setTargetUser(e.target.value)}
+                />
+                <Input
+                  placeholder={'Сумма'}
+                  style={{ width: 160 }}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <Button
+                  disabled={!targetUser.trim() || !amountIsValid}
+                  loading={granting}
+                  type={'primary'}
+                  onClick={grant}
+                >
+                  Выдать
+                </Button>
               </Flexbox>
-            ))
-        ) : (
-          <Flexbox gap={4} padding={16}>
-            <Text weight={600}>Начислений пока нет</Text>
-            <Text className={styles.muted}>
-              Когда super-admin выдаст кредиты, они появятся здесь.
-            </Text>
-          </Flexbox>
-        )}
-      </Flexbox>
+              <Input
+                placeholder={'Комментарий для аудита'}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+              {grantBlockedReason && (
+                <Text className={styles.muted} fontSize={13}>
+                  {grantBlockedReason}
+                </Text>
+              )}
+            </SettingCard>
+          )}
+
+          <SettingCard title={'История начислений'}>
+            {ledger.length === 0 ? (
+              <Flexbox gap={4} paddingBlock={8}>
+                <Text weight={600}>Начислений пока нет</Text>
+                <Text className={styles.muted}>
+                  Когда super-admin выдаст кредиты, они появятся здесь.
+                </Text>
+              </Flexbox>
+            ) : (
+              [...ledger].reverse().map((item, index) => (
+                <Flexbox
+                  horizontal
+                  align={'center'}
+                  className={styles.ledgerRow}
+                  gap={12}
+                  justify={'space-between'}
+                  key={`${item.at}-${index}`}
+                >
+                  <Flexbox gap={2}>
+                    <Text>{ledgerLabel(item.type)}</Text>
+                    <Text className={styles.muted} fontSize={13}>
+                      {new Date(item.at).toLocaleString('ru-RU')}
+                      {item.note ? ` · ${item.note}` : ''}
+                    </Text>
+                  </Flexbox>
+                  <Tag color={item.amount >= 0 ? 'green' : 'red'}>
+                    {item.amount >= 0 ? '+' : ''}
+                    {formatIntergerNumber(item.amount)}
+                  </Tag>
+                </Flexbox>
+              ))
+            )}
+          </SettingCard>
+        </Flexbox>
+      </AsyncSection>
     </Flexbox>
   );
 });
 
 Credits.displayName = 'Credits';
+
 export default Credits;

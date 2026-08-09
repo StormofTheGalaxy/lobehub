@@ -1,8 +1,11 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button, confirmModal } from '@lobehub/ui/base-ui';
 import { useState } from 'react';
 
 import { lambdaClient } from '@/libs/trpc/client';
 import { useUserStore } from '@/store/user';
+
+import { runAction } from '../../components/runAction';
 
 export default function AccountDeletion() {
   const [confirmation, setConfirmation] = useState('');
@@ -21,17 +24,30 @@ export default function AccountDeletion() {
         danger
         disabled={confirmation !== 'DELETE_MY_ACCOUNT'}
         loading={deleting}
-        onClick={async () => {
-          setDeleting(true);
-          try {
-            await lambdaClient.accountDeletion.deleteCurrentUser.mutate({
-              confirmation: 'DELETE_MY_ACCOUNT',
-            });
-            await logout();
-          } finally {
-            setDeleting(false);
-          }
-        }}
+        onClick={() =>
+          confirmModal({
+            cancelText: 'Отмена',
+            content:
+              'Аккаунт, его агенты, диалоги, файлы и баланс будут удалены безвозвратно. Восстановить их будет невозможно.',
+            okButtonProps: { danger: true },
+            okText: 'Удалить навсегда',
+            onOk: async () => {
+              setDeleting(true);
+              const ok = await runAction(
+                () =>
+                  lambdaClient.accountDeletion.deleteCurrentUser.mutate({
+                    confirmation: 'DELETE_MY_ACCOUNT',
+                  }),
+                { errorTitle: 'Не удалось удалить аккаунт' },
+              );
+              setDeleting(false);
+              // Only sign out once the server confirmed the deletion — a failed
+              // request must leave the user where they are, with the reason.
+              if (ok) await logout();
+            },
+            title: 'Удалить аккаунт безвозвратно?',
+          })
+        }
       >
         Удалить аккаунт
       </Button>

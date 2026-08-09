@@ -1,5 +1,4 @@
 import { BriefcaseBusiness, MonitorSmartphone, Plus, ShieldCheck, UserRound } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import useSWR, { useSWRConfig } from 'swr';
@@ -11,36 +10,25 @@ import { lambdaClient } from '@/libs/trpc/client';
 import { useActiveWorkspaceId } from '../../hooks/useActiveWorkspaceId';
 import { useSwitchWorkspace } from '../../hooks/useSwitchWorkspace';
 import { useWorkspaces, WORKSPACE_LIST_KEY } from '../../hooks/useWorkspaces';
+import { openCreateWorkspaceModal } from './createWorkspaceModal';
 
 export default function useBusinessMeCells(): CellProps[] {
   const activeWorkspaceId = useActiveWorkspaceId();
   const navigate = useNavigate();
   const { t } = useTranslation('common');
   const { mutate } = useSWRConfig();
-  const [creating, setCreating] = useState(false);
   const { switchToPersonal, switchWorkspace } = useSwitchWorkspace();
   const workspaces = useWorkspaces();
   const { data: personalBilling } = useSWR(['business/personal-billing'], () =>
     lambdaClient.personalBilling.get.query(),
   );
 
-  const createWorkspace = async () => {
-    if (creating) return;
-
-    setCreating(true);
-    try {
-      const suffix = Date.now().toString(36);
-      const workspace = await lambdaClient.workspace.create.mutate({
-        name: 'Мой workspace',
-        slug: `workspace-${suffix}`,
-      });
+  const createWorkspace = () =>
+    openCreateWorkspaceModal(async (workspace) => {
       await mutate(WORKSPACE_LIST_KEY);
       await switchWorkspace(workspace.id);
       navigate(`/${workspace.slug}`);
-    } finally {
-      setCreating(false);
-    }
-  };
+    });
 
   return [
     { type: 'divider' },
@@ -67,7 +55,7 @@ export default function useBusinessMeCells(): CellProps[] {
     {
       icon: Plus,
       key: 'create-workspace',
-      label: creating ? 'Создаём workspace...' : 'Создать workspace',
+      label: 'Создать workspace',
       onClick: createWorkspace,
     },
     {

@@ -34,7 +34,9 @@ import { registerTopicCommand } from './commands/topic';
 import { registerUpdateCommand } from './commands/update';
 import { registerUserCommand } from './commands/user';
 import { registerVerifyCommand } from './commands/verify';
+import { registerAcceptanceCommands } from './commands/verifyAcceptance';
 import { cliVersion } from './pkg';
+import { executeToolCall } from './tools';
 
 export function createProgram() {
   const program = new Command();
@@ -43,6 +45,27 @@ export function createProgram() {
     .name('lh')
     .description('LobeHub CLI - manage and connect to LobeHub services')
     .version(cliVersion);
+
+  const internalToolWorker = program
+    .command('tool-worker')
+    .description('Internal command for isolated tool execution')
+    .requiredOption('--api <name>')
+    .requiredOption('--args-b64 <value>')
+    .option('--timeout <ms>')
+    .action(async (options: { api: string; argsB64: string; timeout?: string }) => {
+      const argsStr = Buffer.from(options.argsB64, 'base64').toString('utf8');
+      const parsedTimeout =
+        options.timeout && options.timeout.trim()
+          ? Number.parseInt(options.timeout, 10)
+          : undefined;
+      const result = await executeToolCall(
+        options.api,
+        argsStr,
+        Number.isFinite(parsedTimeout) ? parsedTimeout : undefined,
+      );
+      process.stdout.write(JSON.stringify(result));
+    });
+  internalToolWorker.helpInformation = () => '';
 
   registerLoginCommand(program);
   registerLogoutCommand(program);
@@ -74,6 +97,8 @@ export function createProgram() {
   registerPluginCommand(program);
   registerUserCommand(program);
   registerVerifyCommand(program);
+  // First-class review-loop entry: `lh acceptance list|view|feedback|accept|reject`.
+  registerAcceptanceCommands(program);
   registerConfigCommand(program);
   registerEvalCommand(program);
   registerMigrateCommand(program);

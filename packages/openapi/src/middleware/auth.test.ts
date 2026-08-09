@@ -6,15 +6,17 @@ import { requireAuth, userAuthMiddleware } from './auth';
 
 interface TestHonoEnv {
   Variables: {
+    apiKeyWorkspaceId: string | null | undefined;
     authData: unknown;
     authorizationHeader: string | null;
     authType: string | null;
     userId: string | null;
-    workspaceId: string | undefined;
   };
 }
 
 const {
+  mockApiKeyFindByKey,
+  mockApiKeyUpdateLastUsed,
   mockAssertOIDCUserActive,
   mockAuthEnv,
   mockGetServerDB,
@@ -23,6 +25,8 @@ const {
   mockValidateApiKeyFormat,
   mockValidateOIDCJWT,
 } = vi.hoisted(() => ({
+  mockApiKeyFindByKey: vi.fn(),
+  mockApiKeyUpdateLastUsed: vi.fn(),
   mockAssertOIDCUserActive: vi.fn(),
   mockAuthEnv: { ENABLE_OIDC: true },
   mockExtractBearerToken: vi.fn(),
@@ -38,15 +42,8 @@ vi.mock('@/database/core/db-adaptor', () => ({
 
 vi.mock('@/database/models/apiKey', () => ({
   ApiKeyModel: class {
-    findByKey = vi.fn().mockResolvedValue({
-      enabled: true,
-      expiresAt: null,
-      id: 'api-key-1',
-      name: 'Workspace key',
-      userId: 'api-user',
-      workspaceId: 'workspace-1',
-    });
-    updateLastUsed = vi.fn().mockResolvedValue(undefined);
+    findByKey = mockApiKeyFindByKey;
+    updateLastUsed = mockApiKeyUpdateLastUsed;
   },
 }));
 
@@ -82,9 +79,9 @@ const createApp = () => {
   app.use('*', userAuthMiddleware);
   app.get('/protected', requireAuth, (c) =>
     c.json({
+      apiKeyWorkspaceId: c.get('apiKeyWorkspaceId') ?? null,
       authType: c.get('authType'),
       userId: c.get('userId'),
-      workspaceId: c.get('workspaceId') ?? null,
     }),
   );
 
@@ -97,6 +94,8 @@ describe('OpenAPI auth middleware', () => {
     mockAuthEnv.ENABLE_OIDC = true;
     mockExtractBearerToken.mockReturnValue('oidc-token');
     mockGetServerDB.mockResolvedValue(mockServerDB);
+    mockApiKeyFindByKey.mockResolvedValue(null);
+    mockApiKeyUpdateLastUsed.mockResolvedValue(undefined);
     mockValidateApiKeyFormat.mockReturnValue(false);
     mockValidateOIDCJWT.mockResolvedValue({
       tokenData: { sub: 'oidc-user' },
@@ -113,9 +112,9 @@ describe('OpenAPI auth middleware', () => {
     });
 
     await expect(response.json()).resolves.toEqual({
+      apiKeyWorkspaceId: null,
       authType: 'oidc',
       userId: 'oidc-user',
-      workspaceId: null,
     });
     expect(response.status).toBe(200);
     expect(mockValidateOIDCJWT).toHaveBeenCalledWith('oidc-token');
@@ -141,19 +140,50 @@ describe('OpenAPI auth middleware', () => {
     expect(mockAssertOIDCUserActive).toHaveBeenCalledWith(mockServerDB, 'banned-user');
   });
 
-  it('should attach workspace context from a workspace-scoped API key', async () => {
-    const app = createApp();
-    mockExtractBearerToken.mockReturnValueOnce('sk-lh-workspacekey');
+  it('should expose the workspace scope of an API Key to downstream middleware', async () => {
+    mockExtractBearerToken.mockReturnValueOnce('sk-lh-workspacekey01');
     mockValidateApiKeyFormat.mockReturnValueOnce(true);
+    mockApiKeyFindByKey.mockResolvedValueOnce({
+      enabled: true,
+      expiresAt: null,
+      id: 'api-key-1',
+      name: 'Workspace key',
+      userId: 'user-1',
+      workspaceId: 'workspace-1',
+    });
 
-    const response = await app.request('/protected', {
-      headers: { Authorization: 'Bearer sk-lh-workspacekey' },
+    const response = await createApp().request('/protected', {
+      headers: { Authorization: 'Bearer sk-lh-workspacekey01' },
     });
 
     await expect(response.json()).resolves.toEqual({
+      apiKeyWorkspaceId: 'workspace-1',
       authType: 'apikey',
-      userId: 'api-user',
-      workspaceId: 'workspace-1',
+      userId: 'user-1',
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it('should expose a null workspace scope for a personal API Key', async () => {
+    mockExtractBearerToken.mockReturnValueOnce('sk-lh-personalkey001');
+    mockValidateApiKeyFormat.mockReturnValueOnce(true);
+    mockApiKeyFindByKey.mockResolvedValueOnce({
+      enabled: true,
+      expiresAt: null,
+      id: 'api-key-2',
+      name: 'Personal key',
+      userId: 'user-1',
+      workspaceId: null,
+    });
+
+    const response = await createApp().request('/protected', {
+      headers: { Authorization: 'Bearer sk-lh-personalkey001' },
+    });
+
+    await expect(response.json()).resolves.toEqual({
+      apiKeyWorkspaceId: null,
+      authType: 'apikey',
+      userId: 'user-1',
     });
     expect(response.status).toBe(200);
   });

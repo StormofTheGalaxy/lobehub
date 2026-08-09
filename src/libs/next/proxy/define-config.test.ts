@@ -14,11 +14,13 @@ import { DEFAULT_LANG, RouteVariants } from '@/utils/server/routeVariants';
 import { defineConfig, resolveIsMobileVariant, resolveRouteViewPreference } from './define-config';
 
 vi.mock('@/auth', () => ({
-  auth: { api: { getSession: vi.fn().mockResolvedValue(null) } },
+  auth: { api: { getSession: vi.fn().mockResolvedValue({ user: { id: 'user-1' } }) } },
 }));
 
 const { middleware } = defineConfig();
 
+// Takes a full `NextRequest` init (not just a user-agent) because the route-view
+// tests below assert on `set-cookie`, so they need the whole response back.
 const run = async (url: string, init?: ConstructorParameters<typeof NextRequest>[1]) => {
   const res = await middleware(new NextRequest(url, init));
   return {
@@ -26,6 +28,11 @@ const run = async (url: string, init?: ConstructorParameters<typeof NextRequest>
     rewrite: res?.headers.get('x-middleware-rewrite'),
   };
 };
+
+const MOBILE_USER_AGENT =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1';
+
+const mobile = { headers: { 'user-agent': MOBILE_USER_AGENT } };
 
 describe('defineConfig locale path-traversal hardening', () => {
   it('rewrites a normal locale into /spa-auth/<locale>', async () => {
@@ -45,6 +52,15 @@ describe('defineConfig locale path-traversal hardening', () => {
     const { pathname } = new URL(rewrite!);
     expect(pathname.startsWith('/spa-auth/')).toBe(true);
     expect(pathname).toBe('/spa-auth/en-US/signin');
+  });
+
+  it('does not treat workspace slugs beginning with an auth route as auth SPA pages', async () => {
+    const { rewrite } = await run(
+      'http://localhost:3010/oauth-preview-e2e-20260716/settings/oauth-apps?hl=en-US',
+    );
+    expect(new URL(rewrite!).pathname).toMatch(
+      /^\/spa\/[^/]+\/oauth-preview-e2e-20260716\/settings\/oauth-apps$/,
+    );
   });
 });
 
@@ -67,7 +83,7 @@ describe('defineConfig route view preference', () => {
     expect(
       resolveIsMobileVariant({
         isMobileDevice: true,
-        isSharePath: false,
+        isDesktopOnlyPath: false,
         routeViewPreference: RouteViewPreference.Desktop,
       }),
     ).toBe(false);
@@ -77,7 +93,7 @@ describe('defineConfig route view preference', () => {
     expect(
       resolveIsMobileVariant({
         isMobileDevice: false,
-        isSharePath: false,
+        isDesktopOnlyPath: false,
         routeViewPreference: RouteViewPreference.Mobile,
       }),
     ).toBe(true);
@@ -116,5 +132,33 @@ describe('defineConfig route view preference', () => {
     expect(new URL(rewrite!, 'http://localhost:3010').pathname).toBe(
       `/spa/${desktopRoute}/verify/example`,
     );
+  });
+});
+
+describe('defineConfig Workbench SPA rewrite', () => {
+  it('routes Workbench-owned paths only for mobile devices', async () => {
+    const { rewrite: mobileAcceptance } = await run(
+      'http://localhost:3010/acceptance/acceptance-1?hl=en-US',
+      mobile,
+    );
+    const { rewrite: desktopAcceptance } = await run(
+      'http://localhost:3010/acceptance/acceptance-1?hl=en-US',
+    );
+
+    expect(new URL(mobileAcceptance!).pathname).toBe('/spa-workbench/en-US/acceptance/acceptance-1');
+    expect(new URL(desktopAcceptance!).pathname).toMatch(
+      /^\/spa\/[^/]+\/acceptance\/acceptance-1$/,
+    );
+  });
+
+  it('keeps the agent documents index in the Main Mobile SPA', async () => {
+    const { rewrite: detail } = await run(
+      'http://localhost:3010/agent/agt_1/docs/doc_1?hl=en-US',
+      mobile,
+    );
+    const { rewrite: index } = await run('http://localhost:3010/agent/agt_1/docs?hl=en-US', mobile);
+
+    expect(new URL(detail!).pathname).toBe('/spa-workbench/en-US/agent/agt_1/docs/doc_1');
+    expect(new URL(index!).pathname).toMatch(/^\/spa\/[^/]+\/agent\/agt_1\/docs$/);
   });
 });

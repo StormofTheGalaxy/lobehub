@@ -1,8 +1,13 @@
 import { BUILTIN_AGENT_SLUGS } from '@lobechat/builtin-agents';
-import type { AgentGroupDetail, AgentGroupMember } from '@lobechat/types';
+import type { AgentGroupDetail, AgentGroupMember, AgentPluginEntry } from '@lobechat/types';
 import { cleanObject } from '@lobechat/utils';
-import { and, eq, inArray, not } from 'drizzle-orm';
+import { and, asc, eq, inArray, ne, not, sql } from 'drizzle-orm';
 
+import {
+  hasForeignTopicComments,
+  syncTopicCommentsOnTopicTransfer,
+  TOPIC_COMMENT_TRANSFER_HAS_FOREIGN_AUTHORS,
+} from '../../models/topicComment';
 import type {
   AgentItem,
   ChatGroupItem,
@@ -11,11 +16,13 @@ import type {
   NewChatGroupAgent,
 } from '../../schemas';
 import {
+  agentLabelAssignments,
   agents,
   chatGroups,
   chatGroupsAgents,
   messagePlugins,
   messages,
+  sessionGroups,
   threads,
   topics,
 } from '../../schemas';
@@ -27,6 +34,11 @@ import { buildWorkspaceWhere } from '../../utils/workspace';
 interface CopyAgentGroupToWorkspaceOptions {
   includeConversationHistory?: boolean;
   newTitle?: string;
+  /**
+   * Visibility of the copied group + its member agents within the target
+   * workspace. Ignored when copying to a personal account.
+   */
+  targetVisibility?: 'private' | 'public';
 }
 
 export interface SupervisorAgentConfig {
@@ -36,7 +48,7 @@ export interface SupervisorAgentConfig {
   description?: string;
   model?: string;
   params?: any;
-  plugins?: string[];
+  plugins?: AgentPluginEntry[];
   provider?: string;
   systemRole?: string;
   tags?: string[];
@@ -92,6 +104,8 @@ export class AgentGroupRepository {
     buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, chatGroups);
   private agentOwnership = () =>
     buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, agents);
+  private groupAgentOwnership = () =>
+    buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, chatGroupsAgents);
   private topicOwnership = () =>
     buildWorkspaceWhere({ userId: this.userId, workspaceId: this.workspaceId }, topics);
   private threadOwnership = () =>
@@ -106,6 +120,7 @@ export class AgentGroupRepository {
     targetWorkspaceId: string | null,
     targetUserId: string,
     fallbackTitle: string,
+    targetVisibility?: 'private' | 'public',
   ): NewAgent => ({
     agencyConfig: source?.agencyConfig,
     avatar: source?.avatar,
@@ -127,6 +142,7 @@ export class AgentGroupRepository {
     tts: source?.tts,
     userId: targetUserId,
     virtual: source?.virtual ?? true,
+    ...(targetWorkspaceId && targetVisibility ? { visibility: targetVisibility } : {}),
     workspaceId: targetWorkspaceId,
   });
 
@@ -313,17 +329,28 @@ export class AgentGroupRepository {
 
     if (!group) return null;
 
-    // 2. Find all agents associated with this group (including role info)
+    // 2. Find all agents associated with this group (including role info). The
+    // roster is fetched raw (no visibility filter) with a per-row `visible`
+    // flag: supervisor existence must be judged on the raw rows — otherwise a
+    // viewer who can't see the supervisor would auto-create a duplicate one
+    // below — while a member agent switched back to private must not leak its
+    // config to other members, so only visible rows are returned.
     const groupAgentsWithDetails = await this.db
       .select({
         agent: agents,
         order: chatGroupsAgents.order,
         role: chatGroupsAgents.role,
+        visible: sql<boolean>`(${this.agentOwnership()})`,
       })
       .from(chatGroupsAgents)
       .innerJoin(agents, eq(chatGroupsAgents.agentId, agents.id))
       .where(eq(chatGroupsAgents.chatGroupId, groupId))
-      .orderBy(chatGroupsAgents.order);
+      // `createdAt` then `agentId` are deterministic tiebreaks so rows sharing
+      // an `order` (e.g. legacy members left at the default 0) keep a stable
+      // order instead of shuffling on every refetch. `agentId` is the final,
+      // guaranteed-unique key (part of the PK) because a single multi-row insert
+      // stamps every row with the same `createdAt`, which alone can still tie.
+      .orderBy(chatGroupsAgents.order, chatGroupsAgents.createdAt, chatGroupsAgents.agentId);
 
     // 3. Extract agent items with isSupervisor flag and find supervisor
     const agentItems: AgentGroupMember[] = [];
@@ -331,6 +358,14 @@ export class AgentGroupRepository {
 
     for (const row of groupAgentsWithDetails) {
       const isSupervisor = row.role === 'supervisor';
+      if (isSupervisor) {
+        supervisorAgentId = row.agent.id;
+      }
+      // The supervisor is a group-owned synthetic agent: anyone who can read
+      // the group needs it to run group chat, and `publishToWorkspace` keeps
+      // its visibility in sync with the group. Skipping an out-of-sync legacy
+      // row would strand `supervisorAgentId` without a matching agent entry.
+      if (!row.visible && !isSupervisor) continue;
       agentItems.push(
         cleanObject({
           ...row.agent,
@@ -339,9 +374,6 @@ export class AgentGroupRepository {
           slug: isSupervisor ? BUILTIN_AGENT_SLUGS.groupSupervisor : row.agent.slug,
         }) as AgentGroupMember,
       );
-      if (isSupervisor) {
-        supervisorAgentId = row.agent.id;
-      }
     }
 
     // 4. If no supervisor exists, create a virtual supervisor agent
@@ -398,11 +430,62 @@ export class AgentGroupRepository {
    * @param supervisorConfig - Optional configuration for the supervisor agent
    * @returns Created group, agents, and supervisor agent ID
    */
+  /**
+   * Resolve a folder the caller may put a group in, returning its visibility.
+   * Mirrors `AgentModel.getAssignableSessionGroupVisibility` — the foreign key
+   * only proves the folder exists, which is the wrong question once the column
+   * is read by every member's sidebar.
+   */
+  async getAssignableFolderVisibility(folderId: string): Promise<'private' | 'public'> {
+    const [folder] = await this.db
+      .select({ visibility: sessionGroups.visibility })
+      .from(sessionGroups)
+      .where(
+        and(
+          eq(sessionGroups.id, folderId),
+          buildWorkspaceWhere(
+            { userId: this.userId, workspaceId: this.workspaceId },
+            {
+              userId: sessionGroups.userId,
+              visibility: sessionGroups.visibility,
+              workspaceId: sessionGroups.workspaceId,
+            },
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (!folder) throw new Error(`Session group ${folderId} not found in current scope`);
+
+    return folder.visibility as 'private' | 'public';
+  }
+
   async createGroupWithSupervisor(
     groupParams: Omit<NewChatGroup, 'userId'>,
     agentMembers: string[] = [],
     supervisorConfig?: SupervisorAgentConfig,
   ): Promise<CreateGroupWithSupervisorResult> {
+    // Creating inside a Category has to land in that Category. The sidebar
+    // resolves a public group's folder only against public folders (and a
+    // private group's only against private ones), so a default-public group
+    // created in a private Category renders in Ungrouped — for its creator as
+    // well. The folder therefore decides the new group's visibility, and an
+    // explicit value that contradicts it is refused rather than overridden.
+    // Same rule and same reasoning as agent creation.
+    const folderVisibility = groupParams.groupId
+      ? await this.getAssignableFolderVisibility(groupParams.groupId)
+      : undefined;
+
+    if (folderVisibility && groupParams.visibility && groupParams.visibility !== folderVisibility)
+      throw new Error(
+        `A ${groupParams.visibility} chat group cannot be created in a ${folderVisibility} folder`,
+      );
+
+    // Mirror the group's visibility onto the synthetic supervisor agent so
+    // workspace members don't see a stray supervisor when the parent group is
+    // private. Defaults to 'public' to match the column default.
+    const groupVisibility = groupParams.visibility ?? folderVisibility ?? 'public';
+
     // 1. Create supervisor agent (virtual agent)
     const [supervisorAgent] = await this.db
       .insert(agents)
@@ -413,13 +496,18 @@ export class AgentGroupRepository {
         description: supervisorConfig?.description,
         model: supervisorConfig?.model,
         params: supervisorConfig?.params,
-        plugins: supervisorConfig?.plugins,
+        // The `plugins` column is still typed `string[]` at the schema layer
+        // (widening deferred to the tri-state rollout's final phase) but
+        // legitimately holds mixed AgentPluginEntry[] at runtime — JSONB has
+        // no schema enforcement.
+        plugins: supervisorConfig?.plugins as unknown as string[] | undefined,
         provider: supervisorConfig?.provider,
         systemRole: supervisorConfig?.systemRole,
         tags: supervisorConfig?.tags,
         title: supervisorConfig?.title ?? 'Supervisor',
         userId: this.userId,
         virtual: true,
+        visibility: groupVisibility,
         workspaceId: this.workspaceId ?? null,
       })
       .returning();
@@ -427,7 +515,12 @@ export class AgentGroupRepository {
     // 2. Create the group
     const [group] = await this.db
       .insert(chatGroups)
-      .values({ ...groupParams, userId: this.userId, workspaceId: this.workspaceId ?? null })
+      .values({
+        ...groupParams,
+        userId: this.userId,
+        visibility: groupVisibility,
+        workspaceId: this.workspaceId ?? null,
+      })
       .returning();
 
     // 3. Add supervisor agent to group with role 'supervisor'
@@ -486,6 +579,7 @@ export class AgentGroupRepository {
         avatar: agents.avatar,
         description: agents.description,
         id: agents.id,
+        name: agents.name,
         slug: agents.slug,
         title: agents.title,
         virtual: agents.virtual,
@@ -538,12 +632,19 @@ export class AgentGroupRepository {
     const { virtualAgents } = await this.checkAgentsBeforeRemoval(groupId, agentIds);
     const virtualAgentIds = virtualAgents.map((a) => a.id);
 
-    // 2. Remove all agents from the group (batch delete from junction table)
-    await this.db
+    // 2. Remove all agents from the group (batch delete from junction table).
+    // Scope by the caller's ownership so a client-supplied groupId can only touch
+    // the caller's own junction rows — never another user's group membership (IDOR).
+    const removed = await this.db
       .delete(chatGroupsAgents)
       .where(
-        and(eq(chatGroupsAgents.chatGroupId, groupId), inArray(chatGroupsAgents.agentId, agentIds)),
-      );
+        and(
+          eq(chatGroupsAgents.chatGroupId, groupId),
+          inArray(chatGroupsAgents.agentId, agentIds),
+          this.groupAgentOwnership(),
+        ),
+      )
+      .returning({ agentId: chatGroupsAgents.agentId });
 
     // 3. Delete virtual agents if requested
     // Note: Virtual agents are standalone (no associated sessions), so we can delete them directly
@@ -556,7 +657,7 @@ export class AgentGroupRepository {
 
     return {
       deletedVirtualAgentIds: deleteVirtualAgents ? virtualAgentIds : [],
-      removedFromGroup: agentIds.length,
+      removedFromGroup: removed.length,
     };
   }
 
@@ -593,7 +694,7 @@ export class AgentGroupRepository {
       .from(chatGroupsAgents)
       .innerJoin(agents, eq(chatGroupsAgents.agentId, agents.id))
       .where(eq(chatGroupsAgents.chatGroupId, groupId))
-      .orderBy(chatGroupsAgents.order);
+      .orderBy(chatGroupsAgents.order, chatGroupsAgents.createdAt, chatGroupsAgents.agentId);
 
     // 3. Separate supervisor, virtual members, and non-virtual members
     let sourceSupervisor: (typeof groupAgentsWithDetails)[number] | undefined;
@@ -622,6 +723,15 @@ export class AgentGroupRepository {
           content: sourceGroup.content,
           description: sourceGroup.description,
           editorData: sourceGroup.editorData,
+          // Sidebar folder placement is shared state, so the copy lands next to
+          // its source (matching AgentModel.duplicate's `sessionGroupId`).
+          groupId: sourceGroup.groupId,
+          // Visibility travels with the folder, and must: the column defaults
+          // to `public`, so duplicating a private group would otherwise publish
+          // the copy to the workspace *and* strand it — the sidebar resolves a
+          // public item's folder only against public folders, so the copy would
+          // land in Ungrouped rather than beside its source.
+          visibility: sourceGroup.visibility,
           pinned: sourceGroup.pinned,
           title: newTitle || (sourceGroup.title ? `${sourceGroup.title} (Copy)` : 'Copy'),
           userId: this.userId,
@@ -645,6 +755,10 @@ export class AgentGroupRepository {
           title: supervisorAgent?.title || 'Supervisor',
           userId: this.userId,
           virtual: true,
+          // Synthetic agents stay in lockstep with their group, the same way
+          // creation and `setVisibility` keep them. Left to the column default
+          // they would be workspace-visible while the group stays private.
+          visibility: sourceGroup.visibility,
           workspaceId: this.workspaceId ?? null,
         })
         .returning();
@@ -674,6 +788,7 @@ export class AgentGroupRepository {
           // User & virtual flag
           userId: this.userId,
           virtual: true,
+          visibility: sourceGroup.visibility,
           workspaceId: this.workspaceId ?? null,
         }));
 
@@ -727,10 +842,62 @@ export class AgentGroupRepository {
     });
   }
 
+  /**
+   * Whether the group's transfer cascade (member agents + group topics /
+   * threads / messages) contains rows created by someone else. Transfers
+   * rehome every cascaded row, so non-owner members must not move a group
+   * that carries teammates' agents or conversations.
+   */
+  async transferHasForeignRows(groupId: string): Promise<boolean> {
+    const agentLinks = await this.db
+      .select({ agentId: chatGroupsAgents.agentId })
+      .from(chatGroupsAgents)
+      .where(eq(chatGroupsAgents.chatGroupId, groupId));
+    const agentIds = agentLinks.map((link) => link.agentId);
+
+    if (agentIds.length > 0) {
+      const [foreignAgent] = await this.db
+        .select({ id: agents.id })
+        .from(agents)
+        .where(and(inArray(agents.id, agentIds), ne(agents.userId, this.userId)))
+        .limit(1);
+      if (foreignAgent) return true;
+    }
+
+    const [foreignTopic] = await this.db
+      .select({ id: topics.id })
+      .from(topics)
+      .where(and(eq(topics.groupId, groupId), ne(topics.userId, this.userId)))
+      .limit(1);
+    if (foreignTopic) return true;
+
+    // Comments move (or die, when the target is personal scope) with their
+    // topics — a teammate's comment on the caller's own topic is still their
+    // work. NULL authors (deleted accounts) count as foreign too.
+    if (await hasForeignTopicComments(this.db, this.userId, eq(topics.groupId, groupId)))
+      return true;
+
+    const [foreignThread] = await this.db
+      .select({ id: threads.id })
+      .from(threads)
+      .where(and(eq(threads.groupId, groupId), ne(threads.userId, this.userId)))
+      .limit(1);
+    if (foreignThread) return true;
+
+    const [foreignMessage] = await this.db
+      .select({ id: messages.id })
+      .from(messages)
+      .where(and(eq(messages.groupId, groupId), ne(messages.userId, this.userId)))
+      .limit(1);
+    return !!foreignMessage;
+  }
+
   async transferToWorkspace(
     groupId: string,
     targetWorkspaceId: string | null,
     targetUserId: string,
+    targetVisibility?: 'private' | 'public',
+    options: { rejectForeignTopicCommentAuthors?: boolean } = {},
   ): Promise<{ groupId: string } | null> {
     const sourceGroup = await this.db.query.chatGroups.findFirst({
       where: and(eq(chatGroups.id, groupId), this.groupOwnership()),
@@ -749,10 +916,27 @@ export class AgentGroupRepository {
         userId: targetUserId,
         workspaceId: targetWorkspaceId,
       };
+      // Only apply visibility when the destination is a workspace —
+      // in personal scope every row is implicitly private and the
+      // field is ignored.
+      const visibilityUpdate =
+        targetWorkspaceId && targetVisibility ? { visibility: targetVisibility } : {};
 
       await trx
         .update(chatGroups)
-        .set({ ...ownershipUpdate, updatedAt: new Date() })
+        // Folders stay in the source scope, exactly as `transferAgents` does
+        // for `sessionGroupId`: carrying the id across would point the moved
+        // group at a folder the target workspace cannot resolve, dropping it
+        // into Ungrouped for every member there.
+        .set({
+          ...ownershipUpdate,
+          ...visibilityUpdate,
+          groupId: null,
+          // Same reasoning as the folder: a pin is the previous owner's own
+          // sidebar choice and would otherwise arrive as a workspace-wide pin.
+          pinned: false,
+          updatedAt: new Date(),
+        })
         .where(eq(chatGroups.id, groupId));
 
       await trx
@@ -772,29 +956,64 @@ export class AgentGroupRepository {
 
         await trx
           .update(agents)
-          .set({ ...ownershipUpdate, updatedAt: new Date() })
+          .set({
+            ...ownershipUpdate,
+            ...visibilityUpdate,
+            // Folders and pins belong to the source scope — same rule the
+            // group row and `AgentModel.transferAgents` follow.
+            pinned: false,
+            sessionGroupId: null,
+            updatedAt: new Date(),
+          })
           .where(inArray(agents.id, agentIds));
+
+        // This path moves member agents itself instead of going through
+        // `AgentModel.transferAgents`, so it has to repeat that method's
+        // cleanup: a label belongs to the source registry and cannot travel.
+        // Left behind, the rows keep inflating the source label's usage count
+        // and reappear if the agent ever comes back.
+        await trx
+          .delete(agentLabelAssignments)
+          .where(inArray(agentLabelAssignments.agentId, agentIds));
       }
 
-      const groupTopics = await trx
+      await trx
         .select({ id: topics.id })
         .from(topics)
-        .where(eq(topics.groupId, groupId));
-      const groupTopicIds = groupTopics.map((topic) => topic.id);
+        .where(eq(topics.groupId, groupId))
+        .orderBy(asc(topics.id))
+        .for('update');
 
-      await trx.update(topics).set(ownershipUpdate).where(eq(topics.groupId, groupId));
+      if (
+        options.rejectForeignTopicCommentAuthors &&
+        (await hasForeignTopicComments(trx, this.userId, eq(topics.groupId, groupId)))
+      ) {
+        throw new Error(TOPIC_COMMENT_TRANSFER_HAS_FOREIGN_AUTHORS);
+      }
+
+      const movedTopics = await trx
+        .update(topics)
+        .set(ownershipUpdate)
+        .where(eq(topics.groupId, groupId))
+        .returning({ id: topics.id });
+      const movedTopicIds = movedTopics.map((topic) => topic.id);
       await trx.update(threads).set(ownershipUpdate).where(eq(threads.groupId, groupId));
       await trx.update(messages).set(ownershipUpdate).where(eq(messages.groupId, groupId));
 
-      if (groupTopicIds.length > 0) {
+      // Topic comments denormalize the topic's workspaceId — move them with
+      // the topic (or drop them when leaving workspace scope entirely),
+      // otherwise workspace-filtered comment reads go stale. See the helper doc.
+      await syncTopicCommentsOnTopicTransfer(trx, movedTopicIds, targetWorkspaceId);
+
+      if (movedTopicIds.length > 0) {
         await trx
           .update(threads)
           .set(ownershipUpdate)
-          .where(inArray(threads.topicId, groupTopicIds));
+          .where(inArray(threads.topicId, movedTopicIds));
         await trx
           .update(messages)
           .set(ownershipUpdate)
-          .where(inArray(messages.topicId, groupTopicIds));
+          .where(inArray(messages.topicId, movedTopicIds));
       }
 
       return { groupId };
@@ -827,10 +1046,15 @@ export class AgentGroupRepository {
       .from(chatGroupsAgents)
       .innerJoin(agents, eq(chatGroupsAgents.agentId, agents.id))
       .where(eq(chatGroupsAgents.chatGroupId, groupId))
-      .orderBy(chatGroupsAgents.order);
+      .orderBy(chatGroupsAgents.order, chatGroupsAgents.createdAt, chatGroupsAgents.agentId);
 
     const sourceSupervisor = groupAgentsWithDetails.find((row) => row.role === 'supervisor');
     const sourceMembers = groupAgentsWithDetails.filter((row) => row.role !== 'supervisor');
+
+    // Only apply visibility when copying INTO a workspace — in personal
+    // scope visibility is a no-op and the DB defaults win.
+    const targetVisibility =
+      targetWorkspaceId && options.targetVisibility ? options.targetVisibility : undefined;
 
     return this.db.transaction(async (trx) => {
       const [newGroup] = await trx
@@ -845,6 +1069,7 @@ export class AgentGroupRepository {
           pinned: sourceGroup.pinned,
           title: options.newTitle || (sourceGroup.title ? `${sourceGroup.title} (Copy)` : 'Copy'),
           userId: targetUserId,
+          ...(targetVisibility ? { visibility: targetVisibility } : {}),
           workspaceId: targetWorkspaceId,
         })
         .returning();
@@ -857,6 +1082,7 @@ export class AgentGroupRepository {
             targetWorkspaceId,
             targetUserId,
             'Supervisor',
+            targetVisibility,
           ),
         )
         .returning();
@@ -867,7 +1093,13 @@ export class AgentGroupRepository {
           .insert(agents)
           .values(
             sourceMembers.map((member) =>
-              this.buildCopiedAgent(member.agent, targetWorkspaceId, targetUserId, 'Agent'),
+              this.buildCopiedAgent(
+                member.agent,
+                targetWorkspaceId,
+                targetUserId,
+                'Agent',
+                targetVisibility,
+              ),
             ),
           )
           .returning({ id: agents.id });

@@ -1,17 +1,16 @@
 'use client';
 
-import { LoadingOutlined } from '@ant-design/icons';
 import { Icon } from '@lobehub/ui';
-import { Spin, Upload } from 'antd';
+import { Upload } from 'antd';
 import { createStaticStyles, cssVar } from 'antd-style';
-import { PencilIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Loader2Icon, PencilIcon } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { fetchErrorNotification } from '@/components/Error/fetchErrorNotification';
 import UserAvatar from '@/features/User/UserAvatar';
 import { useUserStore } from '@/store/user';
 import { authSelectors } from '@/store/user/selectors';
+import { saveToast } from '@/store/utils/saveToast';
 import { imageToBase64 } from '@/utils/imageToBase64';
 import { createUploadImageHandler } from '@/utils/uploadFIle';
 
@@ -54,53 +53,61 @@ const AvatarRow = () => {
   const updateAvatar = useUserStore((s) => s.updateAvatar);
   const [uploading, setUploading] = useState(false);
 
-  const handleUploadAvatar = useMemo(
-    () =>
-      createUploadImageHandler(async (avatar) => {
-        try {
-          setUploading(true);
-          const img = new Image();
-          img.src = avatar;
+  const saveAvatar = useCallback(
+    async (avatar: string) => {
+      try {
+        setUploading(true);
+        const img = new Image();
+        img.src = avatar;
 
-          await new Promise((resolve, reject) => {
-            img.addEventListener('load', resolve);
-            img.addEventListener('error', reject);
-          });
+        await new Promise((resolve, reject) => {
+          img.addEventListener('load', resolve);
+          img.addEventListener('error', reject);
+        });
 
-          const webpBase64 = imageToBase64({ img, size: 256 });
-          await updateAvatar(webpBase64);
-          setUploading(false);
-        } catch (error) {
-          console.error('Failed to upload avatar:', error);
-          setUploading(false);
-
-          fetchErrorNotification.error({
-            errorMessage: error instanceof Error ? error.message : String(error),
-            status: 500,
-          });
-        }
-      }),
-    [updateAvatar],
+        const webpBase64 = imageToBase64({ img, size: 256 });
+        await updateAvatar(webpBase64);
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+        saveToast(error, {
+          retry: () => void saveAvatar(avatar),
+          title: t('profile.avatarUploadError'),
+        });
+      } finally {
+        setUploading(false);
+      }
+    },
+    [updateAvatar, t],
   );
+
+  const handleUploadAvatar = useMemo(() => createUploadImageHandler(saveAvatar), [saveAvatar]);
 
   const canUpload = isLogin;
 
   const avatarContent = canUpload ? (
     <Upload beforeUpload={handleUploadAvatar} itemRender={() => void 0} maxCount={1}>
-      <Spin indicator={<LoadingOutlined spin />} spinning={uploading}>
-        <div className={styles.wrapper}>
-          <UserAvatar size={40} />
-          <div className={`${styles.overlay} avatar-edit-overlay`}>
-            <Icon color={cssVar.colorTextLightSolid} icon={PencilIcon} size={16} />
-          </div>
+      <div className={styles.wrapper}>
+        <UserAvatar size={40} />
+        <div
+          className={`${styles.overlay} avatar-edit-overlay`}
+          style={uploading ? { opacity: 1 } : undefined}
+        >
+          <Icon
+            color={cssVar.colorTextLightSolid}
+            icon={uploading ? Loader2Icon : PencilIcon}
+            size={16}
+            spin={uploading}
+          />
         </div>
-      </Spin>
+      </div>
     </Upload>
   ) : (
     <UserAvatar size={40} />
   );
 
-  return <ProfileRow action={avatarContent} label={t('profile.avatar')} />;
+  return (
+    <ProfileRow action={avatarContent} anchor={'profile-avatar'} label={t('profile.avatar')} />
+  );
 };
 
 export default AvatarRow;

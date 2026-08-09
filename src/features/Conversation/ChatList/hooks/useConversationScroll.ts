@@ -12,6 +12,9 @@ export const CONVERSATION_SPACER_TRANSITION_MS = 200;
 
 const SCROLL_SHRINK_END_DELAY_MS = 150;
 
+/** The one `scrollToPinned` reason that is allowed to animate — see `scrollToPinned`. */
+const SEND_SCROLL_REASON = 'send';
+
 // -------- pure helpers --------
 
 export const calculateConversationSpacerHeight = (
@@ -284,7 +287,13 @@ const useSpacerHeight = ({
 // ---------------------------------------------------------------------------
 type PinState = { index: number; seenActive: boolean } | null;
 
-const usePinController = ({ virtuaRef }: { virtuaRef: RefObject<VListHandle | null> }) => {
+const usePinController = ({
+  headerOffset,
+  virtuaRef,
+}: {
+  headerOffset: number;
+  virtuaRef: RefObject<VListHandle | null>;
+}) => {
   const pinRef = useRef<PinState>(null);
 
   const scrollToPinned = useCallback(
@@ -298,10 +307,17 @@ const usePinController = ({ virtuaRef }: { virtuaRef: RefObject<VListHandle | nu
         return;
       }
 
-      log('scrollToPinned (%s) index=%d', reason, pin.index);
-      scrollToIndex(pin.index, { align: 'start', smooth: true });
+      // Only the initial send scroll animates. Settle re-pins fire while the
+      // content height is still changing (e.g. the workflow collapse at turn
+      // completion); a smooth scroll there is itself a visible slide, so the
+      // correction must land in the same frame to stay imperceptible.
+      const smooth = reason === SEND_SCROLL_REASON;
+
+      log('scrollToPinned (%s) index=%d smooth=%s', reason, pin.index, smooth);
+      // pin.index is a message index; the header slot row shifts virtua rows.
+      scrollToIndex(pin.index + headerOffset, { align: 'start', smooth });
     },
-    [virtuaRef],
+    [headerOffset, virtuaRef],
   );
 
   const clearPin = useCallback((reason: string) => {
@@ -403,6 +419,12 @@ const useScrollShrink = ({
 // ---------------------------------------------------------------------------
 export interface UseConversationScrollOptions {
   dataSource: string[];
+  /**
+   * Number of synthetic rows prepended to the VList before the messages
+   * (e.g. the headerSlot spacer). The pin targets message indices, so virtua
+   * calls translate by this offset.
+   */
+  headerOffset?: number;
   isSecondLastMessageFromUser: boolean;
   virtuaRef: RefObject<VListHandle | null>;
 }
@@ -424,6 +446,7 @@ export interface UseConversationScrollResult {
 
 export const useConversationScroll = ({
   dataSource,
+  headerOffset = 0,
   isSecondLastMessageFromUser,
   virtuaRef,
 }: UseConversationScrollOptions): UseConversationScrollResult => {
@@ -475,7 +498,7 @@ export const useConversationScroll = ({
     userMessageIndex,
   });
 
-  const { clearPin, pinRef, scrollToPinned } = usePinController({ virtuaRef });
+  const { clearPin, pinRef, scrollToPinned } = usePinController({ headerOffset, virtuaRef });
 
   const { onScrollOffset, prevScrollOffsetRef } = useScrollShrink({
     clearPin,
@@ -510,7 +533,7 @@ export const useConversationScroll = ({
 
     // Scroll immediately. If virtuaRef isn't ready yet, the spacerLayoutVersion
     // bumps that follow mount+measurement will retry.
-    scrollToPinned('send');
+    scrollToPinned(SEND_SCROLL_REASON);
 
     requestAnimationFrame(() => {
       updateSpacerHeight();
