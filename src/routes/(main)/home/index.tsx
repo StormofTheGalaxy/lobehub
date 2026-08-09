@@ -1,18 +1,16 @@
 import { Flexbox } from '@lobehub/ui';
 import { type FC } from 'react';
-import { useLocation } from 'react-router';
 
-import { useActiveWorkspaceSlug } from '@/business/client/hooks/useActiveWorkspaceSlug';
 import HomePageTracker from '@/components/Analytics/HomePageTracker';
 import HomeContent from '@/features/Home';
+import { useHomeMinimalLayout } from '@/features/Home/CustomizeModal/useHomeCustomization';
 import HomeNavHeader from '@/features/Home/HomeNavHeader';
 import WideScreenContainer from '@/features/WideScreenContainer';
 
 const Home: FC = () => {
-  const { pathname } = useLocation();
-  const activeSlug = useActiveWorkspaceSlug();
-  const isWorkspaceHome =
-    !!activeSlug && (pathname === `/${activeSlug}` || pathname === `/${activeSlug}/`);
+  // Auto margins are what center a flex item inside the scroll lane, and they
+  // have to sit on the item itself — the dashboard never wants them.
+  const minimal = useHomeMinimalLayout();
 
   return (
     <>
@@ -31,7 +29,7 @@ const Home: FC = () => {
         <WideScreenContainer
           fullWidth
           style={{ marginInline: 'auto', maxWidth: 1240 }}
-          wrapperStyle={{ flex: 'none' }}
+          wrapperStyle={{ flex: 'none', marginBlock: minimal ? 'auto' : undefined }}
         >
           <HomeContent />
         </WideScreenContainer>

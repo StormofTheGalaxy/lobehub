@@ -4,6 +4,12 @@ import { cleanObject } from '@lobechat/utils';
 import { and, asc, eq, inArray, ne, not, sql } from 'drizzle-orm';
 
 import {
+  AGENT_TRANSFER_IN_PROGRESS,
+  AgentTransferJobModel,
+  rewriteMessageScopeForTopics,
+  rewriteResidualMessageScope,
+} from '../../models/agentTransferJob';
+import {
   hasForeignTopicComments,
   syncTopicCommentsOnTopicTransfer,
   TOPIC_COMMENT_TRANSFER_HAS_FOREIGN_AUTHORS,
@@ -27,6 +33,7 @@ import {
   topics,
 } from '../../schemas';
 import type { LobeChatDatabase } from '../../type';
+import { insertInBatches, splitCrossBatchSelfReferences } from '../../utils/batchInsert';
 import { idGenerator } from '../../utils/idGenerator';
 import { normalizeInboxAgentMeta } from '../../utils/inboxAgent';
 import { buildWorkspaceWhere } from '../../utils/workspace';
@@ -228,7 +235,7 @@ export class AgentGroupRepository {
       }
     }
 
-    await executor.insert(topics).values(
+    await insertInBatches(
       sourceTopics.map((topic) => ({
         ...topic,
         agentId: mapAgentId(topic.agentId),
@@ -239,16 +246,17 @@ export class AgentGroupRepository {
         userId: targetUserId,
         workspaceId: targetWorkspaceId,
       })),
+      (batch) => executor.insert(topics).values(batch),
     );
 
     if (sourceThreads.length > 0) {
-      await executor.insert(threads).values(
+      const { fixups: threadFixups, rows: threadRows } = splitCrossBatchSelfReferences(
         sourceThreads.map((thread) => ({
           ...thread,
           agentId: mapAgentId(thread.agentId),
           clientId: null,
           groupId: newGroupId,
-          id: threadIdMap.get(thread.id),
+          id: threadIdMap.get(thread.id)!,
           parentThreadId: thread.parentThreadId
             ? (threadIdMap.get(thread.parentThreadId) ?? null)
             : null,
@@ -259,7 +267,14 @@ export class AgentGroupRepository {
           userId: targetUserId,
           workspaceId: targetWorkspaceId,
         })),
+        ['parentThreadId'],
       );
+
+      await insertInBatches(threadRows, (batch) => executor.insert(threads).values(batch));
+
+      for (const fixup of threadFixups) {
+        await executor.update(threads).set(fixup.patch).where(eq(threads.id, fixup.id));
+      }
     }
 
     if (sourceMessages.length === 0) return;
@@ -292,10 +307,19 @@ export class AgentGroupRepository {
       };
     });
 
-    await executor.insert(messages).values(messageRows);
+    const { fixups: messageFixups, rows: messageInsertRows } = splitCrossBatchSelfReferences(
+      messageRows,
+      ['parentId', 'quotaId'],
+    );
+
+    await insertInBatches(messageInsertRows, (batch) => executor.insert(messages).values(batch));
+
+    for (const fixup of messageFixups) {
+      await executor.update(messages).set(fixup.patch).where(eq(messages.id, fixup.id));
+    }
 
     if (sourcePlugins.length > 0) {
-      await executor.insert(messagePlugins).values(
+      await insertInBatches(
         sourcePlugins
           .map((plugin) => {
             const newMessageId = messageIdMap.get(plugin.id);
@@ -311,6 +335,7 @@ export class AgentGroupRepository {
             };
           })
           .filter((plugin) => !!plugin),
+        (batch) => executor.insert(messagePlugins).values(batch),
       );
     }
   };
@@ -898,7 +923,7 @@ export class AgentGroupRepository {
     targetUserId: string,
     targetVisibility?: 'private' | 'public',
     options: { rejectForeignTopicCommentAuthors?: boolean } = {},
-  ): Promise<{ groupId: string } | null> {
+  ): Promise<{ groupId: string; transferJobId: string | null } | null> {
     const sourceGroup = await this.db.query.chatGroups.findFirst({
       where: and(eq(chatGroups.id, groupId), this.groupOwnership()),
     });
@@ -912,6 +937,22 @@ export class AgentGroupRepository {
         .where(eq(chatGroupsAgents.chatGroupId, groupId));
 
       const agentIds = memberRows.map((row) => row.agentId);
+
+      // Same lock-then-guard as AgentModel.transferAgents: serialize with a
+      // concurrent transfer of any member agent BEFORE consulting the pending
+      // job table, so two racing transfers cannot both pass the guard.
+      if (agentIds.length > 0) {
+        await trx
+          .select({ id: agents.id })
+          .from(agents)
+          .where(inArray(agents.id, agentIds))
+          .orderBy(asc(agents.id))
+          .for('update');
+      }
+      if (await AgentTransferJobModel.hasPendingJobForAgents(trx, agentIds)) {
+        throw new Error(AGENT_TRANSFER_IN_PROGRESS);
+      }
+
       const ownershipUpdate = {
         userId: targetUserId,
         workspaceId: targetWorkspaceId,
@@ -995,10 +1036,9 @@ export class AgentGroupRepository {
         .update(topics)
         .set(ownershipUpdate)
         .where(eq(topics.groupId, groupId))
-        .returning({ id: topics.id });
+        .returning({ id: topics.id, updatedAt: topics.updatedAt });
       const movedTopicIds = movedTopics.map((topic) => topic.id);
       await trx.update(threads).set(ownershipUpdate).where(eq(threads.groupId, groupId));
-      await trx.update(messages).set(ownershipUpdate).where(eq(messages.groupId, groupId));
 
       // Topic comments denormalize the topic's workspaceId — move them with
       // the topic (or drop them when leaving workspace scope entirely),
@@ -1010,13 +1050,25 @@ export class AgentGroupRepository {
           .update(threads)
           .set(ownershipUpdate)
           .where(inArray(threads.topicId, movedTopicIds));
-        await trx
-          .update(messages)
-          .set(ownershipUpdate)
-          .where(inArray(messages.topicId, movedTopicIds));
       }
 
-      return { groupId };
+      // Message scope rewrite — always inline for group transfers. Unlike
+      // AgentModel.transferAgents, groups have no async-backfill UX yet (the
+      // migration status endpoint, pending-topic gating, and prioritize flow
+      // are all keyed to agent conversations), so a queued group topic would
+      // open as an empty, writable history with no explanation. Keep group
+      // transfers synchronous until group-aware gating exists; the group
+      // surface is far smaller than the workspace agent-migration path the
+      // async job was built for.
+      const targetScope = { userId: targetUserId, workspaceId: targetWorkspaceId };
+      await rewriteMessageScopeForTopics(trx, movedTopicIds, targetScope);
+      await rewriteResidualMessageScope(
+        trx,
+        { agentIds: [], groupIds: [groupId], sessionIds: [] },
+        targetScope,
+      );
+
+      return { groupId, transferJobId: null };
     });
   }
 

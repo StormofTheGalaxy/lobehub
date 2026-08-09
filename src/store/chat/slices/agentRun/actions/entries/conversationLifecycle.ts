@@ -5,7 +5,7 @@ import {
   AgentManagementIdentifier,
   createCallAgentManifest,
 } from '@lobechat/builtin-tool-agent-management';
-import { isDesktop, LOADING_FLAT } from '@lobechat/const';
+import { isDesktop, isHeterogeneousAgentModelId, LOADING_FLAT } from '@lobechat/const';
 import { formatSelectedSkillsContext, formatSelectedToolsContext } from '@lobechat/context-engine';
 import { isRemoteHeterogeneousType } from '@lobechat/heterogeneous-agents';
 import { chainCompressContext } from '@lobechat/prompts';
@@ -81,6 +81,7 @@ import { messageMapKey } from '@/store/chat/utils/messageMapKey';
 import { snapshotAgentModel } from '@/store/chat/utils/snapshotAgentModel';
 import { topicMapKey } from '@/store/chat/utils/topicMapKey';
 import { getElectronStoreState } from '@/store/electron';
+import { getFileStoreState } from '@/store/file/store';
 import { useGlobalStore } from '@/store/global';
 import { systemStatusSelectors } from '@/store/global/selectors';
 import { pageAgentRuntime } from '@/store/tool/slices/builtin/executors/pageAgentRuntime';
@@ -120,6 +121,8 @@ export interface SendMessageWithContextParams extends SendMessageParams {
    * sibling panel.
    */
   inputEditor?: ChatInputEditor | null;
+  /** Restore composer-owned context when sending fails before a message owns it. */
+  onPreflightFailure?: () => void;
   /**
    * Called as soon as the backend reports a newly created topic id, so callers
    * with an isolated topic scope (e.g. Task Manager) can switch their UI to the
@@ -265,6 +268,7 @@ export class ConversationLifecycleActionImpl {
     messages: inputMessages,
     parentId: inputParentId,
     pageSelections,
+    onPreflightFailure,
     onTopicCreated,
   }: SendMessageWithContextParams): Promise<SendMessageResult | undefined> => {
     let editorData = inputEditorData;
@@ -292,7 +296,10 @@ export class ConversationLifecycleActionImpl {
           }
         : undefined;
 
-    if (!agentId) return;
+    if (!agentId) {
+      onPreflightFailure?.();
+      return;
+    }
 
     const agentState = getAgentStoreState();
     const agentConfig = agentSelectors.getAgentConfigById(agentId)(agentState);
@@ -313,12 +320,21 @@ export class ConversationLifecycleActionImpl {
       visibility: agent?.visibility,
       workspaceId: agent?.workspaceId,
     });
-    const heterogeneousProvider = agencyConfig?.heterogeneousProvider;
+    const isGatewayMode = this.#get().isGatewayModeEnabled(agentId);
+    // Legacy agents may only carry `model: '<cli-type>'`. Keep gateway routing
+    // unchanged when it is available, but recover the provider before the
+    // desktop-only local fallback so both runtime selection and the executor
+    // receive the same heterogeneous identity.
+    const heterogeneousProvider =
+      agencyConfig?.heterogeneousProvider ??
+      (isDesktop && !isGatewayMode && isHeterogeneousAgentModelId(agentConfig?.model)
+        ? { type: agentConfig.model }
+        : undefined);
     const runtimeType = selectRuntimeType({
       boundDeviceId: agencyConfig?.boundDeviceId,
       executionTarget: agencyConfig?.executionTarget,
       heterogeneousProvider,
-      isGatewayMode: this.#get().isGatewayModeEnabled(agentId),
+      isGatewayMode,
       isWorkspaceAgent: workspaceScoped,
       // Callers that need to pin the runtime (e.g. task topics that were
       // started server-side via runTask) pass `forceRuntime` to override
@@ -417,10 +433,11 @@ export class ConversationLifecycleActionImpl {
      * bucket, `activeTopicId` and the sidebar row all use it from the first
      * frame, and the server honours it verbatim (`newTopic.id` / `clientIds`).
      *
-     * This is what removes the `_new` → topic transition — the conversation's
-     * `contextKey` never changes, so the conversation surface never remounts
-     * and the virtualized list never repaints from an empty viewport (the
-     * first-send "messages vanish for a frame" flicker).
+     * This removes the server-confirmation re-key: optimistic messages use the
+     * final topic key immediately, so the virtualized list does not repaint from
+     * an empty viewport when the server responds. The composer still pivots once
+     * from `_new` to this minted key below, and its pending context is migrated
+     * before that switch.
      *
      * Isolated-topic callers keep the legacy flow (they re-subscribe via
      * `onTopicCreated` and never render the main conversation surface).
@@ -449,7 +466,10 @@ export class ConversationLifecycleActionImpl {
       !metadata?.localSystemToolSnapshots?.length &&
       (!!heterogeneousProvider || isLocalSystemEnabled);
     const localSystemToolSnapshots = canMaterializeLocalFiles
-      ? await materializeLocalSystemToolSnapshots(localFileReferences)
+      ? await materializeLocalSystemToolSnapshots(localFileReferences).catch((error) => {
+          onPreflightFailure?.();
+          throw error;
+        })
       : [];
     const userMessageMetadata =
       metadata ||
@@ -469,6 +489,9 @@ export class ConversationLifecycleActionImpl {
     const enrichedSelectedSkills = await resolveSelectedSkillsWithContent({
       message,
       selectedSkills,
+    }).catch((error) => {
+      onPreflightFailure?.();
+      throw error;
     });
     const enrichedSelectedTools = resolveSelectedToolsWithContent({
       message,
@@ -480,7 +503,10 @@ export class ConversationLifecycleActionImpl {
     const hasFile = !!fileIdList && fileIdList.length > 0;
 
     // if message is empty or no files, then stop
-    if (!message && !hasFile) return;
+    if (!message && !hasFile) {
+      onPreflightFailure?.();
+      return;
+    }
 
     const newTopicTitle = markdownToTxt(message).slice(0, 80) || t('defaultTitle', { ns: 'topic' });
 
@@ -718,6 +744,10 @@ export class ConversationLifecycleActionImpl {
         },
         'sendMessage/optimisticCreateTopic',
       );
+      getFileStoreState().moveChatContextSelections(
+        messageMapKey({ ...operationContext, topicId: null }),
+        currentContextKey,
+      );
       await this.#get().switchTopic(mintedTopicId, { skipRefreshMessage: true });
     }
 
@@ -901,6 +931,10 @@ export class ConversationLifecycleActionImpl {
     const rollbackOptimisticTopic = (action: string) => {
       if (!optimisticTopic || !optimisticTopicActive) return;
 
+      getFileStoreState().moveChatContextSelections(
+        currentContextKey,
+        messageMapKey({ ...operationContext, topicId: null }),
+      );
       if (this.#get().activeTopicId === optimisticTopic.id) {
         void this.#get().switchTopic(null, { skipRefreshMessage: true });
       }
@@ -1033,6 +1067,7 @@ export class ConversationLifecycleActionImpl {
       const heteroResponseMeta = heteroData as SendMessageServerResponseMeta;
       const heteroMessageKey = messageMapKey(heteroContext);
       this.#get().moveQueuedMessages(currentContextKey, heteroMessageKey);
+      getFileStoreState().moveChatContextSelections(currentContextKey, heteroMessageKey);
       // Legacy queue location: follow-ups enqueued behind an op still
       // registered under the pre-mint `_new` key.
       if (willCreateNewTopic)
@@ -1460,6 +1495,7 @@ export class ConversationLifecycleActionImpl {
       };
       const finalMessageKey = messageMapKey(finalContext);
       this.#get().moveQueuedMessages(currentContextKey, finalMessageKey);
+      getFileStoreState().moveChatContextSelections(currentContextKey, finalMessageKey);
       // Legacy queue location: follow-ups enqueued behind an op still
       // registered under the pre-mint `_new` key.
       if (willCreateNewTopic)
