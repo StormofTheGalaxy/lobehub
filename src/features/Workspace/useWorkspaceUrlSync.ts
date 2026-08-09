@@ -20,6 +20,7 @@ import { useWorkspaceSyncPathname } from './useWorkspaceSyncPathname';
 const RESERVED_FIRST_SEGMENTS = new Set([
   // Shared (mirrored under /:workspaceSlug too):
   'agent',
+  'agents',
   'group',
   'community',
   'memory',
@@ -33,7 +34,9 @@ const RESERVED_FIRST_SEGMENTS = new Set([
   // Personal-only:
   'settings',
   'admin',
+  'downloads',
   'invite',
+  // Outside the main-area route tree (auth shell, onboarding, share links):
   'onboarding',
   'me',
   'share',
