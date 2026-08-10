@@ -48,7 +48,7 @@ export class WorkspaceUserSettingsActionImpl {
     const workspaceId = useActiveWorkspaceId();
     const swr = useClientDataSWR<WorkspaceUserPreference | null>(
       workspaceId ? [WORKSPACE_USER_SETTINGS_SWR_KEY, workspaceId] : null,
-      async () => workspaceUserSettingsService.getPreference(),
+      async () => workspaceUserSettingsService.getPreference(workspaceId!),
     );
 
     // Sync EVERY data change into the (un-keyed) store bucket — not just
@@ -74,6 +74,9 @@ export class WorkspaceUserSettingsActionImpl {
   updateWorkspaceUserPreference = async (
     patch: Partial<WorkspaceUserPreference>,
   ): Promise<void> => {
+    const workspaceId = getActiveWorkspaceId();
+    if (!workspaceId) throw new Error('Workspace user preferences require an active workspace');
+
     // Optimistic merge — the picker's own re-render should see the new
     // choice on the very next frame, not wait for the mutation round-trip.
     // Mirror the write into the SWR cache too: readers that prefer the
@@ -121,17 +124,16 @@ export class WorkspaceUserSettingsActionImpl {
           }
         : {}),
     };
-    const workspaceId = getActiveWorkspaceId();
-    const swrKey = workspaceId ? [WORKSPACE_USER_SETTINGS_SWR_KEY, workspaceId] : null;
+    const swrKey = [WORKSPACE_USER_SETTINGS_SWR_KEY, workspaceId];
     this.#set(
       { workspaceUserPreference: optimistic },
       false,
       n('updateWorkspaceUserPreference/optimistic'),
     );
-    if (swrKey) void mutate(swrKey, optimistic, { revalidate: false });
+    void mutate(swrKey, optimistic, { revalidate: false });
 
     try {
-      await workspaceUserSettingsService.updatePreference(patch);
+      await workspaceUserSettingsService.updatePreference(workspaceId, patch);
     } catch (error) {
       // Roll back the optimistic write so the picker doesn't strand a state
       // that never made it to the server.
@@ -140,7 +142,7 @@ export class WorkspaceUserSettingsActionImpl {
         false,
         n('updateWorkspaceUserPreference/rollback'),
       );
-      if (swrKey) void mutate(swrKey, previous, { revalidate: false });
+      void mutate(swrKey, previous, { revalidate: false });
       throw error;
     }
   };

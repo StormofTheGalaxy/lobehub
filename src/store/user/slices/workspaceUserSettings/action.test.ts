@@ -4,11 +4,14 @@ import { workspaceUserSettingsService } from '@/services/workspaceUserSettings';
 
 import { WorkspaceUserSettingsActionImpl } from './action';
 
-const { mockMutate } = vi.hoisted(() => ({ mockMutate: vi.fn() }));
+const { activeWorkspace, mockMutate } = vi.hoisted(() => ({
+  activeWorkspace: { id: 'workspace-1' as string | null },
+  mockMutate: vi.fn(),
+}));
 
 vi.mock('@/business/client/hooks/useActiveWorkspaceId', () => ({
-  getActiveWorkspaceId: () => 'workspace-1',
-  useActiveWorkspaceId: () => 'workspace-1',
+  getActiveWorkspaceId: () => activeWorkspace.id,
+  useActiveWorkspaceId: () => activeWorkspace.id,
 }));
 
 vi.mock('@/libs/swr', () => ({
@@ -18,6 +21,7 @@ vi.mock('@/libs/swr', () => ({
 
 describe('WorkspaceUserSettingsActionImpl', () => {
   beforeEach(() => {
+    activeWorkspace.id = 'workspace-1';
     vi.clearAllMocks();
   });
 
@@ -62,6 +66,28 @@ describe('WorkspaceUserSettingsActionImpl', () => {
       state.workspaceUserPreference,
       { revalidate: false },
     );
+    expect(workspaceUserSettingsService.updatePreference).toHaveBeenCalledWith('workspace-1', {
+      agentModelOverrides: {
+        selected: { model: 'selected-model', provider: 'selected-provider' },
+      },
+    });
+  });
+
+  it('does not update workspace preferences in personal mode', async () => {
+    activeWorkspace.id = null;
+    const state = { workspaceUserPreference: {} };
+    const set = vi.fn((patch: Partial<typeof state>) => Object.assign(state, patch));
+    const action = new WorkspaceUserSettingsActionImpl(set as never, () => state as never);
+    const updatePreference = vi
+      .spyOn(workspaceUserSettingsService, 'updatePreference')
+      .mockResolvedValue();
+
+    await expect(action.updateWorkspaceUserPreference({ agentModeOverrides: {} })).rejects.toThrow(
+      'Workspace user preferences require an active workspace',
+    );
+
+    expect(updatePreference).not.toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
   });
 
   it('optimistically deep-merges one Agent mode without dropping other modes', async () => {

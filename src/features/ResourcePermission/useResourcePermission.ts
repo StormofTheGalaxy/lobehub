@@ -2,6 +2,7 @@ import { toast } from '@lobehub/ui/base-ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspaceId';
 import { useClientDataSWR } from '@/libs/swr';
 import type { PermissionResourceType, ResourceAccessLevel } from '@/services/resourcePermission';
 import { resourcePermissionService } from '@/services/resourcePermission';
@@ -17,12 +18,13 @@ export const useResourcePermission = (
   resourceId: string | undefined,
 ) => {
   const { t } = useTranslation('setting');
+  const workspaceId = useActiveWorkspaceId();
 
   const [updating, setUpdating] = useState(false);
 
   const { data, error, isLoading, mutate } = useClientDataSWR(
-    resourceId ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
-    () => resourcePermissionService.getGeneralAccess(resourceType, resourceId!),
+    workspaceId && resourceId ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
+    () => resourcePermissionService.getGeneralAccess(resourceType, resourceId!, workspaceId!),
   );
 
   const run = useCallback(
@@ -51,7 +53,13 @@ export const useResourcePermission = (
     (accessLevel: ResourceAccessLevel) => {
       if (!data) return;
       return run(
-        () => resourcePermissionService.setAccessLevel(resourceType, resourceId!, accessLevel),
+        () =>
+          resourcePermissionService.setAccessLevel(
+            resourceType,
+            resourceId!,
+            accessLevel,
+            workspaceId!,
+          ),
         {
           ...data,
           accessLevel,
@@ -59,7 +67,7 @@ export const useResourcePermission = (
         },
       );
     },
-    [data, run, resourceType, resourceId],
+    [data, run, resourceType, resourceId, workspaceId],
   );
 
   return {

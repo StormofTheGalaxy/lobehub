@@ -1,4 +1,4 @@
-import { useHasActiveWorkspace } from '@/business/client/hooks/useHasActiveWorkspace';
+import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspaceId';
 import { useClientDataSWR } from '@/libs/swr';
 import type { PermissionResourceType } from '@/services/resourcePermission';
 import { resourcePermissionService } from '@/services/resourcePermission';
@@ -19,12 +19,12 @@ export const useResourceAccess = (
   resourceType: PermissionResourceType,
   resourceId: string | undefined,
 ) => {
-  const hasActiveWorkspace = useHasActiveWorkspace();
-  const enabled = hasActiveWorkspace && !!resourceId;
+  const workspaceId = useActiveWorkspaceId();
+  const enabled = !!workspaceId && !!resourceId;
 
   const { data, error, isLoading, mutate } = useClientDataSWR(
     enabled ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
-    () => resourcePermissionService.getGeneralAccess(resourceType, resourceId!),
+    () => resourcePermissionService.getGeneralAccess(resourceType, resourceId!, workspaceId!),
   );
 
   return {

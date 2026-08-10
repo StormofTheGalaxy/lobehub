@@ -1,6 +1,6 @@
 import type { WorkspaceUserPreference } from '@lobechat/types';
 
-import { lambdaClient } from '@/libs/trpc/client';
+import { createWorkspaceLambdaClient } from '@/libs/trpc/client';
 
 /**
  * Client-side accessor for the caller's preferences inside the current
@@ -9,12 +9,17 @@ import { lambdaClient } from '@/libs/trpc/client';
  * is in personal mode — the server rejects the request there.
  */
 export class WorkspaceUserSettingsService {
-  getPreference = async (): Promise<WorkspaceUserPreference> => {
-    return lambdaClient.workspaceUserSettings.getPreference.query();
+  getPreference = async (workspaceId: string): Promise<WorkspaceUserPreference> => {
+    return createWorkspaceLambdaClient(workspaceId).workspaceUserSettings.getPreference.query();
   };
 
-  updatePreference = async (patch: Partial<WorkspaceUserPreference>): Promise<void> => {
-    await lambdaClient.workspaceUserSettings.updatePreference.mutate(patch);
+  updatePreference = async (
+    workspaceId: string,
+    patch: Partial<WorkspaceUserPreference>,
+  ): Promise<void> => {
+    await createWorkspaceLambdaClient(workspaceId).workspaceUserSettings.updatePreference.mutate(
+      patch,
+    );
   };
 }
 
