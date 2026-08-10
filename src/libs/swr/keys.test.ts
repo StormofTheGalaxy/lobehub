@@ -1,8 +1,19 @@
 import { unstable_serialize } from 'swr';
 import { describe, expect, it } from 'vitest';
 
-import { agentBuilderKeys, recentKeys, taskKeys } from './keys';
+import { agentBuilderKeys, agentKeys, recentKeys, taskKeys } from './keys';
 import { CACHE_TIERS } from './localStorageProvider';
+
+describe('agentKeys', () => {
+  it('keeps workspace sidebar IDs out of persisted cache tiers', () => {
+    const serialized = unstable_serialize(agentKeys.list(true));
+    const persisted = [...CACHE_TIERS.idb, ...CACHE_TIERS.local].some((pattern) =>
+      serialized.includes(pattern),
+    );
+
+    expect(persisted).toBe(false);
+  });
+});
 
 describe('recentKeys', () => {
   it('keys the Home recent list by identity cache scope', () => {

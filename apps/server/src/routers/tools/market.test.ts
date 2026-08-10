@@ -98,6 +98,19 @@ describe('tools marketRouter', () => {
     expect(mockMarketSDK.connect.listConnections).not.toHaveBeenCalled();
   });
 
+  it('should request optional Market connections with trusted-client user info', async () => {
+    const caller = marketRouter.createCaller({
+      marketUserInfo: { userId: 'user-1' },
+      userId: 'user-1',
+    } as any);
+    mockMarketSDK.connect.listConnections.mockResolvedValue({ connections: [{ id: 'conn-1' }] });
+
+    await expect(caller.connectListConnections()).resolves.toEqual({
+      connections: [{ id: 'conn-1' }],
+    });
+    expect(mockMarketSDK.connect.listConnections).toHaveBeenCalledOnce();
+  });
+
   it('should fall back to static tools when live discovery fails', async () => {
     const caller = marketRouter.createCaller({ userId: 'user-1' } as any);
     mockMarketSDK.skills.listLiveTools.mockRejectedValue(new Error('Live discovery failed'));

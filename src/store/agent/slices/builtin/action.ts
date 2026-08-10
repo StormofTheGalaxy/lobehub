@@ -50,12 +50,15 @@ export class BuiltinAgentSliceActionImpl {
 
     if (data?.id) {
       this.#get().internal_dispatchAgentMap(data.id, data as PartialDeep<LobeAgentConfig>);
+      const currentState = this.#get();
+      const currentMap =
+        currentState.builtinAgentScope === scope ? currentState.builtinAgentIdMap : {};
       // Mirror useInitBuiltinAgent's onSuccess: keep builtinAgentIdMap in sync
       // so callers can rely on this as a real "ensure" path instead of just a
       // post-init refresh.
       this.#set(
         {
-          builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id },
+          builtinAgentIdMap: { ...currentMap, [slug]: data.id },
           builtinAgentScope: scope,
         },
         false,
@@ -97,10 +100,13 @@ export class BuiltinAgentSliceActionImpl {
             // Update agentMap with the agent config
             // AgentItem contains all fields needed for LobeAgentConfig
             this.#get().internal_dispatchAgentMap(data.id, data as PartialDeep<LobeAgentConfig>);
+            const currentState = this.#get();
+            const currentMap =
+              currentState.builtinAgentScope === scope ? currentState.builtinAgentIdMap : {};
 
             this.#set(
               {
-                builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id },
+                builtinAgentIdMap: { ...currentMap, [slug]: data.id },
                 builtinAgentScope: scope,
               },
               false,

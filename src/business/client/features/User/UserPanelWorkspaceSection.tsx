@@ -1,5 +1,5 @@
-import { Button, Flexbox, Input, Text } from '@lobehub/ui';
-import { createModal, useModalContext } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Text } from '@lobehub/ui';
+import { Button, createModal, useModalContext } from '@lobehub/ui/base-ui';
 import { MonitorSmartphone } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import { lambdaClient } from '@/libs/trpc/client';
 import { useActiveWorkspaceId } from '../../hooks/useActiveWorkspaceId';
 import { useSwitchWorkspace } from '../../hooks/useSwitchWorkspace';
 import { useWorkspaces, WORKSPACE_LIST_KEY } from '../../hooks/useWorkspaces';
+import { parseInviteToken } from './inviteToken';
 
 interface UserPanelWorkspaceSectionProps {
   onSwitch?: () => void;
@@ -50,7 +51,7 @@ export default function UserPanelWorkspaceSection({ onSwitch }: UserPanelWorkspa
       content: (
         <InviteModalContent
           onAccept={(token) => {
-            navigate(`/invite/${token}`);
+            navigate(`/invite/${encodeURIComponent(token)}`);
             onSwitch?.();
           }}
         />
@@ -124,15 +125,15 @@ function InviteModalContent({ onAccept }: InviteModalContentProps) {
   const [loading, setLoading] = useState(false);
 
   const handleAccept = async () => {
-    const trimmed = token.trim();
-    if (!trimmed) {
-      setError('Введите код приглашения.');
+    const parsedToken = parseInviteToken(token);
+    if (!parsedToken) {
+      setError('Введите invite код или корректную ссылку приглашения.');
       return;
     }
 
     setLoading(true);
     try {
-      onAccept(trimmed);
+      onAccept(parsedToken);
       close();
     } finally {
       setLoading(false);

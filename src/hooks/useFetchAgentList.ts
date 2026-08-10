@@ -1,3 +1,4 @@
+import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspaceId';
 import { useCacheScope } from '@/libs/swr/useCacheScope';
 import { useHomeStore } from '@/store/home';
 import { useUserStore } from '@/store/user';
@@ -16,12 +17,17 @@ export const useIsAgentListScopeReady = () => {
  * @returns mutate - retry the same request (wired into the error state's Retry)
  */
 export const useFetchAgentList = () => {
+  const activeWorkspaceId = useActiveWorkspaceId();
   const isLogin = useUserStore(authSelectors.isLogin);
   const scope = useCacheScope();
   const useFetchAgentListHook = useHomeStore((s) => s.useFetchAgentList);
   const isScopeReady = useHomeStore((s) => s.agentListScope === scope && s.isAgentListInit);
 
-  const { isValidating, data, error, mutate } = useFetchAgentListHook(isLogin, scope);
+  const { isValidating, data, error, mutate } = useFetchAgentListHook(
+    isLogin,
+    scope,
+    activeWorkspaceId,
+  );
 
   return {
     error,

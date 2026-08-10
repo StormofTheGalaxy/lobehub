@@ -173,8 +173,11 @@ export const topicCommentKeys = {
 
 // ---- agent --------------------------------------------------------------
 export const agentKeys = {
-  /** Sidebar agent list. */
-  list: def('agent:list:v2', (isLogin: boolean) => ['agent:list:v2', isLogin]),
+  /** Workspace-scoped sidebar list; intentionally memory-only to avoid stale persisted IDs. */
+  list: def('home:sidebarAgentList:v3', (isLogin: boolean) => [
+    'home:sidebarAgentList:v3',
+    isLogin,
+  ]),
 };
 
 // ---- agent labels -------------------------------------------------------

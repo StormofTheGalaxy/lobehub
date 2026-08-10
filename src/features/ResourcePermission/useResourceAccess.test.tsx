@@ -10,7 +10,9 @@ const testState = vi.hoisted(() => ({
   activeWorkspaceId: 'workspace-1' as string | null,
   agentMap: {} as Record<string, { workspaceId?: string | null }>,
   data: undefined as ResourceGeneralAccess | undefined,
+  documents: [] as { id: string; workspaceId?: string | null }[],
   fetcher: undefined as (() => Promise<unknown>) | undefined,
+  groupMap: {} as Record<string, { workspaceId?: string | null }>,
   swrConfig: undefined as { shouldRetryOnError?: (error: unknown) => boolean } | undefined,
   swrKey: undefined as unknown,
 }));
@@ -42,12 +44,22 @@ vi.mock('@/store/agent', () => ({
   useAgentStore: (selector: (state: typeof testState) => unknown) => selector(testState),
 }));
 
+vi.mock('@/store/agentGroup', () => ({
+  useAgentGroupStore: (selector: (state: typeof testState) => unknown) => selector(testState),
+}));
+
+vi.mock('@/store/page', () => ({
+  usePageStore: (selector: (state: typeof testState) => unknown) => selector(testState),
+}));
+
 describe('useResourceAccess', () => {
   beforeEach(() => {
     testState.activeWorkspaceId = 'workspace-1';
-    testState.agentMap = {};
+    testState.agentMap = { 'agent-1': { workspaceId: 'workspace-1' } };
     testState.data = undefined;
+    testState.documents = [];
     testState.fetcher = undefined;
+    testState.groupMap = {};
     testState.swrConfig = undefined;
     testState.swrKey = undefined;
     vi.restoreAllMocks();
@@ -94,6 +106,31 @@ describe('useResourceAccess', () => {
       canUseResource: false,
       isAccessResolved: false,
     });
+  });
+
+  it('does not request permissions until resource ownership is known', () => {
+    testState.agentMap = {};
+
+    const { result } = renderHook(() => useResourceAccess('agent', 'agent-1'));
+
+    expect(testState.swrKey).toBeNull();
+    expect(result.current.isAccessResolved).toBe(false);
+  });
+
+  it('uses group ownership from the group store', () => {
+    testState.groupMap = { 'group-1': { workspaceId: 'workspace-1' } };
+
+    renderHook(() => useResourceAccess('agentGroup', 'group-1'));
+
+    expect(testState.swrKey).not.toBeNull();
+  });
+
+  it('blocks documents from another workspace', () => {
+    testState.documents = [{ id: 'document-1', workspaceId: 'workspace-2' }];
+
+    renderHook(() => useResourceAccess('document', 'document-1'));
+
+    expect(testState.swrKey).toBeNull();
   });
 
   it('uses authoritative sidebar workspace metadata before requesting permissions', () => {

@@ -1,5 +1,5 @@
 import { type SidebarAgentItem, type SidebarAgentListResponse } from '@/database/repositories/home';
-import { lambdaClient } from '@/libs/trpc/client';
+import { createWorkspaceLambdaClient, lambdaClient } from '@/libs/trpc/client';
 
 export interface HomeDailyBriefPair {
   hint: string;
@@ -14,8 +14,9 @@ export class HomeService {
   /**
    * Get sidebar agent list with pinned, grouped, and ungrouped items
    */
-  getSidebarAgentList = (): Promise<SidebarAgentListResponse> => {
-    return lambdaClient.home.getSidebarAgentList.query();
+  getSidebarAgentList = (workspaceId?: string | null): Promise<SidebarAgentListResponse> => {
+    const client = createWorkspaceLambdaClient(workspaceId ?? null);
+    return client.home.getSidebarAgentList.query();
   };
 
   /**
@@ -29,8 +30,9 @@ export class HomeService {
   /**
    * Search agents by keyword
    */
-  searchAgents = (keyword: string): Promise<SidebarAgentItem[]> => {
-    return lambdaClient.home.searchAgents.query({ keyword });
+  searchAgents = (keyword: string, workspaceId?: string | null): Promise<SidebarAgentItem[]> => {
+    const client = createWorkspaceLambdaClient(workspaceId ?? null);
+    return client.home.searchAgents.query({ keyword });
   };
 
   /**

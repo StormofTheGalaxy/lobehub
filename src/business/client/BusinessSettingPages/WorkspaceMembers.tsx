@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import useSWR from 'swr';
 
+import { useAppOrigin } from '@/hooks/useAppOrigin';
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useActiveWorkspace } from '../hooks/useActiveWorkspace';
@@ -88,6 +89,8 @@ const resolveMemberRole = (role: string, isPrimaryOwner: boolean): MemberRole | 
 
 export default function WorkspaceMembers() {
   const workspace = useActiveWorkspace();
+  const appOrigin = useAppOrigin();
+  const inviteOrigin = appOrigin.replace(/\/$/, '');
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
   const [inviting, setInviting] = useState(false);
@@ -132,8 +135,7 @@ export default function WorkspaceMembers() {
         role,
         workspaceId: workspace.id,
       });
-      const origin = globalThis.location?.origin ?? '';
-      const inviteUrl = `${origin}/invite/${invitation.token}`;
+      const inviteUrl = `${inviteOrigin}/invite/${invitation.token}`;
       setLastInviteUrl(inviteUrl);
       await navigator.clipboard?.writeText(inviteUrl);
       await mutateInvitations();
@@ -341,9 +343,7 @@ export default function WorkspaceMembers() {
                 <Button
                   size="small"
                   onClick={() =>
-                    navigator.clipboard.writeText(
-                      `${globalThis.location?.origin ?? ''}/invite/${invitation.token}`,
-                    )
+                    navigator.clipboard.writeText(`${inviteOrigin}/invite/${invitation.token}`)
                   }
                 >
                   Скопировать ссылку

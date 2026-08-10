@@ -5,6 +5,8 @@ import { useClientDataSWR } from '@/libs/swr';
 import type { PermissionResourceType } from '@/services/resourcePermission';
 import { resourcePermissionService } from '@/services/resourcePermission';
 import { useAgentStore } from '@/store/agent';
+import { useAgentGroupStore } from '@/store/agentGroup';
+import { usePageStore } from '@/store/page';
 import { isTrpcErrorCode } from '@/utils/trpcError';
 
 // Same SWR key as useResourcePermission so both hooks share one fetch/cache entry.
@@ -29,14 +31,31 @@ export const useResourceAccess = (
   const storedAgentWorkspaceId = useAgentStore((s) =>
     resourceType === 'agent' && resourceId ? s.agentMap[resourceId]?.workspaceId : undefined,
   );
+  const storedGroupWorkspaceId = useAgentGroupStore((s) =>
+    resourceType === 'agentGroup' && resourceId ? s.groupMap[resourceId]?.workspaceId : undefined,
+  );
+  const storedDocumentWorkspaceId = usePageStore((s) =>
+    resourceType === 'document' && resourceId
+      ? s.documents?.find((document) => document.id === resourceId)?.workspaceId
+      : undefined,
+  );
+  const storedResourceWorkspaceId =
+    resourceType === 'agent'
+      ? storedAgentWorkspaceId
+      : resourceType === 'agentGroup'
+        ? storedGroupWorkspaceId
+        : storedDocumentWorkspaceId;
   const resolvedResourceWorkspaceId =
-    resourceWorkspaceId !== undefined ? resourceWorkspaceId : storedAgentWorkspaceId;
+    resourceWorkspaceId !== undefined ? resourceWorkspaceId : storedResourceWorkspaceId;
   const hasKnownResourceWorkspace =
-    resourceWorkspaceId !== undefined || storedAgentWorkspaceId !== undefined;
+    resourceWorkspaceId !== undefined || storedResourceWorkspaceId !== undefined;
   const unresolvedBuiltinSlug =
     resourceType === 'agent' && !!resourceId && builtinAgentSlugs.has(resourceId);
-  const scopeMismatch = hasKnownResourceWorkspace && resolvedResourceWorkspaceId !== workspaceId;
-  const blockedByResourceScope = scopeMismatch || (!!workspaceId && unresolvedBuiltinSlug);
+  const blockedByResourceScope =
+    !!workspaceId &&
+    (!hasKnownResourceWorkspace ||
+      resolvedResourceWorkspaceId !== workspaceId ||
+      unresolvedBuiltinSlug);
   const enabled = !!workspaceId && !!resourceId && !blockedByResourceScope;
 
   const { data, error, isLoading, mutate } = useClientDataSWR(

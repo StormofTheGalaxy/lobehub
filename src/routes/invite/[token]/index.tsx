@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Center, Flexbox, Tag, Text } from '@lobehub/ui';
+import { Center, Flexbox, Tag, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { CheckCircle2, Clock3, ShieldAlert, UsersRound } from 'lucide-react';
 import { useState } from 'react';
@@ -44,7 +45,7 @@ type State =
   | { status: 'ready' }
   | { status: 'accepting' }
   | { message: string; status: 'error' }
-  | { slug: string; status: 'accepted'; workspaceName: string };
+  | { slug: string; status: 'accepted'; workspaceId: string; workspaceName: string };
 
 const InvitePage = () => {
   const navigate = useNavigate();
@@ -63,12 +64,12 @@ const InvitePage = () => {
       const workspace = accepted.workspace;
       if (!workspace) throw new Error('Workspace приглашения не найден.');
 
-      setActiveWorkspaceSnapshot({ id: accepted.workspaceId, slug: workspace.slug });
       await mutate(WORKSPACE_LIST_KEY);
 
       setState({
         slug: workspace.slug,
         status: 'accepted',
+        workspaceId: accepted.workspaceId,
         workspaceName: workspace.name || workspace.slug,
       });
     } catch (error) {
@@ -130,7 +131,10 @@ const InvitePage = () => {
             <Button
               block
               type="primary"
-              onClick={() => navigate(`/${state.slug}`, { replace: true })}
+              onClick={() => {
+                setActiveWorkspaceSnapshot({ id: state.workspaceId, slug: state.slug });
+                navigate(`/${state.slug}`, { replace: true });
+              }}
             >
               Перейти в workspace
             </Button>

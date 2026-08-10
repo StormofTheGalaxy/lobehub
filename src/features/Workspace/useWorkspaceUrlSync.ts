@@ -65,13 +65,25 @@ export const isWorkspaceSlugCandidatePath = (pathname: string): boolean => {
   return !!first && !RESERVED_FIRST_SEGMENTS.has(first);
 };
 
+export const resolveWorkspaceIdFromPath = (
+  pathname: string,
+  workspaces: { id: string; slug: string }[],
+  isLoading: boolean,
+): string | null | undefined => {
+  if (!isWorkspaceSlugCandidatePath(pathname)) return null;
+  if (isLoading) return undefined;
+
+  const slug = parseFirstSegment(pathname);
+  return workspaces.find((workspace) => workspace.slug === slug)?.id ?? null;
+};
+
 /**
  * URL is the source of truth for workspace context.
  *
  * - `/{slug}/...` where `slug` is a known workspace → activate that workspace
  * - `/` or `/agent/...` / `/settings/...` etc. (or any non-slug surface) → personal
- * - `/{unknown}/...` (slug not in workspaces) → leave store alone so
- *   `WorkspaceSlugBoundary` can render its 404
+ * - `/{unknown}/...` (slug not in workspaces) → clear workspace context while
+ *   `WorkspaceSlugBoundary` renders its 404
  */
 export const useWorkspaceUrlSync = (): void => {
   const pathname = useWorkspaceSyncPathname();
@@ -94,20 +106,16 @@ export const useWorkspaceUrlSync = (): void => {
     // store to "personal" on first paint of a `/{slug}` URL.
     if (isLoading) return;
 
-    const first = parseFirstSegment(pathname);
+    const expectedWorkspaceId = resolveWorkspaceIdFromPath(pathname, workspaces, isLoading);
+    if (expectedWorkspaceId === undefined) return;
 
-    if (first && !RESERVED_FIRST_SEGMENTS.has(first)) {
-      const ws = workspaces.find((w) => w.slug === first);
-      if (ws) {
-        if (activeId !== ws.id) void switchWorkspace(ws.id);
-        return;
-      }
-      // Unknown slug — let `WorkspaceSlugBoundary` show 404; don't touch the
-      // active workspace.
+    if (expectedWorkspaceId) {
+      if (activeId !== expectedWorkspaceId) void switchWorkspace(expectedWorkspaceId);
       return;
     }
 
-    // URL has no workspace slug → personal context.
+    // Personal routes and unknown slugs must not retain a previous workspace
+    // header while their route boundary renders.
     if (activeId !== null) void switchToPersonal();
   }, [pathname, workspaces, isLoading, activeId, switchWorkspace, switchToPersonal]);
 };

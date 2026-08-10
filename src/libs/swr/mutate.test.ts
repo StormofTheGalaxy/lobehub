@@ -2,7 +2,7 @@
 import type { ScopedMutator } from 'swr/_internal';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mutate, setScopedMutate } from './mutate';
+import { mutate, mutateInWorkspace, setScopedMutate } from './mutate';
 
 const { getActiveWorkspaceIdMock } = vi.hoisted(() => ({
   getActiveWorkspaceIdMock: vi.fn<() => string | null>(),
@@ -76,5 +76,13 @@ describe('scoped mutate', () => {
       { foo: 'bar' },
       { revalidate: true },
     );
+  });
+
+  it('invalidates an explicitly captured workspace after the active scope changes', async () => {
+    getActiveWorkspaceIdMock.mockReturnValue('ws-2');
+
+    await mutateInWorkspace('ws-1', ['agent:list', 'user-1:workspace-1']);
+
+    expect(scopedMutateMock).toHaveBeenCalledWith(['agent:list', 'user-1:workspace-1', 'ws-1']);
   });
 });

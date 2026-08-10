@@ -1,10 +1,10 @@
 import { TASK_TEMPLATE_RECOMMEND_MAX_COUNT } from '@lobechat/const';
-import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { TaskTemplateService } from '@/server/services/taskTemplate';
+import { toTaskTemplateRecommendationError } from '@/server/utils/taskTemplateError';
 
 const listDailyRecommendSchema = z.object({
   count: z.number().int().min(1).max(TASK_TEMPLATE_RECOMMEND_MAX_COUNT).optional(),
@@ -34,12 +34,11 @@ export const taskTemplateRouter = router({
         });
         return { data, success: true };
       } catch (error) {
-        console.error('[taskTemplate:listDailyRecommend]', error);
-        throw new TRPCError({
-          cause: error,
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to list recommended task templates',
-        });
+        const mappedError = toTaskTemplateRecommendationError(error);
+        if (mappedError.code === 'INTERNAL_SERVER_ERROR') {
+          console.error('[taskTemplate:listDailyRecommend]', error);
+        }
+        throw mappedError;
       }
     }),
 

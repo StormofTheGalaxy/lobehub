@@ -89,4 +89,17 @@ describe('BuiltinAgentSliceActionImpl', () => {
     expect(state.builtinAgentScope).toBe('user-1:workspace-1');
     expect(state.builtinAgentIdMap).toEqual({ inbox: 'agent-from-workspace-1' });
   });
+
+  it('replaces IDs from a previous scope when refresh resolves first', async () => {
+    Object.assign(state, {
+      builtinAgentIdMap: { 'page-agent': 'agent-from-personal' },
+      builtinAgentScope: 'user-1:personal',
+    });
+    mocks.getBuiltinAgent.mockResolvedValue({ id: 'agent-from-workspace-1' });
+
+    await action.refreshBuiltinAgent('inbox');
+
+    expect(state.builtinAgentScope).toBe('user-1:workspace-1');
+    expect(state.builtinAgentIdMap).toEqual({ inbox: 'agent-from-workspace-1' });
+  });
 });

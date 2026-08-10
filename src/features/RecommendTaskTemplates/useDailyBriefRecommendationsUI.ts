@@ -6,8 +6,9 @@ import type {
 import { TASK_TEMPLATE_RECOMMEND_COUNT } from '@lobechat/const';
 import { createNanoId } from '@lobechat/utils';
 import { toast } from '@lobehub/ui/base-ui';
+import type { TRPC_ERROR_CODE_KEY } from '@trpc/server/rpc';
 import { useSessionStorageState } from 'ahooks';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
@@ -19,12 +20,22 @@ import { briefListSelectors } from '@/store/brief/selectors';
 import { useToolStore } from '@/store/tool';
 import { useUserStore } from '@/store/user';
 import { authSelectors } from '@/store/user/slices/auth/selectors';
+import { isTrpcErrorCode } from '@/utils/trpcError';
 
 import { getProviderMeta } from './providerMeta';
 import { useResolvedInterestKeys } from './useResolvedInterestKeys';
 
 const REFRESH_SEED_STORAGE_KEY = 'lobehub:taskTemplate:refreshSeed';
 const nextRefreshSeed = createNanoId(8);
+const nonRetryableRecommendationCodes = [
+  'BAD_REQUEST',
+  'FORBIDDEN',
+  'NOT_FOUND',
+  'TOO_MANY_REQUESTS',
+  'UNAUTHORIZED',
+] satisfies TRPC_ERROR_CODE_KEY[];
+const shouldRetryRecommendationError = (error: unknown) =>
+  !nonRetryableRecommendationCodes.some((code) => isTrpcErrorCode(error, code));
 
 export type DailyBriefRecommendationsUIState =
   | { mode: 'hidden' }
@@ -111,7 +122,7 @@ export const resolveDailyBriefRecommendationRequest = ({
   recommendationCount,
   refreshSeed,
 }: ResolveDailyBriefRecommendationRequestParams) => {
-  const enabled = isLogin === true;
+  const enabled = isLogin === true && interestKeys !== null;
 
   return {
     key: enabled
@@ -201,31 +212,14 @@ export function useDailyBriefRecommendationsUI(
     recommendationFetcher,
     {
       keepPreviousData: true,
+      errorRetryCount: 1,
       revalidateIfStale: canFetchRecommendations,
       revalidateOnFocus: false,
       revalidateOnMount: canFetchRecommendations,
       revalidateOnReconnect: false,
-      shouldRetryOnError: false,
+      shouldRetryOnError: shouldRetryRecommendationError,
     },
   );
-  const waitedForInterestsRef = useRef(false);
-
-  useEffect(() => {
-    if (!recommendationRequest.key) {
-      waitedForInterestsRef.current = false;
-      return;
-    }
-
-    if (interestKeys === null) {
-      waitedForInterestsRef.current = true;
-      return;
-    }
-
-    if (!waitedForInterestsRef.current) return;
-    waitedForInterestsRef.current = false;
-    void mutate();
-  }, [interestKeys, mutate, recommendationRequest.key]);
-
   useEffect(() => {
     if (error) console.error('[taskTemplate:listDailyRecommend]', error);
   }, [error]);
@@ -295,9 +289,9 @@ export function useDailyBriefRecommendationsUI(
     isInit,
     isLoading,
     isValidating,
-    isWaitingForInterestsFetch: interestKeys !== null && waitedForInterestsRef.current,
+    isWaitingForInterestsFetch: false,
   });
-  if (error) return { mode: 'hidden' };
+  if (error && templates.length === 0) return { mode: 'hidden' };
   if (displayMode === 'hidden') return { mode: 'hidden' };
   if (displayMode === 'skeleton') return { mode: 'skeleton', skeletonCount: recommendationCount };
 

@@ -2,8 +2,12 @@ import isEqual from 'fast-deep-equal';
 import { useEffect } from 'react';
 import { type SWRResponse } from 'swr';
 
+import {
+  getActiveWorkspaceId,
+  useActiveWorkspaceId,
+} from '@/business/client/hooks/useActiveWorkspaceId';
 import { type SidebarAgentItem, type SidebarAgentListResponse } from '@/database/repositories/home';
-import { mutate, useClientDataSWR, useClientDataSWRWithSync } from '@/libs/swr';
+import { mutateInWorkspace, useClientDataSWR, useClientDataSWRWithSync } from '@/libs/swr';
 import { agentConfigKeys, agentKeys } from '@/libs/swr/keys';
 import { getCacheScope } from '@/libs/swr/useCacheScope';
 import { homeService } from '@/services/home';
@@ -47,14 +51,24 @@ export class AgentListActionImpl {
     this.#set({ allAgentsDrawerOpen: true }, false, n('openAllAgentsDrawer'));
   };
 
-  refreshAgentList = async (): Promise<void> => {
+  refreshAgentList = async (
+    scope = getCacheScope(),
+    workspaceId = getActiveWorkspaceId(),
+  ): Promise<void> => {
     getAgentStoreState().invalidateAvailableAgents();
-    await mutate([...agentKeys.list(true), getCacheScope()]);
+    const key = [...agentKeys.list(true), scope];
+    if (getCacheScope() === scope && getActiveWorkspaceId() === workspaceId) {
+      await mutateInWorkspace(workspaceId, key);
+      return;
+    }
+
+    await mutateInWorkspace(workspaceId, key, undefined, { revalidate: false });
   };
 
   useFetchAgentList = (
     isLogin: boolean | undefined,
     scope: string,
+    workspaceId?: string | null,
   ): SWRResponse<SidebarAgentListResponse> => {
     useEffect(() => {
       if (this.#get().agentListScope === scope) return;
@@ -68,7 +82,7 @@ export class AgentListActionImpl {
 
     return useClientDataSWRWithSync<SidebarAgentListResponse>(
       isLogin === true ? [...agentKeys.list(isLogin), scope] : null,
-      () => homeService.getSidebarAgentList(),
+      () => homeService.getSidebarAgentList(workspaceId),
       {
         onData: (data) => {
           if (getCacheScope() !== scope) return;
@@ -105,10 +119,12 @@ export class AgentListActionImpl {
   };
 
   useSearchAgents = (keyword?: string): SWRResponse<SidebarAgentItem[]> => {
+    const workspaceId = useActiveWorkspaceId();
+
     return useClientDataSWR<SidebarAgentItem[]>(agentConfigKeys.search(keyword), async () => {
       if (!keyword) return [];
 
-      return homeService.searchAgents(keyword);
+      return homeService.searchAgents(keyword, workspaceId);
     });
   };
 }

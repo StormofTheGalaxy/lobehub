@@ -100,6 +100,14 @@ describe('desktop router shared definition', () => {
     expect(matches?.at(-1)?.route.path).toBe('stats');
   });
 
+  it.each(mainAreaVariants)('%s matches invitation links before workspace slugs', (_, factory) => {
+    const matches = matchRoutes(createMainAreaRoutes(factory), '/invite/token-123');
+
+    expect(matches?.at(-1)?.route.path).toBe('invite/:token');
+    expect(matches?.at(-1)?.params.token).toBe('token-123');
+    expect(matches?.map((match) => match.route.path)).not.toContain(':workspaceSlug');
+  });
+
   it.each(mainAreaVariants)(
     '%s personal memory settings are not shadowed by workspace memory routes',
     (_, factory) => {

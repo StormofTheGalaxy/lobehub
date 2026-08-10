@@ -7,12 +7,21 @@ import { initialAgentListState } from './initialState';
 
 const mocks = vi.hoisted(() => ({
   activeScope: 'user-1:workspace-1',
+  activeWorkspaceId: 'workspace-1' as string | null,
+  fetcher: undefined as (() => Promise<unknown>) | undefined,
+  getSidebarAgentList: vi.fn(),
+  mutateInWorkspace: vi.fn(),
   onData: undefined as ((data: SidebarAgentListResponse) => void) | undefined,
   useClientDataSWRWithSync: vi.fn(),
 }));
 
+vi.mock('@/business/client/hooks/useActiveWorkspaceId', () => ({
+  getActiveWorkspaceId: () => mocks.activeWorkspaceId,
+  useActiveWorkspaceId: () => mocks.activeWorkspaceId,
+}));
+
 vi.mock('@/libs/swr', () => ({
-  mutate: vi.fn(),
+  mutateInWorkspace: mocks.mutateInWorkspace,
   useClientDataSWR: vi.fn(),
   useClientDataSWRWithSync: mocks.useClientDataSWRWithSync,
 }));
@@ -22,7 +31,7 @@ vi.mock('@/libs/swr/useCacheScope', () => ({
 }));
 
 vi.mock('@/services/home', () => ({
-  homeService: { getSidebarAgentList: vi.fn(), searchAgents: vi.fn() },
+  homeService: { getSidebarAgentList: mocks.getSidebarAgentList, searchAgents: vi.fn() },
 }));
 
 vi.mock('@/store/agent', () => ({
@@ -58,8 +67,11 @@ describe('AgentListActionImpl', () => {
       () => state as never,
     );
     mocks.activeScope = 'user-1:workspace-1';
+    mocks.activeWorkspaceId = 'workspace-1';
+    mocks.fetcher = undefined;
     mocks.onData = undefined;
-    mocks.useClientDataSWRWithSync.mockImplementation((_key, _fetcher, options) => {
+    mocks.useClientDataSWRWithSync.mockImplementation((_key, fetcher, options) => {
+      mocks.fetcher = fetcher;
       mocks.onData = options?.onData;
       return { data: undefined, isValidating: false, mutate: vi.fn() };
     });
@@ -101,5 +113,38 @@ describe('AgentListActionImpl', () => {
     expect(state.agentListScope).toBe('user-1:workspace-1');
     expect(state.isAgentListInit).toBe(true);
     expect(state.pinnedAgents).toEqual(response('workspace-agent').pinned);
+  });
+
+  it('pins the list request to the workspace captured by the hook', async () => {
+    mocks.getSidebarAgentList.mockResolvedValue(response('workspace-agent'));
+    renderHook(() => action.useFetchAgentList(true, 'user-1:workspace-1', 'workspace-1'));
+
+    await mocks.fetcher?.();
+
+    expect(mocks.getSidebarAgentList).toHaveBeenCalledWith('workspace-1');
+  });
+
+  it('refreshes the explicitly captured source scope', async () => {
+    await action.refreshAgentList('user-1:workspace-1', 'workspace-1');
+
+    expect(mocks.mutateInWorkspace).toHaveBeenCalledWith('workspace-1', [
+      'home:sidebarAgentList:v3',
+      true,
+      'user-1:workspace-1',
+    ]);
+  });
+
+  it('clears stale source data when its workspace is no longer active', async () => {
+    mocks.activeScope = 'user-1:workspace-2';
+    mocks.activeWorkspaceId = 'workspace-2';
+
+    await action.refreshAgentList('user-1:workspace-1', 'workspace-1');
+
+    expect(mocks.mutateInWorkspace).toHaveBeenCalledWith(
+      'workspace-1',
+      ['home:sidebarAgentList:v3', true, 'user-1:workspace-1'],
+      undefined,
+      { revalidate: false },
+    );
   });
 });

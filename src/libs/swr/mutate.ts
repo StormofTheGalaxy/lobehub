@@ -66,7 +66,14 @@ export const getMutate = (): ScopedMutator => {
  * cache provider.
  */
 export const mutate: ScopedMutator = (async (...args: Parameters<ScopedMutator>) => {
-  const [key, ...rest] = args;
-  const finalKey = typeof key === 'function' ? key : augmentKey(key, getActiveWorkspaceId());
-  return await getMutate()(finalKey as any, ...(rest as [any, any]));
+  return await mutateInWorkspace(getActiveWorkspaceId(), ...args);
 }) as ScopedMutator;
+
+export const mutateInWorkspace = async (
+  workspaceId: string | null,
+  ...args: Parameters<ScopedMutator>
+) => {
+  const [key, ...rest] = args;
+  const finalKey = typeof key === 'function' ? key : augmentKey(key, workspaceId);
+  return await getMutate()(finalKey as any, ...(rest as [any, any]));
+};

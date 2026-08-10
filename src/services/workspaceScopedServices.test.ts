@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { agentService } from './agent';
+import { homeService } from './home';
 import { resourcePermissionService } from './resourcePermission';
 import { workspaceUserSettingsService } from './workspaceUserSettings';
 
@@ -9,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   getBuiltinAgent: vi.fn(),
   getGeneralAccess: vi.fn(),
   getPreference: vi.fn(),
+  getSidebarAgentList: vi.fn(),
+  searchAgents: vi.fn(),
   setGeneralAccess: vi.fn(),
   updatePreference: vi.fn(),
 }));
@@ -25,6 +28,10 @@ describe('workspace-scoped services', () => {
     vi.clearAllMocks();
     mocks.createWorkspaceLambdaClient.mockReturnValue({
       agent: { getBuiltinAgent: { query: mocks.getBuiltinAgent } },
+      home: {
+        getSidebarAgentList: { query: mocks.getSidebarAgentList },
+        searchAgents: { query: mocks.searchAgents },
+      },
       resourcePermission: {
         getGeneralAccess: { query: mocks.getGeneralAccess },
         setGeneralAccess: { mutate: mocks.setGeneralAccess },
@@ -51,6 +58,15 @@ describe('workspace-scoped services', () => {
       resourceId: 'agent-1',
       resourceType: 'agent',
     });
+  });
+
+  it('pins home list and search requests to their workspace', async () => {
+    await homeService.getSidebarAgentList('workspace-1');
+    await homeService.searchAgents('agent', 'workspace-1');
+
+    expect(mocks.createWorkspaceLambdaClient).toHaveBeenCalledWith('workspace-1');
+    expect(mocks.getSidebarAgentList).toHaveBeenCalledWith();
+    expect(mocks.searchAgents).toHaveBeenCalledWith({ keyword: 'agent' });
   });
 
   it('pins workspace preference requests to their workspace', async () => {

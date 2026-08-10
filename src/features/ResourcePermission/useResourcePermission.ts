@@ -6,6 +6,9 @@ import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspace
 import { useClientDataSWR } from '@/libs/swr';
 import type { PermissionResourceType, ResourceAccessLevel } from '@/services/resourcePermission';
 import { resourcePermissionService } from '@/services/resourcePermission';
+import { useAgentStore } from '@/store/agent';
+import { useAgentGroupStore } from '@/store/agentGroup';
+import { usePageStore } from '@/store/page';
 import { isTrpcErrorCode } from '@/utils/trpcError';
 
 const FETCH_RESOURCE_PERMISSION_KEY = 'resource-permission';
@@ -17,14 +20,39 @@ const FETCH_RESOURCE_PERMISSION_KEY = 'resource-permission';
 export const useResourcePermission = (
   resourceType: PermissionResourceType,
   resourceId: string | undefined,
+  resourceWorkspaceId?: string | null,
 ) => {
   const { t } = useTranslation('setting');
   const workspaceId = useActiveWorkspaceId();
+  const storedAgentWorkspaceId = useAgentStore((s) =>
+    resourceType === 'agent' && resourceId ? s.agentMap[resourceId]?.workspaceId : undefined,
+  );
+  const storedGroupWorkspaceId = useAgentGroupStore((s) =>
+    resourceType === 'agentGroup' && resourceId ? s.groupMap[resourceId]?.workspaceId : undefined,
+  );
+  const storedDocumentWorkspaceId = usePageStore((s) =>
+    resourceType === 'document' && resourceId
+      ? s.documents?.find((document) => document.id === resourceId)?.workspaceId
+      : undefined,
+  );
+  const storedResourceWorkspaceId =
+    resourceType === 'agent'
+      ? storedAgentWorkspaceId
+      : resourceType === 'agentGroup'
+        ? storedGroupWorkspaceId
+        : storedDocumentWorkspaceId;
+  const resolvedResourceWorkspaceId =
+    resourceWorkspaceId !== undefined ? resourceWorkspaceId : storedResourceWorkspaceId;
+  const scopeMatches =
+    !!workspaceId &&
+    !!resourceId &&
+    resolvedResourceWorkspaceId !== undefined &&
+    resolvedResourceWorkspaceId === workspaceId;
 
   const [updating, setUpdating] = useState(false);
 
   const { data, error, isLoading, mutate } = useClientDataSWR(
-    workspaceId && resourceId ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
+    scopeMatches ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
     () => resourcePermissionService.getGeneralAccess(resourceType, resourceId!, workspaceId!),
     { shouldRetryOnError: (error) => !isTrpcErrorCode(error, 'NOT_FOUND') },
   );

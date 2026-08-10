@@ -110,7 +110,7 @@ const template = {
 } satisfies TaskTemplate;
 
 describe('resolveDailyBriefRecommendationRequest', () => {
-  it('keeps the cache key available while interests are still initializing', () => {
+  it('enables the cache key only after interests finish initializing', () => {
     const loading = resolveDailyBriefRecommendationRequest({
       interestKeys: null,
       isLogin: true,
@@ -126,7 +126,7 @@ describe('resolveDailyBriefRecommendationRequest', () => {
       refreshSeed: '',
     });
 
-    expect(loading.key).toEqual(ready.key);
+    expect(loading.key).toBeNull();
     expect(loading.shouldFetch).toBe(false);
     expect(ready.shouldFetch).toBe(true);
   });
@@ -273,7 +273,11 @@ describe('useDailyBriefRecommendationsUI', () => {
     expect(mockUseSWR.mock.calls[0][0]).toEqual(
       taskTemplateKeys.listDailyRecommend('', 2, 'en-US'),
     );
-    expect(mockUseSWR.mock.calls[0][2]).toMatchObject({ shouldRetryOnError: false });
+    const swrConfig = mockUseSWR.mock.calls[0][2];
+    expect(swrConfig).toMatchObject({ errorRetryCount: 1 });
+    expect(swrConfig.shouldRetryOnError({ data: { code: 'UNAUTHORIZED' } })).toBe(false);
+    expect(swrConfig.shouldRetryOnError({ data: { code: 'TOO_MANY_REQUESTS' } })).toBe(false);
+    expect(swrConfig.shouldRetryOnError({ data: { code: 'INTERNAL_SERVER_ERROR' } })).toBe(true);
 
     const fetcher = mockUseSWR.mock.calls[0][1];
     await fetcher();

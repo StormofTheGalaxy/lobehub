@@ -11,7 +11,7 @@ import { useElectronStore } from '@/store/electron';
 import { initialState } from '@/store/electron/initialState';
 
 import { useWorkspaceSyncPathname } from './useWorkspaceSyncPathname.desktop';
-import { useWorkspaceUrlSync } from './useWorkspaceUrlSync';
+import { resolveWorkspaceIdFromPath, useWorkspaceUrlSync } from './useWorkspaceUrlSync';
 
 vi.mock(
   './useWorkspaceSyncPathname',
@@ -92,6 +92,15 @@ describe('useWorkspaceSyncPathname (desktop)', () => {
 });
 
 describe('useWorkspaceUrlSync (desktop)', () => {
+  it('resolves URL scope before rendering workspace content', () => {
+    const workspaces = [{ id: 'ws-1', slug: 'acme' }];
+
+    expect(resolveWorkspaceIdFromPath('/acme/agent/x', workspaces, false)).toBe('ws-1');
+    expect(resolveWorkspaceIdFromPath('/missing/agent/x', workspaces, false)).toBeNull();
+    expect(resolveWorkspaceIdFromPath('/agent/x', workspaces, true)).toBeNull();
+    expect(resolveWorkspaceIdFromPath('/acme/agent/x', workspaces, true)).toBeUndefined();
+  });
+
   it('activates the workspace of the active tab, not the boot location', () => {
     setTabs([{ id: 'a', url: '/acme/agent/x' }], 'a');
 
@@ -123,6 +132,16 @@ describe('useWorkspaceUrlSync (desktop)', () => {
   it.each(['/agents', '/downloads'])('treats %s as a personal root route', (url) => {
     vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');
     setTabs([{ id: 'a', url }], 'a');
+
+    renderHook(() => useWorkspaceUrlSync(), { wrapper });
+
+    expect(switchToPersonal).toHaveBeenCalled();
+    expect(switchWorkspace).not.toHaveBeenCalled();
+  });
+
+  it('clears stale workspace context for an unknown slug', () => {
+    vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');
+    setTabs([{ id: 'a', url: '/missing/agent/x' }], 'a');
 
     renderHook(() => useWorkspaceUrlSync(), { wrapper });
 

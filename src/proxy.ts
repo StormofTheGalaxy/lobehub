@@ -29,6 +29,8 @@ export const config = {
     '/changelog(.*)',
     '/settings(.*)',
     '/image',
+    '/invite',
+    '/invite/(.*)',
     '/video',
     '/resource',
     '/resource(.*)',
@@ -57,6 +59,14 @@ export const config = {
     '/oauth(.*)',
     '/oidc(.*)',
     '/market-auth-callback(.*)',
+    // Dynamic workspace slugs cannot be enumerated above. Match document
+    // navigations only, while keeping backend, internal SPA, and asset paths
+    // away from the HTML rewrite (serving HTML for a JS chunk causes reload loops).
+    {
+      has: [{ key: 'accept', type: 'header', value: '.*text/html.*' }],
+      source:
+        '/((?!(?:api|trpc|webapi|market|f|_next|_spa(?:-auth|-workbench)?|spa(?:-auth|-workbench)?|_dangerous_local_dev_proxy|discover)(?:/|$)|.*\\..*).*)',
+    },
   ],
 };
 
