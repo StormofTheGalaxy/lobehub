@@ -9,6 +9,8 @@ export interface AgentListState {
    * Agent groups (user-defined folders)
    */
   agentGroups: SidebarGroup[];
+  /** Cache scope that produced the current list projection. */
+  agentListScope: string | null;
   /**
    * Whether all agents drawer is open
    */
@@ -45,6 +47,7 @@ export interface AgentListState {
 
 export const initialAgentListState: AgentListState = {
   agentGroups: [],
+  agentListScope: null,
   allAgentsDrawerOpen: false,
   isAgentListInit: false,
   pinnedAgents: [],

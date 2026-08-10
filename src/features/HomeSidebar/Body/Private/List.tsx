@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import NavItem from '@/features/NavPanel/components/NavItem';
 import SkeletonList from '@/features/NavPanel/components/SkeletonList';
 import { useWorkspaceAwareNavigate } from '@/features/Workspace/useWorkspaceAwareNavigate';
+import { useIsAgentListScopeReady } from '@/hooks/useFetchAgentList';
 import { useGlobalStore } from '@/store/global';
 import { systemStatusSelectors } from '@/store/global/selectors';
 import { useHomeStore } from '@/store/home';
@@ -30,7 +31,7 @@ interface PrivateListProps {
 // is always the viewer's own.
 const PrivateList = memo<PrivateListProps>(({ hideCreateButton, onMoreClick }) => {
   const { t } = useTranslation('chat');
-  const isInit = useHomeStore(homeAgentListSelectors.isAgentListInit);
+  const isInit = useIsAgentListScopeReady();
   const rawPrivatePinned = useHomeStore(homeAgentListSelectors.privatePinnedAgents, isEqual);
   const rawPrivateGroups = useHomeStore(homeAgentListSelectors.privateAgentGroups, isEqual);
   const privateAgentPageSize = useGlobalStore(systemStatusSelectors.privateAgentPageSize);

@@ -1,9 +1,11 @@
 import isEqual from 'fast-deep-equal';
+import { useEffect } from 'react';
 import { type SWRResponse } from 'swr';
 
 import { type SidebarAgentItem, type SidebarAgentListResponse } from '@/database/repositories/home';
 import { mutate, useClientDataSWR, useClientDataSWRWithSync } from '@/libs/swr';
 import { agentConfigKeys, agentKeys } from '@/libs/swr/keys';
+import { getCacheScope } from '@/libs/swr/useCacheScope';
 import { homeService } from '@/services/home';
 import { getAgentStoreState } from '@/store/agent';
 import { type HomeStore } from '@/store/home/store';
@@ -13,6 +15,15 @@ import { setNamespace } from '@/utils/storeDebug';
 import { mapResponseToState } from './initialState';
 
 const n = setNamespace('agentList');
+
+const EMPTY_AGENT_LIST: SidebarAgentListResponse = {
+  groups: [],
+  pinned: [],
+  privateGroups: [],
+  privatePinned: [],
+  privateUngrouped: [],
+  ungrouped: [],
+};
 
 type Setter = StoreSetter<HomeStore>;
 export const createAgentListSlice = (set: Setter, get: () => HomeStore, _api?: unknown) =>
@@ -38,21 +49,37 @@ export class AgentListActionImpl {
 
   refreshAgentList = async (): Promise<void> => {
     getAgentStoreState().invalidateAvailableAgents();
-    await mutate(agentKeys.list(true));
+    await mutate([...agentKeys.list(true), getCacheScope()]);
   };
 
-  useFetchAgentList = (isLogin: boolean | undefined): SWRResponse<SidebarAgentListResponse> => {
+  useFetchAgentList = (
+    isLogin: boolean | undefined,
+    scope: string,
+  ): SWRResponse<SidebarAgentListResponse> => {
+    useEffect(() => {
+      if (this.#get().agentListScope === scope) return;
+
+      this.#set(
+        { ...mapResponseToState(EMPTY_AGENT_LIST), agentListScope: scope, isAgentListInit: false },
+        false,
+        n('useFetchAgentList/scopeChanged'),
+      );
+    }, [scope]);
+
     return useClientDataSWRWithSync<SidebarAgentListResponse>(
-      isLogin === true ? agentKeys.list(isLogin) : null,
+      isLogin === true ? [...agentKeys.list(isLogin), scope] : null,
       () => homeService.getSidebarAgentList(),
       {
         onData: (data) => {
+          if (getCacheScope() !== scope) return;
+
           const state = this.#get();
           const newState = mapResponseToState(data);
 
           // Skip update if data is the same
           if (
             state.isAgentListInit &&
+            state.agentListScope === scope &&
             isEqual(state.pinnedAgents, newState.pinnedAgents) &&
             isEqual(state.agentGroups, newState.agentGroups) &&
             isEqual(state.ungroupedAgents, newState.ungroupedAgents) &&
@@ -66,6 +93,7 @@ export class AgentListActionImpl {
           this.#set(
             {
               ...newState,
+              agentListScope: scope,
               isAgentListInit: true,
             },
             false,

@@ -10,6 +10,7 @@ const testState = vi.hoisted(() => ({
   activeWorkspaceId: 'workspace-1' as string | null,
   data: undefined as ResourceGeneralAccess | undefined,
   fetcher: undefined as (() => Promise<unknown>) | undefined,
+  swrConfig: undefined as { shouldRetryOnError?: (error: unknown) => boolean } | undefined,
   swrKey: undefined as unknown,
 }));
 
@@ -18,8 +19,13 @@ vi.mock('@/business/client/hooks/useActiveWorkspaceId', () => ({
 }));
 
 vi.mock('@/libs/swr', () => ({
-  useClientDataSWR: (key: unknown, fetcher: () => Promise<unknown>) => {
+  useClientDataSWR: (
+    key: unknown,
+    fetcher: () => Promise<unknown>,
+    config?: { shouldRetryOnError?: (error: unknown) => boolean },
+  ) => {
     testState.fetcher = fetcher;
+    testState.swrConfig = config;
     testState.swrKey = key;
 
     return {
@@ -36,6 +42,7 @@ describe('useResourceAccess', () => {
     testState.activeWorkspaceId = 'workspace-1';
     testState.data = undefined;
     testState.fetcher = undefined;
+    testState.swrConfig = undefined;
     testState.swrKey = undefined;
     vi.restoreAllMocks();
   });
@@ -58,6 +65,15 @@ describe('useResourceAccess', () => {
     renderHook(() => useResourceAccess('agent', 'agent-1'));
 
     expect(testState.swrKey).toBeNull();
+  });
+
+  it('does not automatically retry missing or cross-workspace resources', () => {
+    renderHook(() => useResourceAccess('agent', 'agent-1'));
+
+    expect(testState.swrConfig?.shouldRetryOnError?.({ data: { code: 'NOT_FOUND' } })).toBe(false);
+    expect(
+      testState.swrConfig?.shouldRetryOnError?.({ data: { code: 'INTERNAL_SERVER_ERROR' } }),
+    ).toBe(true);
   });
 
   it('does not apply view-only Member Permissions to an Agent author or admin', () => {

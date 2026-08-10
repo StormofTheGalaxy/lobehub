@@ -1,6 +1,13 @@
+import { useCacheScope } from '@/libs/swr/useCacheScope';
 import { useHomeStore } from '@/store/home';
 import { useUserStore } from '@/store/user';
 import { authSelectors } from '@/store/user/slices/auth/selectors';
+
+export const useIsAgentListScopeReady = () => {
+  const scope = useCacheScope();
+
+  return useHomeStore((s) => s.agentListScope === scope && s.isAgentListInit);
+};
 
 /**
  * Hook to fetch agent list
@@ -10,12 +17,15 @@ import { authSelectors } from '@/store/user/slices/auth/selectors';
  */
 export const useFetchAgentList = () => {
   const isLogin = useUserStore(authSelectors.isLogin);
+  const scope = useCacheScope();
   const useFetchAgentListHook = useHomeStore((s) => s.useFetchAgentList);
+  const isScopeReady = useHomeStore((s) => s.agentListScope === scope && s.isAgentListInit);
 
-  const { isValidating, data, error, mutate } = useFetchAgentListHook(isLogin);
+  const { isValidating, data, error, mutate } = useFetchAgentListHook(isLogin, scope);
 
   return {
     error,
+    isScopeReady,
     // isRevalidating: has cached data, updating in background
     isRevalidating: isValidating && !!data,
     mutate,

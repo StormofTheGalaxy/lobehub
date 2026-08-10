@@ -181,12 +181,11 @@ const AgentViewAllPage = memo(() => {
 
   // The sidebar usually owns these fetches, but this page must survive a
   // direct deep link — SWR dedupes when both are mounted.
-  useFetchAgentList();
+  const { isScopeReady: isInit } = useFetchAgentList();
   useFetchAgentLabels();
   const useFetchWorkspaceUserPreference = useUserStore((s) => s.useFetchWorkspaceUserPreference);
   useFetchWorkspaceUserPreference();
 
-  const isInit = useHomeStore(homeAgentListSelectors.isAgentListInit);
   const pinnedAgents = useHomeStore(homeAgentListSelectors.pinnedAgents, isEqual);
   const agentGroups = useHomeStore(homeAgentListSelectors.agentGroups, isEqual);
   const ungroupedAgents = useHomeStore(homeAgentListSelectors.ungroupedAgents, isEqual);

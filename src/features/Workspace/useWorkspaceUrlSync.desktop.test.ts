@@ -119,4 +119,14 @@ describe('useWorkspaceUrlSync (desktop)', () => {
 
     expect(switchToPersonal).toHaveBeenCalled();
   });
+
+  it.each(['/agents', '/downloads'])('treats %s as a personal root route', (url) => {
+    vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');
+    setTabs([{ id: 'a', url }], 'a');
+
+    renderHook(() => useWorkspaceUrlSync(), { wrapper });
+
+    expect(switchToPersonal).toHaveBeenCalled();
+    expect(switchWorkspace).not.toHaveBeenCalled();
+  });
 });
