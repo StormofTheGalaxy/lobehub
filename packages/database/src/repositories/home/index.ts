@@ -364,6 +364,7 @@ export class HomeRepository {
           updatedAt: a.updatedAt,
           userId: a.agentUserId,
           visibility,
+          workspaceId: this.workspaceId ?? null,
         };
       }),
       ...chatGroupItems.map((g): EnrichedItem => {
@@ -386,6 +387,7 @@ export class HomeRepository {
           updatedAt: g.updatedAt,
           userId: g.groupUserId,
           visibility,
+          workspaceId: this.workspaceId ?? null,
         };
       }),
     ];
@@ -549,6 +551,7 @@ export class HomeRepository {
           updatedAt: a.updatedAt,
           userId: a.userId,
           visibility,
+          workspaceId: this.workspaceId ?? null,
         });
       }),
       ...chatGroupResults.map((g) => {
@@ -565,6 +568,7 @@ export class HomeRepository {
           updatedAt: g.updatedAt,
           userId: g.userId,
           visibility,
+          workspaceId: this.workspaceId ?? null,
         });
       }),
     ] as SidebarAgentItem[];

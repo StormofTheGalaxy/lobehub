@@ -1,7 +1,7 @@
 import { type AgentItem, type AgentRankItem, type LobeAgentConfig } from '@lobechat/types';
 import { type PartialDeep } from 'type-fest';
 
-import { lambdaClient } from '@/libs/trpc/client';
+import { createWorkspaceLambdaClient, lambdaClient } from '@/libs/trpc/client';
 
 export const AVAILABLE_AGENTS_CONTEXT_LIMIT = 10;
 export const AVAILABLE_AGENTS_CONTEXT_QUERY_LIMIT = AVAILABLE_AGENTS_CONTEXT_LIMIT + 2;
@@ -239,8 +239,10 @@ class AgentService {
    * Get a builtin agent by slug, creating it if it doesn't exist.
    * This is a generic interface for all builtin agents (page-copilot, inbox, etc.)
    */
-  getBuiltinAgent = async (slug: string) => {
-    return lambdaClient.agent.getBuiltinAgent.query({ slug });
+  getBuiltinAgent = async (slug: string, workspaceId?: string | null) => {
+    const client = workspaceId ? createWorkspaceLambdaClient(workspaceId) : lambdaClient;
+
+    return client.agent.getBuiltinAgent.query({ slug });
   };
 
   /**

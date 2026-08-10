@@ -8,6 +8,7 @@ import { useResourceAccess } from './useResourceAccess';
 
 const testState = vi.hoisted(() => ({
   activeWorkspaceId: 'workspace-1' as string | null,
+  agentMap: {} as Record<string, { workspaceId?: string | null }>,
   data: undefined as ResourceGeneralAccess | undefined,
   fetcher: undefined as (() => Promise<unknown>) | undefined,
   swrConfig: undefined as { shouldRetryOnError?: (error: unknown) => boolean } | undefined,
@@ -37,9 +38,14 @@ vi.mock('@/libs/swr', () => ({
   },
 }));
 
+vi.mock('@/store/agent', () => ({
+  useAgentStore: (selector: (state: typeof testState) => unknown) => selector(testState),
+}));
+
 describe('useResourceAccess', () => {
   beforeEach(() => {
     testState.activeWorkspaceId = 'workspace-1';
+    testState.agentMap = {};
     testState.data = undefined;
     testState.fetcher = undefined;
     testState.swrConfig = undefined;
@@ -74,6 +80,37 @@ describe('useResourceAccess', () => {
     expect(
       testState.swrConfig?.shouldRetryOnError?.({ data: { code: 'INTERNAL_SERVER_ERROR' } }),
     ).toBe(true);
+  });
+
+  it('does not request permissions for an agent from another workspace', () => {
+    testState.agentMap = { 'agent-1': { workspaceId: 'workspace-2' } };
+
+    const { result } = renderHook(() => useResourceAccess('agent', 'agent-1'));
+
+    expect(testState.swrKey).toBeNull();
+    expect(result.current).toMatchObject({
+      canEditResource: false,
+      canManageResource: false,
+      canUseResource: false,
+      isAccessResolved: false,
+    });
+  });
+
+  it('uses authoritative sidebar workspace metadata before requesting permissions', () => {
+    const personal = renderHook(() => useResourceAccess('agent', 'agent-1', null));
+
+    expect(testState.swrKey).toBeNull();
+    expect(personal.result.current.isAccessResolved).toBe(false);
+
+    renderHook(() => useResourceAccess('agent', 'agent-1', 'workspace-1'));
+    expect(testState.swrKey).not.toBeNull();
+  });
+
+  it('waits for a builtin slug to resolve to its workspace agent ID', () => {
+    const { result } = renderHook(() => useResourceAccess('agent', 'inbox'));
+
+    expect(testState.swrKey).toBeNull();
+    expect(result.current.isAccessResolved).toBe(false);
   });
 
   it('does not apply view-only Member Permissions to an Agent author or admin', () => {

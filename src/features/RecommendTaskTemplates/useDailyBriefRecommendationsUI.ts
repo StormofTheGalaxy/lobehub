@@ -205,6 +205,7 @@ export function useDailyBriefRecommendationsUI(
       revalidateOnFocus: false,
       revalidateOnMount: canFetchRecommendations,
       revalidateOnReconnect: false,
+      shouldRetryOnError: false,
     },
   );
   const waitedForInterestsRef = useRef(false);

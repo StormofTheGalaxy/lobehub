@@ -174,7 +174,7 @@ export const topicCommentKeys = {
 // ---- agent --------------------------------------------------------------
 export const agentKeys = {
   /** Sidebar agent list. */
-  list: def('agent:list', (isLogin: boolean) => ['agent:list', isLogin]),
+  list: def('agent:list:v2', (isLogin: boolean) => ['agent:list:v2', isLogin]),
 };
 
 // ---- agent labels -------------------------------------------------------
@@ -1113,7 +1113,11 @@ export const userKeys = {
   initState: def('user:initState', () => ['user:initState']),
 };
 export const builtinAgentKeys = {
-  init: def('builtinAgent:init', (slug: string) => ['builtinAgent:init', slug]),
+  init: def('builtinAgent:init', (slug: string, scope: string) => [
+    'builtinAgent:init',
+    slug,
+    scope,
+  ]),
 };
 export const imessageKeys = {
   bridgeStatus: def('imessage:bridgeStatus', () => ['imessage:bridgeStatus']),

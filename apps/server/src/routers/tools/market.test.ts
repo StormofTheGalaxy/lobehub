@@ -11,6 +11,9 @@ const mockCreateSandboxService = vi.hoisted(() =>
   })),
 );
 const mockMarketSDK = vi.hoisted(() => ({
+  connect: {
+    listConnections: vi.fn(),
+  },
   skills: {
     callTool: vi.fn(),
     listLiveTools: vi.fn(),
@@ -86,6 +89,13 @@ describe('tools marketRouter', () => {
       command:
         'lh() { LOBEHUB_WORKSPACE_ID=\'workspace-1\' npx -y @lobehub/cli "$@"; }\nlh agent view agt_1',
     });
+  });
+
+  it('should not request optional Market connections without an access token', async () => {
+    const caller = marketRouter.createCaller({ userId: 'user-1' } as any);
+
+    await expect(caller.connectListConnections()).resolves.toEqual({ connections: [] });
+    expect(mockMarketSDK.connect.listConnections).not.toHaveBeenCalled();
   });
 
   it('should fall back to static tools when live discovery fails', async () => {

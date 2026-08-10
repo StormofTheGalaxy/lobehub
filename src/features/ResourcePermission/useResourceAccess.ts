@@ -1,11 +1,15 @@
+import { BUILTIN_AGENT_SLUGS } from '@lobechat/builtin-agents';
+
 import { useActiveWorkspaceId } from '@/business/client/hooks/useActiveWorkspaceId';
 import { useClientDataSWR } from '@/libs/swr';
 import type { PermissionResourceType } from '@/services/resourcePermission';
 import { resourcePermissionService } from '@/services/resourcePermission';
+import { useAgentStore } from '@/store/agent';
 import { isTrpcErrorCode } from '@/utils/trpcError';
 
 // Same SWR key as useResourcePermission so both hooks share one fetch/cache entry.
 const FETCH_RESOURCE_PERMISSION_KEY = 'resource-permission';
+const builtinAgentSlugs = new Set<string>(Object.values(BUILTIN_AGENT_SLUGS));
 
 /**
  * Read-side derivation of the workspace General-access level for a resource.
@@ -19,9 +23,21 @@ const FETCH_RESOURCE_PERMISSION_KEY = 'resource-permission';
 export const useResourceAccess = (
   resourceType: PermissionResourceType,
   resourceId: string | undefined,
+  resourceWorkspaceId?: string | null,
 ) => {
   const workspaceId = useActiveWorkspaceId();
-  const enabled = !!workspaceId && !!resourceId;
+  const storedAgentWorkspaceId = useAgentStore((s) =>
+    resourceType === 'agent' && resourceId ? s.agentMap[resourceId]?.workspaceId : undefined,
+  );
+  const resolvedResourceWorkspaceId =
+    resourceWorkspaceId !== undefined ? resourceWorkspaceId : storedAgentWorkspaceId;
+  const hasKnownResourceWorkspace =
+    resourceWorkspaceId !== undefined || storedAgentWorkspaceId !== undefined;
+  const unresolvedBuiltinSlug =
+    resourceType === 'agent' && !!resourceId && builtinAgentSlugs.has(resourceId);
+  const scopeMismatch = hasKnownResourceWorkspace && resolvedResourceWorkspaceId !== workspaceId;
+  const blockedByResourceScope = scopeMismatch || (!!workspaceId && unresolvedBuiltinSlug);
+  const enabled = !!workspaceId && !!resourceId && !blockedByResourceScope;
 
   const { data, error, isLoading, mutate } = useClientDataSWR(
     enabled ? [FETCH_RESOURCE_PERMISSION_KEY, resourceType, resourceId] : null,
@@ -31,10 +47,18 @@ export const useResourceAccess = (
 
   return {
     accessError: error,
-    canEditResource: !enabled || !data ? true : data.canManage || data.accessLevel === 'edit',
-    canManageResource: !enabled || data?.canManage === true,
-    canUseResource: !enabled || !data ? true : data.canManage || data.accessLevel !== 'view',
-    isAccessResolved: !enabled || !!data,
+    canEditResource: blockedByResourceScope
+      ? false
+      : !enabled || !data
+        ? true
+        : data.canManage || data.accessLevel === 'edit',
+    canManageResource: blockedByResourceScope ? false : !enabled || data?.canManage === true,
+    canUseResource: blockedByResourceScope
+      ? false
+      : !enabled || !data
+        ? true
+        : data.canManage || data.accessLevel !== 'view',
+    isAccessResolved: blockedByResourceScope ? false : !enabled || !!data,
     isLoading,
     retryAccess: mutate,
   };

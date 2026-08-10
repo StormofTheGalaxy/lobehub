@@ -70,6 +70,7 @@ interface UseAgentDropdownMenuParams {
   title: string;
   userId?: string | null;
   visibility?: SidebarVisibility;
+  workspaceId?: string | null;
 }
 
 export const useAgentDropdownMenu = ({
@@ -86,6 +87,7 @@ export const useAgentDropdownMenu = ({
   title,
   userId,
   visibility,
+  workspaceId,
 }: UseAgentDropdownMenuParams): (() => MenuProps['items']) => {
   const { t } = useTranslation(['chat', 'common', 'setting']);
   const navigate = useWorkspaceAwareNavigate();
@@ -148,7 +150,7 @@ export const useAgentDropdownMenu = ({
   const { allowed: canManageLabels } = usePermission('manage_settings');
   const canCreateLabel =
     Boolean(openCreateLabelModal) && (activeWorkspaceId ? canManageLabels : true);
-  const { canEditResource, isAccessResolved } = useResourceAccess('agent', id);
+  const { canEditResource, isAccessResolved } = useResourceAccess('agent', id, workspaceId);
   const canConfigure = canEdit && isAccessResolved && canEditResource;
 
   // Row-level ownership: delete/transfer/visibility management stays scoped

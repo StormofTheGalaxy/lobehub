@@ -1,9 +1,15 @@
 import { type AgentItem, type LobeAgentConfig } from '@lobechat/types';
+import { useEffect } from 'react';
 import { type SWRResponse } from 'swr';
 import { type PartialDeep } from 'type-fest';
 
+import {
+  getActiveWorkspaceId,
+  useActiveWorkspaceId,
+} from '@/business/client/hooks/useActiveWorkspaceId';
 import { useOnlyFetchOnceSWR } from '@/libs/swr';
 import { builtinAgentKeys } from '@/libs/swr/keys';
+import { getCacheScope, useCacheScope } from '@/libs/swr/useCacheScope';
 import { agentService } from '@/services/agent';
 import { type StoreSetter } from '@/store/types';
 
@@ -37,14 +43,21 @@ export class BuiltinAgentSliceActionImpl {
   }
 
   refreshBuiltinAgent = async (slug: string): Promise<void> => {
-    const data = await agentService.getBuiltinAgent(slug);
+    const workspaceId = getActiveWorkspaceId();
+    const scope = getCacheScope();
+    const data = await agentService.getBuiltinAgent(slug, workspaceId);
+    if (getCacheScope() !== scope) return;
+
     if (data?.id) {
       this.#get().internal_dispatchAgentMap(data.id, data as PartialDeep<LobeAgentConfig>);
       // Mirror useInitBuiltinAgent's onSuccess: keep builtinAgentIdMap in sync
       // so callers can rely on this as a real "ensure" path instead of just a
       // post-init refresh.
       this.#set(
-        { builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id } },
+        {
+          builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id },
+          builtinAgentScope: scope,
+        },
         false,
         `refreshBuiltinAgent/${slug}`,
       );
@@ -55,15 +68,30 @@ export class BuiltinAgentSliceActionImpl {
     slug: string,
     context?: UseInitBuiltinAgentContext,
   ): SWRResponse<AgentItem | null> => {
+    const workspaceId = useActiveWorkspaceId();
+    const scope = useCacheScope();
+
+    useEffect(() => {
+      if (this.#get().builtinAgentScope === scope) return;
+
+      this.#set(
+        { builtinAgentIdMap: {}, builtinAgentScope: scope },
+        false,
+        'useInitBuiltinAgent/scopeChanged',
+      );
+    }, [scope]);
+
     return useOnlyFetchOnceSWR(
-      context?.isLogin === false ? null : builtinAgentKeys.init(slug),
+      context?.isLogin === false ? null : builtinAgentKeys.init(slug, scope),
       async () => {
-        const data = await agentService.getBuiltinAgent(slug);
+        const data = await agentService.getBuiltinAgent(slug, workspaceId);
 
         return data as AgentItem | null;
       },
       {
         onSuccess: (data: AgentItem | null) => {
+          if (getCacheScope() !== scope) return;
+
           if (data?.id) {
             // Update builtinAgentIdMap with the agent id
             // Update agentMap with the agent config
@@ -71,7 +99,10 @@ export class BuiltinAgentSliceActionImpl {
             this.#get().internal_dispatchAgentMap(data.id, data as PartialDeep<LobeAgentConfig>);
 
             this.#set(
-              { builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id } },
+              {
+                builtinAgentIdMap: { ...this.#get().builtinAgentIdMap, [slug]: data.id },
+                builtinAgentScope: scope,
+              },
               false,
               `useInitBuiltinAgent/${slug}`,
             );

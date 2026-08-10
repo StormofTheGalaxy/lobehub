@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { agentService } from './agent';
 import { resourcePermissionService } from './resourcePermission';
 import { workspaceUserSettingsService } from './workspaceUserSettings';
 
 const mocks = vi.hoisted(() => ({
   createWorkspaceLambdaClient: vi.fn(),
+  getBuiltinAgent: vi.fn(),
   getGeneralAccess: vi.fn(),
   getPreference: vi.fn(),
   setGeneralAccess: vi.fn(),
@@ -13,12 +15,16 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/libs/trpc/client', () => ({
   createWorkspaceLambdaClient: mocks.createWorkspaceLambdaClient,
+  lambdaClient: {
+    agent: { getBuiltinAgent: { query: mocks.getBuiltinAgent } },
+  },
 }));
 
 describe('workspace-scoped services', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.createWorkspaceLambdaClient.mockReturnValue({
+      agent: { getBuiltinAgent: { query: mocks.getBuiltinAgent } },
       resourcePermission: {
         getGeneralAccess: { query: mocks.getGeneralAccess },
         setGeneralAccess: { mutate: mocks.setGeneralAccess },
@@ -28,6 +34,13 @@ describe('workspace-scoped services', () => {
         updatePreference: { mutate: mocks.updatePreference },
       },
     });
+  });
+
+  it('pins builtin agent provisioning to its workspace', async () => {
+    await agentService.getBuiltinAgent('inbox', 'workspace-3');
+
+    expect(mocks.createWorkspaceLambdaClient).toHaveBeenCalledWith('workspace-3');
+    expect(mocks.getBuiltinAgent).toHaveBeenCalledWith({ slug: 'inbox' });
   });
 
   it('pins resource permission requests to their workspace', async () => {

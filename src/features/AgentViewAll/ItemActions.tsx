@@ -159,6 +159,7 @@ const AgentItemActions = memo<ItemActionsProps>(({ anchor, item, ...rest }) => {
     title: agentDisplayName(item, t('agentViewAll.untitled')),
     userId,
     visibility,
+    workspaceId: item.workspaceId,
   });
 
   return <ActionsDropdown getMenuItems={getAgentMenu} item={item} {...rest} />;
@@ -183,6 +184,7 @@ const GroupItemActions = memo<ItemActionsProps>(({ anchor, item, ...rest }) => {
     pinned: pinned ?? false,
     title: title || t('agentViewAll.untitled'),
     userId,
+    workspaceId: item.workspaceId,
   });
 
   return <ActionsDropdown getMenuItems={getGroupMenu} item={item} {...rest} />;

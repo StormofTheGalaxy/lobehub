@@ -108,6 +108,8 @@ export interface SidebarAgentItem {
    * for personal-mode rows that pre-date the column.
    */
   visibility?: SidebarVisibility;
+  /** Owning workspace; `null` for personal agents and groups. */
+  workspaceId?: string | null;
 }
 
 /**

@@ -273,6 +273,7 @@ describe('useDailyBriefRecommendationsUI', () => {
     expect(mockUseSWR.mock.calls[0][0]).toEqual(
       taskTemplateKeys.listDailyRecommend('', 2, 'en-US'),
     );
+    expect(mockUseSWR.mock.calls[0][2]).toMatchObject({ shouldRetryOnError: false });
 
     const fetcher = mockUseSWR.mock.calls[0][1];
     await fetcher();

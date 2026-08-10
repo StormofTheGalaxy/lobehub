@@ -24,6 +24,7 @@ interface UseGroupDropdownMenuParams {
   pinned: boolean;
   title: string;
   userId?: string | null;
+  workspaceId?: string | null;
 }
 
 export const useGroupDropdownMenu = ({
@@ -36,11 +37,12 @@ export const useGroupDropdownMenu = ({
   pinned,
   title,
   userId,
+  workspaceId,
 }: UseGroupDropdownMenuParams): (() => MenuProps['items']) => {
   const { t } = useTranslation(['chat', 'common']);
 
   const { allowed: canEdit } = usePermission('edit_own_content');
-  const { canEditResource, isAccessResolved } = useResourceAccess('agentGroup', id);
+  const { canEditResource, isAccessResolved } = useResourceAccess('agentGroup', id, workspaceId);
   const canConfigure = canEdit && isAccessResolved && canEditResource;
   const canManage = useResourceManageable(userId);
 
