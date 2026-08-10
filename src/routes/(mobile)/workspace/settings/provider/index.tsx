@@ -1,6 +1,6 @@
 'use client';
 
-import Page from '@/routes/(main)/settings/provider/(list)';
+import Page from '@/features/Settings/provider/(list)';
 
 const MobileWorkspaceProviderSetting = () => <Page mobile />;
 
