@@ -1,6 +1,5 @@
-'use client';
-
-import { Button, Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Coins, ShieldCheck } from 'lucide-react';
 import { memo, useState } from 'react';

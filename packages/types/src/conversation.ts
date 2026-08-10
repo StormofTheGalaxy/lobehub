@@ -140,6 +140,17 @@ export interface ConversationContext {
    */
   documentId?: string;
   /**
+   * Group being configured by the Group Agent Builder panel (`group_agent_builder`
+   * scope).
+   *
+   * Deliberately separate from {@link groupId}: that field marks the run as a
+   * group *chat* turn and gets stamped onto the created topic and messages,
+   * which would drag the builder's side-conversation into the group's own
+   * message read path. This one only scopes the builder's own buckets and topic
+   * list, and travels to the server as `ExecAgentAppContext.editingGroupId`.
+   */
+  editingGroupId?: string;
+  /**
    * Group ID for group conversations
    * Used when scope is 'group' or 'group_agent'
    */
@@ -168,6 +179,12 @@ export interface ConversationContext {
    * - context-engine will restore role back to 'assistant' for model
    */
   isSupervisor?: boolean;
+  /**
+   * Orchestration role of the current agent within a group conversation.
+   * Canonical replacement for {@link isSupervisor} — stamped onto the assistant
+   * message's `metadata.orchestrationRole` so the role snapshot persists.
+   */
+  orchestrationRole?: 'supervisor' | 'member';
   /**
    * Scope type for the conversation
    * - 'main': Agent main conversation (default)
@@ -227,4 +244,11 @@ export interface ConversationContext {
    * builds `RuntimeInitialContext.taskManager` from the task store.
    */
   viewedTask?: { type: 'list' } | { taskId: string; type: 'detail' };
+  /**
+   * Workspace slug captured at the conversation entry point. Desktop
+   * notifications and other out-of-band navigations use this to return to the
+   * same workspace instead of reinterpreting the target under the currently
+   * active tab.
+   */
+  workspaceSlug?: string;
 }

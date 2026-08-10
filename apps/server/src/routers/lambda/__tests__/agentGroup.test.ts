@@ -4,15 +4,48 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_CHAT_GROUP_CHAT_CONFIG } from '@/const/settings';
 import * as AgentModelModule from '@/database/models/agent';
 import * as ChatGroupModelModule from '@/database/models/chatGroup';
+import * as ResourcePermissionModelModule from '@/database/models/resourcePermission';
 import * as UserModelModule from '@/database/models/user';
 import * as AgentGroupRepoModule from '@/database/repositories/agentGroup';
 import * as ChatGroupServiceModule from '@/server/services/agentGroup';
 import { EditLockService } from '@/server/services/editLock';
 import { publishResourceEvent } from '@/server/services/resourceEvents';
+import { canPerformResourceAction } from '@/server/services/resourcePermission';
+import {
+  hasWorkspaceScopedPermission,
+  isWorkspacePrimaryOwner,
+} from '@/server/services/workspacePermission';
 
+import {
+  getWorkspaceAgentParentGroupIds,
+  getWorkspaceGroupVirtualAgentIds,
+} from '../_helpers/workspaceAgentGuard';
 import { agentGroupRouter } from '../agentGroup';
 
 vi.mock('@/server/services/resourceEvents', () => ({ publishResourceEvent: vi.fn() }));
+// Both read the DB directly; `mockCtx.serverDB` is a bare object.
+vi.mock('@/server/services/workspacePermission', () => ({
+  hasWorkspaceScopedPermission: vi.fn().mockResolvedValue(true),
+  isWorkspacePrimaryOwner: vi.fn().mockResolvedValue(true),
+}));
+vi.mock('../_helpers/workspaceAgentGuard', () => ({
+  getWorkspaceAgentParentGroupIds: vi.fn().mockResolvedValue([]),
+  getWorkspaceGroupVirtualAgentIds: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('@/server/services/resourcePermission', () => ({
+  assertCanEditResource: vi.fn(),
+  assertCanPerformResourceAction: vi.fn(),
+  buildResourcePermissionState: vi.fn((params: any) => ({
+    ...params,
+    generalAccess: params.accessLevel === 'edit' ? 'editor' : 'viewer',
+  })),
+  canPerformResourceAction: vi.fn(),
+  getResourceMeta: vi.fn(),
+  // `resourceConfigGuard` classifies collaborative builtins to exempt them from the
+  // parent-group cap; without this export the guard throws before any assertion.
+  isCollaborativeBuiltinAgent: vi.fn(() => false),
+}));
 
 const publishResourceEventMock = vi.mocked(publishResourceEvent);
 
@@ -24,9 +57,14 @@ describe('agentGroupRouter', () => {
   let agentGroupRepoMock: any;
   let userModelMock: any;
   let chatGroupServiceMock: any;
+  let resourcePermissionModelMock: any;
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(getWorkspaceAgentParentGroupIds).mockResolvedValue([]);
+    vi.mocked(getWorkspaceGroupVirtualAgentIds).mockResolvedValue([]);
+    vi.mocked(hasWorkspaceScopedPermission).mockResolvedValue(true);
+    vi.mocked(isWorkspacePrimaryOwner).mockResolvedValue(true);
 
     agentModelMock = {
       batchCreate: vi.fn(),
@@ -49,6 +87,8 @@ describe('agentGroupRouter', () => {
       createGroupWithSupervisor: vi.fn(),
       findByIdWithAgents: vi.fn(),
       removeAgentsFromGroup: vi.fn(),
+      transferHasForeignRows: vi.fn().mockResolvedValue(false),
+      transferToWorkspace: vi.fn(),
     };
 
     userModelMock = {
@@ -65,8 +105,17 @@ describe('agentGroupRouter', () => {
       ),
     };
 
+    resourcePermissionModelMock = {
+      getAccessLevel: vi.fn().mockResolvedValue(null),
+      removeAll: vi.fn(),
+      setAccessLevel: vi.fn(),
+    };
+
     // Use vi.spyOn to mock the class constructors to return our mock instances
     vi.spyOn(AgentModelModule, 'AgentModel').mockImplementation(() => agentModelMock as any);
+    vi.spyOn(ResourcePermissionModelModule, 'ResourcePermissionModel').mockImplementation(
+      () => resourcePermissionModelMock as any,
+    );
     vi.spyOn(ChatGroupModelModule, 'ChatGroupModel').mockImplementation(
       () => chatGroupModelMock as any,
     );
@@ -189,6 +238,7 @@ describe('agentGroupRouter', () => {
 
   describe('deleteGroup', () => {
     it('should delete a group by id', async () => {
+      chatGroupModelMock.findById.mockResolvedValue({ id: 'group-1', userId });
       chatGroupServiceMock.deleteGroup.mockResolvedValue({
         deletedVirtualAgentIds: [],
         group: { id: 'group-1' },
@@ -257,6 +307,92 @@ describe('agentGroupRouter', () => {
 
       expect(result).toBeNull();
     });
+
+    it('redacts group and member configuration for a member without edit access', async () => {
+      const fullGroupDetail = {
+        agents: [
+          {
+            id: 'agent-1',
+            isSupervisor: true,
+            model: 'private-model',
+            plugins: ['private-tool'],
+            systemRole: 'private member prompt',
+            title: 'Agent 1',
+          },
+        ],
+        config: { openingMessage: 'Welcome', systemPrompt: 'private group prompt' },
+        content: 'private editor content',
+        id: 'group-1',
+        supervisorAgentId: 'agent-1',
+        title: 'Test Group',
+        userId: 'creator-1',
+        visibility: 'public',
+        workspaceId: 'ws-1',
+      };
+      chatGroupServiceMock.getGroupDetail.mockResolvedValue(fullGroupDetail);
+      vi.mocked(canPerformResourceAction).mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+
+      const caller = agentGroupRouter.createCaller({ ...mockCtx, workspaceId: 'ws-1' });
+      const result = await caller.getGroupDetail({ id: 'group-1' });
+
+      expect(result).toEqual({
+        agents: [{ id: 'agent-1', isSupervisor: true, model: 'private-model', title: 'Agent 1' }],
+        config: { openingMessage: 'Welcome' },
+        id: 'group-1',
+        supervisorAgentId: 'agent-1',
+        title: 'Test Group',
+        userId: 'creator-1',
+        visibility: 'public',
+        workspaceId: 'ws-1',
+      });
+      expect(userModelMock.getUserSettingsDefaultAgentConfig).not.toHaveBeenCalled();
+    });
+
+    it('keeps editable group config but redacts separately restricted member agents', async () => {
+      const fullGroupDetail = {
+        agents: [
+          {
+            id: 'agent-1',
+            model: 'private-model',
+            systemRole: 'private member prompt',
+            title: 'Agent 1',
+            userId: 'creator-1',
+            visibility: 'public',
+            workspaceId: 'ws-1',
+          },
+        ],
+        config: { systemPrompt: 'editable group prompt' },
+        id: 'group-1',
+        title: 'Test Group',
+        userId: 'creator-1',
+        visibility: 'public',
+        workspaceId: 'ws-1',
+      };
+      chatGroupServiceMock.getGroupDetail.mockResolvedValue(fullGroupDetail);
+      vi.mocked(canPerformResourceAction)
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+
+      const caller = agentGroupRouter.createCaller({ ...mockCtx, workspaceId: 'ws-1' });
+      const result = await caller.getGroupDetail({ id: 'group-1' });
+
+      expect(result).toEqual({
+        ...fullGroupDetail,
+        agents: [
+          {
+            id: 'agent-1',
+            model: 'private-model',
+            title: 'Agent 1',
+            userId: 'creator-1',
+            visibility: 'public',
+            workspaceId: 'ws-1',
+          },
+        ],
+      });
+      expect(result?.config).toEqual({ systemPrompt: 'editable group prompt' });
+      expect(result?.agents[0]).not.toHaveProperty('systemRole');
+    });
   });
 
   describe('getGroupAgents', () => {
@@ -290,6 +426,38 @@ describe('agentGroupRouter', () => {
 
       expect(chatGroupServiceMock.getGroups).toHaveBeenCalled();
       expect(result).toEqual(mockGroups);
+    });
+
+    it('redacts config-bearing list results for use/view-only members', async () => {
+      const groups = [
+        {
+          agents: [{ id: 'agent-1', systemRole: 'private prompt', title: 'Agent 1' }],
+          config: { systemPrompt: 'private group prompt' },
+          id: 'group-1',
+          title: 'Group 1',
+          userId: 'creator-1',
+          visibility: 'public',
+          workspaceId: 'ws-1',
+        },
+      ];
+      chatGroupServiceMock.getGroups.mockResolvedValue(groups);
+      vi.mocked(canPerformResourceAction).mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+
+      const caller = agentGroupRouter.createCaller({ ...mockCtx, workspaceId: 'ws-1' });
+      const result = await caller.getGroups();
+
+      expect(result).toEqual([
+        {
+          agents: [{ id: 'agent-1', title: 'Agent 1' }],
+          config: {},
+          id: 'group-1',
+          title: 'Group 1',
+          userId: 'creator-1',
+          visibility: 'public',
+          workspaceId: 'ws-1',
+        },
+      ]);
+      expect(userModelMock.getUserSettingsDefaultAgentConfig).not.toHaveBeenCalled();
     });
   });
 
@@ -330,6 +498,7 @@ describe('agentGroupRouter', () => {
         removedFromGroup: 2,
       };
 
+      chatGroupModelMock.findById.mockResolvedValue({ id: 'group-1', userId });
       agentGroupRepoMock.removeAgentsFromGroup.mockResolvedValue(mockResult);
 
       const caller = agentGroupRouter.createCaller(mockCtx);
@@ -443,6 +612,149 @@ describe('agentGroupRouter', () => {
         config: undefined,
       });
       expect(result).toEqual(mockUpdatedGroup);
+    });
+  });
+
+  // The Permission page lets a creator pick an access level while the group is
+  // still private ("Members get this level once the group is published"). Both
+  // routes into the publish transition must read that row back — stamping the
+  // default over it silently upgrades everyone to `edit`.
+  describe('publish keeps the level chosen while private', () => {
+    beforeEach(() => {
+      mockCtx.workspaceId = 'ws_1';
+      chatGroupModelMock.countPrivateGroupAgents = vi.fn().mockResolvedValue(0);
+      chatGroupModelMock.publishToWorkspace = vi.fn().mockResolvedValue({ success: true });
+      chatGroupModelMock.setVisibility = vi.fn().mockResolvedValue(true);
+      chatGroupModelMock.findById.mockResolvedValue({
+        id: 'cg_1',
+        userId,
+        visibility: 'private',
+        workspaceId: 'ws_1',
+      });
+    });
+
+    it('publishGroupToWorkspace reads the stored level', async () => {
+      resourcePermissionModelMock.getAccessLevel.mockResolvedValue('use');
+
+      await agentGroupRouter.createCaller(mockCtx).publishGroupToWorkspace({ id: 'cg_1' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agentGroup',
+        'cg_1',
+        'use',
+        userId,
+      );
+    });
+
+    it('publishGroupToWorkspace falls back to the default when nothing was stored', async () => {
+      await agentGroupRouter.createCaller(mockCtx).publishGroupToWorkspace({ id: 'cg_1' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agentGroup',
+        'cg_1',
+        'edit',
+        userId,
+      );
+    });
+
+    it('publishGroupToWorkspace lets an explicit request win', async () => {
+      resourcePermissionModelMock.getAccessLevel.mockResolvedValue('use');
+
+      await agentGroupRouter
+        .createCaller(mockCtx)
+        .publishGroupToWorkspace({ accessLevel: 'view', id: 'cg_1' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agentGroup',
+        'cg_1',
+        'view',
+        userId,
+      );
+    });
+
+    it('setGroupVisibility reads the stored level when promoting', async () => {
+      resourcePermissionModelMock.getAccessLevel.mockResolvedValue('use');
+
+      await agentGroupRouter
+        .createCaller(mockCtx)
+        .setGroupVisibility({ id: 'cg_1', visibility: 'public' });
+
+      expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+        'agentGroup',
+        'cg_1',
+        'use',
+        userId,
+      );
+    });
+
+    // `assertCanEditResource` authorizes an agent by its own ACL alone, so a
+    // virtual agent left without a row falls back to the agent default (`edit`)
+    // and stays editable by everyone despite a use-only group.
+    describe('cascades the level to group-owned virtual agents', () => {
+      beforeEach(() => {
+        vi.mocked(getWorkspaceGroupVirtualAgentIds).mockResolvedValue(['agt_sup', 'agt_member']);
+        resourcePermissionModelMock.getAccessLevel.mockResolvedValue('use');
+      });
+
+      it('on publishGroupToWorkspace', async () => {
+        await agentGroupRouter.createCaller(mockCtx).publishGroupToWorkspace({ id: 'cg_1' });
+
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_sup',
+          'use',
+          userId,
+        );
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_member',
+          'use',
+          userId,
+        );
+      });
+
+      it('on transferGroup into the target workspace', async () => {
+        agentGroupRepoMock.transferToWorkspace = vi.fn().mockResolvedValue({ success: true });
+
+        await agentGroupRouter.createCaller(mockCtx).transferGroup({
+          groupId: 'cg_1',
+          targetAccessLevel: 'use',
+          targetVisibility: 'public',
+          targetWorkspaceId: 'ws_2',
+        });
+
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_sup',
+          'use',
+          userId,
+        );
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_member',
+          'use',
+          userId,
+        );
+      });
+
+      it('on setGroupVisibility promotion', async () => {
+        await agentGroupRouter
+          .createCaller(mockCtx)
+          .setGroupVisibility({ id: 'cg_1', visibility: 'public' });
+
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_sup',
+          'use',
+          userId,
+        );
+        expect(resourcePermissionModelMock.setAccessLevel).toHaveBeenCalledWith(
+          'agent',
+          'agt_member',
+          'use',
+          userId,
+        );
+      });
     });
   });
 

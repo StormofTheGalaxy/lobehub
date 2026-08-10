@@ -13,6 +13,8 @@ export const useBusinessChatInputCostEstimateAlert = (): ReactNode => {
   ) : null;
 };
 
+export const useBusinessChatInputAlerts = (): ReactNode => null;
+
 export const getBusinessChatInputSendAreaPrefix = (sendAreaPrefix?: ReactNode): ReactNode =>
   sendAreaPrefix;
 

@@ -16,6 +16,15 @@ import { log } from '../utils/logger';
 const LOBEHUB_DIR_NAME = process.env.LOBEHUB_CLI_HOME || '.lobehub';
 const HERMES_SESSIONS_FILE = path.join(os.homedir(), LOBEHUB_DIR_NAME, 'hermes-sessions.json');
 
+function parseHermesSessionId(stderr: string): string | undefined {
+  for (const line of stderr.split(/\r?\n/).reverse()) {
+    const match = line.match(/^session_id:\s*(\S+)\s*$/);
+    if (match) return match[1];
+  }
+
+  return undefined;
+}
+
 function getHermesSessionId(topicId: string): string | undefined {
   try {
     const data = JSON.parse(fs.readFileSync(HERMES_SESSIONS_FILE, 'utf8')) as Record<
@@ -54,6 +63,7 @@ export interface RunHeteroTaskParams {
   agentType: RemoteHeterogeneousAgentType;
   cwd?: string;
   operationId: string;
+  platformAgentId?: string;
   prompt: string;
   taskId: string;
   topicId: string;
@@ -92,16 +102,19 @@ async function sendAutoNotify(
 }
 
 /**
- * Signal remote hetero task completion to the server so it can publish
- * `agent_runtime_end` to the gateway WS and close the frontend subscription.
- * Called on clean process exit (code=0, no signal) — error exits go through
- * `sendAutoNotify` which writes an error message AND triggers completion via
- * the `done` flag.
+ * Signal remote hetero task termination to the server so it can publish
+ * `agent_runtime_end`, close the frontend subscription, and fire the run's
+ * lifecycle hooks (task lifecycle + IM bot callback).
+ *
+ * Pass `error` to finalize the run as FAILED (non-zero process exit) — the
+ * server marks the owning task failed and renders the error. Omit it for a
+ * clean completion (the agent already sent its final message via `lh notify`).
  */
-async function sendDoneSignal(
+async function sendTerminalSignal(
   topicId: string,
   agentId?: string,
   workspaceId?: string,
+  error?: { message: string; type?: string },
 ): Promise<void> {
   try {
     const client = await getTrpcClient(workspaceId);
@@ -109,11 +122,12 @@ async function sendDoneSignal(
       agentId,
       content: '',
       done: true,
+      ...(error ? { error } : {}),
       role: 'assistant',
       topicId,
     });
   } catch (err) {
-    log.error('Failed to send done signal:', err instanceof Error ? err.message : String(err));
+    log.error('Failed to send terminal signal:', err instanceof Error ? err.message : String(err));
   }
 }
 
@@ -150,7 +164,17 @@ function buildNotifyProtocol(lhPath: string, topicId: string): string {
 }
 
 export async function runHeteroTask(params: RunHeteroTaskParams): Promise<string> {
-  const { agentId, agentType, cwd, operationId, prompt, taskId, topicId, workspaceId } = params;
+  const {
+    agentId,
+    agentType,
+    cwd,
+    operationId,
+    platformAgentId,
+    prompt,
+    taskId,
+    topicId,
+    workspaceId,
+  } = params;
   const workDir = cwd || process.cwd();
   const lhPath = resolveLhPath();
   // Propagate workspace scope into the spawned child so its own `lh notify`
@@ -164,7 +188,7 @@ export async function runHeteroTask(params: RunHeteroTaskParams): Promise<string
     // openclaw agent --local is one-shot: each invocation processes one message and exits.
     // The --session-id links turns into the same conversation history on disk.
     // Requires the `openclaw` binary to be on PATH with Node >=22.19.
-    const openclawAgent = process.env.OPENCLAW_AGENT_ID ?? 'main';
+    const openclawAgent = platformAgentId?.trim() || process.env.OPENCLAW_AGENT_ID || 'main';
 
     // Always inject the notify protocol so openclaw knows how to report results
     // back to the LobeHub UI — even if the previous turn failed and the session
@@ -224,23 +248,32 @@ export async function runHeteroTask(params: RunHeteroTaskParams): Promise<string
     log.info(`OpenClaw task started: taskId=${taskId} pid=${pid} agent=${openclawAgent}`);
 
     // On exit: notify the server so it can close the frontend gateway WS subscription.
-    // - Abnormal exit (signal or non-zero code): write an error message bubble.
+    // - Failed exit (non-zero code, no signal): write an error bubble AND finalize
+    //   the run as failed so the owning task is marked failed.
+    // - Cancelled (killed by signal, e.g. interruptTask): write a notice + a plain
+    //   terminal signal — cancellation is not a failure.
     // - Clean exit (code=0, no signal): openclaw already sent its final message via
-    //   `lh notify`; just send a done signal to publish `agent_runtime_end`.
+    //   `lh notify`; just send a terminal signal to publish `agent_runtime_end`.
     child.on('close', (code, signal) => {
       removeTask(taskId);
       if (code !== 0 || signal !== null) {
-        const text = signal
+        const cancelled = signal !== null;
+        const text = cancelled
           ? `Task cancelled (signal: ${signal})`
           : `Task failed (exit code: ${code})`;
-        // Send error message first, THEN signal done (sequential).
-        // Fire-and-forget both, but ensure done is always sent even if notify fails.
+        // Write the notice bubble first, THEN signal terminal (sequential).
+        // Fire-and-forget both, but ensure the terminal signal is always sent.
         void sendAutoNotify(topicId, taskId, text, agentId, workspaceId).finally(() =>
-          sendDoneSignal(topicId, agentId, workspaceId),
+          sendTerminalSignal(
+            topicId,
+            agentId,
+            workspaceId,
+            cancelled ? undefined : { message: text, type: 'HeteroProcessError' },
+          ),
         );
       } else {
         // Clean exit — openclaw already sent its final message; just signal done.
-        void sendDoneSignal(topicId, agentId, workspaceId);
+        void sendTerminalSignal(topicId, agentId, workspaceId);
       }
     });
 
@@ -267,13 +300,13 @@ export async function runHeteroTask(params: RunHeteroTaskParams): Promise<string
       hermesArgs.push('--resume', existingSessionId);
     }
 
-    // Hermes prints "session_id: <id>\n<response>" to stdout in --quiet mode.
-    // We capture stdout, parse both fields on exit, and relay the response via notify.
+    // Hermes keeps stdout response-only in --quiet mode and prints the final
+    // session_id to stderr so callers can resume the session on the next turn.
     const child = spawn('hermes', hermesArgs, {
       cwd: workDir,
       detached: true,
       env: childEnv,
-      stdio: ['ignore', 'pipe', 'ignore'],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     const pid = child.pid;
@@ -292,37 +325,47 @@ export async function runHeteroTask(params: RunHeteroTaskParams): Promise<string
     });
     log.info(`Hermes task started: taskId=${taskId} pid=${pid}`);
 
+    let stderr = '';
     let stdout = '';
     child.stdout.on('data', (chunk: Buffer) => {
       stdout += chunk.toString();
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
     });
 
     child.on('close', (code, signal) => {
       removeTask(taskId);
 
       if (code !== 0 || signal !== null) {
-        const text = signal
+        const cancelled = signal !== null;
+        const text = cancelled
           ? `Task cancelled (signal: ${signal})`
           : `Task failed (exit code: ${code})`;
         void sendAutoNotify(topicId, taskId, text, agentId, workspaceId).finally(() =>
-          sendDoneSignal(topicId, agentId, workspaceId),
+          sendTerminalSignal(
+            topicId,
+            agentId,
+            workspaceId,
+            cancelled ? undefined : { message: text, type: 'HeteroProcessError' },
+          ),
         );
         return;
       }
 
-      // Parse "session_id: <id>" from the first line, response from the rest.
-      const sessionIdMatch = stdout.match(/^session_id:\s*(\S+)/m);
-      const sessionId = sessionIdMatch?.[1];
-      const response = stdout.replace(/^session_id:[^\n]*\n?/, '').trim();
+      // Diagnostics may precede the final ID, and context compaction can rotate
+      // it, so persist the last complete session_id line emitted this turn.
+      const sessionId = parseHermesSessionId(stderr);
+      const response = stdout.trim();
 
       if (sessionId) saveHermesSessionId(topicId, sessionId);
 
       if (response) {
         void sendAutoNotify(topicId, taskId, response, agentId, workspaceId).finally(() =>
-          sendDoneSignal(topicId, agentId, workspaceId),
+          sendTerminalSignal(topicId, agentId, workspaceId),
         );
       } else {
-        void sendDoneSignal(topicId, agentId, workspaceId);
+        void sendTerminalSignal(topicId, agentId, workspaceId);
       }
     });
 

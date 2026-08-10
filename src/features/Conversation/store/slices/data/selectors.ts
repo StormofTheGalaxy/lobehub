@@ -9,6 +9,7 @@ import { topicSelectors } from '@/store/chat/selectors';
 
 import { type State } from '../../initialState';
 import { getPendingInterventions } from './pendingInterventions';
+import { getWorkSummariesByRootOperationId } from './workSummaries';
 
 const displayMessages = (s: State) => s.displayMessages;
 const displayMessageIds = (s: State) => s.displayMessages.map((m) => m.id);
@@ -75,6 +76,16 @@ const findLastMessageIdRecursive = (node: UIChatMessage | undefined): string | u
 };
 
 /**
+ * Whether a message currently has no reply rendered beneath it.
+ *
+ * True during the window a retry opens up: `delAndRegenerateMessage` removes the
+ * failed turn before the replacement exists, so for a beat the user turn stands
+ * alone with nothing under it and nothing to hang a loading state on.
+ */
+const hasNoRenderedReply = (id: string) => (s: State) =>
+  !s.displayMessages.some((message) => message.parentId === id);
+
+/**
  * Finds the last (deepest) message ID from a display message
  * Recursively traverses children and tools to find the actual last message
  */
@@ -125,6 +136,12 @@ const currentTopicSummary = () => {
 };
 
 const pendingInterventions = (s: State) => getPendingInterventions(s.displayMessages);
+
+// Works ride the message payload (attached server-side to each round's anchor
+// message), so the in-message chips read from the raw `dbMessages` (keyed by the
+// display-resolved rootOperationId) instead of a dedicated work-summary fetch.
+const workSummariesByRootOperationId = (rootOperationId?: string | null) => (s: State) =>
+  getWorkSummariesByRootOperationId(s.dbMessages, rootOperationId);
 
 const isSecondLastMessageFromUser = (s: State) => s.displayMessages.at(-2)?.role === 'user';
 
@@ -208,6 +225,21 @@ const getBlockHasTools =
     return !!tools && tools.length > 0;
   };
 
+/**
+ * Task ids whose `role='taskCallback'` handoff message already landed in this
+ * thread. Drives Goal-card dedupe: once the callback card exists it absorbs
+ * the Goal status header, so the creating turn's tracker card retires.
+ */
+const taskCallbackTaskIds = (s: State): string[] => {
+  const ids: string[] = [];
+  for (const message of s.displayMessages) {
+    if (message.role !== 'taskCallback') continue;
+    const taskId = message.metadata?.taskCallback?.taskId;
+    if (taskId) ids.push(taskId);
+  }
+  return ids;
+};
+
 /** 1-based position of a verify message among all verify messages in the thread. */
 const getVerifyOrdinal = (id: string) => (s: State) => {
   let ordinal = 0;
@@ -235,8 +267,11 @@ export const dataSelectors = {
   getGroupLatestMessageWithoutTools,
   getToolInBlock,
   getToolsInBlock,
+  hasNoRenderedReply,
   isSecondLastMessageFromUser,
   messagesInit,
   pendingInterventions,
   skipFetch,
+  taskCallbackTaskIds,
+  workSummariesByRootOperationId,
 };

@@ -1,19 +1,22 @@
-import type { ModelProviderCard, UserModelProviderConfig } from '@lobechat/types';
-import { ModelProvider } from 'model-bank';
-import * as ProviderCards from 'model-bank/modelProviders';
+import type { UserModelProviderConfig } from '@lobechat/types';
+import { ModelProvider } from 'model-bank/modelProvider';
 
-const genUserLLMConfig = (specificConfig: Record<any, any>): UserModelProviderConfig => {
-  return Object.keys(ModelProvider).reduce((config, providerKey) => {
-    const provider = ModelProvider[providerKey as keyof typeof ModelProvider];
-    const providerCard = ProviderCards[
-      `${providerKey}ProviderCard` as keyof typeof ProviderCards
-    ] as ModelProviderCard;
-    const providerConfig = specificConfig[provider as keyof typeof specificConfig] || {};
+const providerDefaults: Partial<
+  Record<ModelProvider, { enabled?: boolean; enabledModels?: string[]; fetchOnClient?: boolean }>
+> = {
+  [ModelProvider.LMStudio]: { fetchOnClient: true },
+  [ModelProvider.LobeHub]: { enabled: true },
+  [ModelProvider.Ollama]: { fetchOnClient: true },
+};
+
+const genUserLLMConfig = (): UserModelProviderConfig => {
+  return Object.values(ModelProvider).reduce((config, provider) => {
+    const providerConfig = providerDefaults[provider];
 
     config[provider] = {
-      enabled: providerConfig.enabled !== undefined ? providerConfig.enabled : false,
-      enabledModels: providerCard ? ProviderCards.filterEnabledModels(providerCard) : [],
-      ...(providerConfig.fetchOnClient !== undefined && {
+      enabled: providerConfig?.enabled ?? false,
+      enabledModels: providerConfig?.enabledModels ?? [],
+      ...(providerConfig?.fetchOnClient !== undefined && {
         fetchOnClient: providerConfig.fetchOnClient,
       }),
     };
@@ -22,14 +25,4 @@ const genUserLLMConfig = (specificConfig: Record<any, any>): UserModelProviderCo
   }, {} as UserModelProviderConfig);
 };
 
-export const DEFAULT_LLM_CONFIG = genUserLLMConfig({
-  lobehub: {
-    enabled: true,
-  },
-  lmstudio: {
-    fetchOnClient: true,
-  },
-  ollama: {
-    fetchOnClient: true,
-  },
-});
+export const DEFAULT_LLM_CONFIG = genUserLLMConfig();

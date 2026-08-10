@@ -1,4 +1,9 @@
-import type { ConversationContext, MessageMetadata, UploadFileItem } from '@lobechat/types';
+import type {
+  ConversationContext,
+  MessageMapScope,
+  MessageMetadata,
+  UploadFileItem,
+} from '@lobechat/types';
 
 /**
  * Operation Type Definitions
@@ -11,9 +16,11 @@ import type { ConversationContext, MessageMetadata, UploadFileItem } from '@lobe
 export type OperationType =
   // === Message sending ===
   | 'sendMessage' // Send message to server
+  | 'uploadVoiceMessage' // Upload a local voice recording before dispatching its turn
   | 'createTopic' // Auto create topic
   | 'regenerate' // Regenerate message
   | 'continue' // Continue generation
+  | 'autoRetryPending' // Heterogeneous "overloaded" auto-retry waiting period (counting down to the next attempt). Keeps the turn in a loading/in-progress state between attempts; cancelled by Stop or the guide's cancel action.
 
   // === AI generation ===
   | 'execAgentRuntime' // Execute agent runtime (client-side, entire agent runtime execution)
@@ -59,7 +66,6 @@ export type OperationType =
 
   // === Sub-Agent (Desktop only) ===
   | 'execClientSubAgent' // Dispatch single sub-agent on the desktop client
-  | 'execClientSubAgents' // Dispatch multiple sub-agents on the desktop client
 
   // === Context Compression ===
   // Context compression (compress old messages into summary)
@@ -83,7 +89,8 @@ export type OperationStatus =
 /**
  * Operation context - business entity associations
  * Extends ConversationContext with operation-specific fields
- * Captured when Operation is created, never changes afterwards
+ * Captured when an operation is created. A temporary `_new` conversation may be rekeyed once
+ * the server resolves its persisted topic/thread id; all other context changes create a new op.
  */
 export interface OperationContext extends Partial<ConversationContext> {
   agentId?: string; // Associated agent ID (specific agent in Group Chat)
@@ -148,12 +155,41 @@ export interface OperationMetadata {
     total: number;
     percentage?: number;
   };
-
   // Runtime hooks (collected during execution, executed after completion)
   runtimeHooks?: RuntimeHooks;
 
+  /**
+   * Server-side operation id reported by the agent gateway for this local
+   * runtime operation. Preferred over the local nanoid when surfacing an
+   * operation id for tracing (e.g. the message "Copy Operation ID" action).
+   */
+  serverOperationId?: string;
+
   // Performance information
   startTime: number;
+
+  /**
+   * Upstream stream retry state surfaced by heterogeneous agents while no
+   * assistant output has arrived yet.
+   */
+  streamRetry?: StreamRetryMetadata;
+
+  /**
+   * The model text stream has finished and there is no visible follow-up phase
+   * to wait for, but the runtime operation still needs its terminal lifecycle
+   * (`agent_runtime_end`) for cache, queue, unread, and notification effects.
+   */
+  visibleLoadingDone?: boolean;
+}
+
+export interface StreamRetryMetadata {
+  agentType?: string;
+  attempt?: number;
+  delayMs?: number;
+  error?: string;
+  errorStatus?: number;
+  maxAttempts?: number;
+  provider?: string;
 }
 
 /**
@@ -189,10 +225,11 @@ export interface Operation {
 /**
  * Per-file preview metadata snapshotted at enqueue time so the queue tray can
  * render thumbnails and the resumed sendMessage can rebuild the optimistic
- * imageList/videoList without relying on the global chat upload store (which
+ * audioList/imageList/videoList without relying on the global chat upload store (which
  * is cleared as soon as the user submits).
  */
 export interface QueuedFile {
+  audioMetadata?: UploadFileItem['audioMetadata'];
   id: string;
   /** MIME type, e.g. `image/png`, `video/mp4`, `application/pdf` */
   mimeType: string;
@@ -203,7 +240,7 @@ export interface QueuedFile {
 
 /**
  * Rebuild `UploadFileItem`-shaped objects from queued previews so the resumed
- * `sendMessage` can derive imageList/videoList AND so we can repopulate
+ * `sendMessage` can derive audioList/imageList/videoList AND so we can repopulate
  * `chatUploadFileList` when the user edits a queued message. The synthesized
  * `File` carries only `name` + `type` (zero bytes) — the consumers we hit only
  * read `file.name`, `file.type`, plus the URL fields we set below.
@@ -214,6 +251,7 @@ export interface QueuedFile {
  */
 export const reconstructUploadFilesFromQueue = (files: QueuedFile[]): UploadFileItem[] =>
   files.map((f) => ({
+    audioMetadata: f.audioMetadata,
     id: f.id,
     file: new File([], f.name, { type: f.mimeType }),
     fileUrl: f.url || undefined,
@@ -343,11 +381,16 @@ export const mergeQueuedMessages = (messages: QueuedMessage[]): MergedQueuedMess
       ...(acc?.pageSelections ?? []),
       ...(message.metadata.pageSelections ?? []),
     ];
+    const contextSelections = [
+      ...(acc?.contextSelections ?? []),
+      ...(message.metadata.contextSelections ?? []),
+    ];
 
     return {
       ...acc,
       ...message.metadata,
       ...(localSystemToolSnapshots.length ? { localSystemToolSnapshots } : undefined),
+      ...(contextSelections.length ? { contextSelections } : undefined),
       ...(pageSelections.length ? { pageSelections } : undefined),
     };
   }, undefined);
@@ -372,9 +415,11 @@ export const mergeQueuedMessages = (messages: QueuedMessage[]): MergedQueuedMess
 export interface OperationFilter {
   agentId?: string;
   groupId?: string;
+  isNew?: boolean;
   messageId?: string;
+  scope?: MessageMapScope;
   status?: OperationStatus | OperationStatus[];
-  threadId?: string;
+  threadId?: string | null;
   topicId?: string | null;
   type?: OperationType | OperationType[];
 }
@@ -397,6 +442,29 @@ export const AI_RUNTIME_OPERATION_TYPES: OperationType[] = [
 ];
 
 /**
+ * Interim operations that approve / submit / skip / regenerate each start
+ * synchronously on click, before the whitelisted `execServerAgentRuntime` op is
+ * created 2–4 serial tRPC round-trips later. The interim op stays running until
+ * `executeGatewayAgent` spins up the runtime op, so it bridges the pre-generation
+ * window seamlessly.
+ *
+ * Shared by two whitelists so the whole window behaves consistently:
+ * - INPUT_LOADING_OPERATION_TYPES — show input loading/Stop the instant the user clicks.
+ * - QUEUE_BLOCKING_OPERATION_TYPES — a fast follow-up Enter queues behind the interim
+ *   op instead of starting a concurrent `sendMessage` that interleaves with the
+ *   approve/retry flow before the real runtime op exists.
+ *
+ * Kept out of AI_RUNTIME_OPERATION_TYPES on purpose to avoid flipping
+ * isAgentRuntimeRunning / isMessageGenerating and their gating logic.
+ */
+export const INTERIM_LOADING_OPERATION_TYPES: OperationType[] = [
+  'approveToolCalling',
+  'submitToolInteraction',
+  'skipToolInteraction',
+  'regenerate',
+];
+
+/**
  * Operation types that should block input and show loading state
  * Superset of AI_RUNTIME_OPERATION_TYPES, also includes sendMessage
  * since the input should be in loading state from the moment user sends until AI finishes
@@ -404,4 +472,42 @@ export const AI_RUNTIME_OPERATION_TYPES: OperationType[] = [
 export const INPUT_LOADING_OPERATION_TYPES: OperationType[] = [
   ...AI_RUNTIME_OPERATION_TYPES,
   'sendMessage',
+  // The auto-retry waiting period is part of the same in-progress turn — keep
+  // the input in loading state (and let Stop target it) across the countdown.
+  'autoRetryPending',
+  // Interim approve/submit/skip/regenerate ops light up the input the instant
+  // the user clicks, mirroring how `sendMessage` already does — instead of only
+  // after the round-trips. See INTERIM_LOADING_OPERATION_TYPES for the bridge
+  // semantics and why they stay out of AI_RUNTIME_OPERATION_TYPES.
+  //
+  // Known limitation (accepted): this also makes Stop appear during the pre-
+  // generation window. The approve/submit/skip gateway branches don't forward
+  // `parentOperationId` to `executeGatewayAgent`, so hitting Stop in that
+  // narrow window doesn't actually abort the in-flight request (loading
+  // briefly flickers, generation proceeds). No stuck state; wiring the abort
+  // handoff through those branches is deferred. The `regenerate` branch DOES
+  // forward it — an unsettled regenerate wrapper is what the retry guard
+  // reads, so it must never outlive phase-1 (a WS drop before session end
+  // would otherwise brick retry for that turn permanently).
+  ...INTERIM_LOADING_OPERATION_TYPES,
+];
+
+/**
+ * Operation types that block a fresh `sendMessage`: a send fired while one of
+ * these runs enqueues behind it instead of starting a concurrent run.
+ *
+ * Single source of truth shared by the enqueue check (conversationLifecycle) and
+ * the QueueTray "Send now" cancel path — so both agree on what a follow-up is
+ * queued behind. Kept in sync with INPUT_LOADING via the shared
+ * INTERIM_LOADING_OPERATION_TYPES: if the input shows loading for an op, a
+ * follow-up must queue behind it, and "Send now" must be able to cancel it.
+ */
+export const QUEUE_BLOCKING_OPERATION_TYPES: OperationType[] = [
+  ...AI_RUNTIME_OPERATION_TYPES,
+  'sendMessage',
+  // A voice turn becomes visible before its binary upload finishes. Keep later composer sends in
+  // the normal queue so the model observes the same order as the optimistic transcript. This is
+  // intentionally not an INPUT_LOADING operation: recording upload must not lock the composer.
+  'uploadVoiceMessage',
+  ...INTERIM_LOADING_OPERATION_TYPES,
 ];

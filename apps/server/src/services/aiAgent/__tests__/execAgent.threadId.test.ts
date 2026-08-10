@@ -4,8 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiAgentService } from '../index';
 
 // Use vi.hoisted to ensure mock functions are available before vi.mock runs
-const { mockMessageCreate } = vi.hoisted(() => ({
+const { mockMessageCreate, mockTopicUpdateMetadata } = vi.hoisted(() => ({
   mockMessageCreate: vi.fn(),
+  mockTopicUpdateMetadata: vi.fn(),
 }));
 
 // Mock trusted client to avoid server-side env access
@@ -18,6 +19,8 @@ vi.mock('@/libs/trusted-client', () => ({
 vi.mock('@/database/models/message', () => ({
   MessageModel: vi.fn().mockImplementation(() => ({
     create: mockMessageCreate,
+    getLatestNonToolMessageId: vi.fn().mockResolvedValue(undefined),
+    getLatestSpineMessageId: vi.fn().mockResolvedValue(undefined),
     query: vi.fn().mockResolvedValue([]),
     update: vi.fn().mockResolvedValue({}),
   })),
@@ -66,9 +69,11 @@ vi.mock('@/database/models/plugin', () => ({
 // Mock TopicModel
 vi.mock('@/database/models/topic', () => ({
   TopicModel: vi.fn().mockImplementation(() => ({
+    releaseTaskCallbackReservation: vi.fn().mockResolvedValue(undefined),
+    tryReserveTaskCallback: vi.fn().mockResolvedValue(true),
     create: vi.fn().mockResolvedValue({ id: 'topic-1' }),
     findById: vi.fn().mockResolvedValue(undefined),
-    updateMetadata: vi.fn().mockResolvedValue(undefined),
+    updateMetadata: mockTopicUpdateMetadata,
   })),
 }));
 
@@ -78,6 +83,16 @@ vi.mock('@/database/models/thread', () => ({
     create: vi.fn(),
     findById: vi.fn(),
     update: vi.fn(),
+  })),
+}));
+
+// Mock ChatGroupModel — execAgent resolves the operation's group context when
+// appContext.groupId is set (SubAgent task scenario). An empty roster makes
+// buildGroupAgentContext return undefined, so the run proceeds without a group.
+vi.mock('@/database/models/chatGroup', () => ({
+  ChatGroupModel: vi.fn().mockImplementation(() => ({
+    findById: vi.fn().mockResolvedValue(undefined),
+    getGroupAgentsWithMeta: vi.fn().mockResolvedValue([]),
   })),
 }));
 
@@ -160,6 +175,8 @@ describe('AiAgentService.execAgent - threadId handling', () => {
     // Explicitly clear the shared mock to prevent state pollution between tests
     mockMessageCreate.mockClear();
     mockMessageCreate.mockResolvedValue({ id: 'msg-1' });
+    mockTopicUpdateMetadata.mockClear();
+    mockTopicUpdateMetadata.mockResolvedValue(undefined);
 
     service = new AiAgentService(mockDb, userId);
   });
@@ -213,6 +230,40 @@ describe('AiAgentService.execAgent - threadId handling', () => {
         threadId: 'thread-123',
         topicId: 'topic-1',
       });
+    });
+  });
+
+  describe('topic running mark', () => {
+    const runningMarkCalls = () =>
+      mockTopicUpdateMetadata.mock.calls.filter((call) => 'runningOperation' in (call[1] ?? {}));
+
+    it('claims the mark for a main-conversation run', async () => {
+      await service.execAgent({
+        agentId: 'agent-1',
+        appContext: { topicId: 'topic-1' },
+        prompt: 'Test prompt',
+      });
+
+      expect(runningMarkCalls()).toHaveLength(1);
+      expect(runningMarkCalls()[0][1].runningOperation).toMatchObject({
+        assistantMessageId: 'msg-1',
+        operationId: expect.stringContaining('op_'),
+      });
+    });
+
+    it('does not claim the mark for an isolation-thread run', async () => {
+      // A callAgent / callSubAgent / group-member child executes on the PARENT's
+      // topic. Claiming the mark pointed every client reconnect at the child's
+      // thread stream, and clearing it on the child's (much earlier) finish left
+      // the still-running parent with no reconnect anchor at all — the run drawer
+      // then never opened a gateway WebSocket for the rest of the run.
+      await service.execAgent({
+        agentId: 'agent-1',
+        appContext: { isolationThread: true, threadId: 'thread-123', topicId: 'topic-1' },
+        prompt: 'Test prompt',
+      });
+
+      expect(runningMarkCalls()).toHaveLength(0);
     });
   });
 

@@ -8,12 +8,13 @@ import { trpc } from '@/libs/trpc/lambda/init';
 
 import { isSuperAdmin } from '../enterprise/superAdmin';
 
-export type WorkspaceRole = 'member' | 'owner' | 'viewer';
+export type WorkspaceRole = 'admin' | 'member' | 'owner' | 'viewer';
 
 const roleRank: Record<WorkspaceRole, number> = {
   viewer: 0,
   member: 1,
-  owner: 2,
+  admin: 2,
+  owner: 3,
 };
 
 const assertWorkspaceRole = async (params: {
@@ -88,19 +89,23 @@ export const requireWorkspaceRoleWhenScoped = (_minRole: WorkspaceRole) =>
     return opts.next();
   });
 
-export const wsProcedure = authedProcedure;
-
-export const wsMemberProcedure = authedProcedure.use(requireWorkspaceRoleWhenScoped('member'));
-
 const requireWorkspaceId = trpc.middleware(async ({ ctx, next }) => {
   if (!ctx.workspaceId) {
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'workspaceId is required' });
   }
-  return next();
+  return next({ ctx: { workspaceId: ctx.workspaceId } });
 });
+
+export const wsProcedure = authedProcedure.use(requireWorkspaceId);
+
+export const wsMemberProcedure = authedProcedure.use(requireWorkspaceRoleWhenScoped('member'));
 
 export const wsOwnerProcedure = authedProcedure
   .use(requireWorkspaceId)
   .use(requireWorkspaceRole('owner'));
+
+export const wsAdminProcedure = authedProcedure
+  .use(requireWorkspaceId)
+  .use(requireWorkspaceRole('admin'));
 
 export const wsCompatProcedure = authedProcedure;

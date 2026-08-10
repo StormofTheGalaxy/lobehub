@@ -1,3 +1,5 @@
+import { useActiveWorkspaceSlug } from '@/business/client/hooks/useActiveWorkspaceSlug';
+import { useActiveLocation } from '@/hooks/useActiveLocation';
 import { usePathname, useSearchParams } from '@/libs/router/navigation';
 import { ProfileTabs, SettingsTabs, SidebarTabKey } from '@/store/global/initialState';
 
@@ -34,8 +36,13 @@ export const getActiveTabKeyFromPathname = (
  * React Router version for SPA
  */
 export const useActiveTabKey = (options: ActiveTabKeyOptions = {}) => {
-  const pathname = usePathname();
-  return getActiveTabKeyFromPathname(pathname, options);
+  const { pathname } = useActiveLocation();
+  const activeWorkspaceSlug = useActiveWorkspaceSlug();
+
+  return getActiveTabKeyFromPathname(pathname, {
+    ...options,
+    activeWorkspaceSlug: options.activeWorkspaceSlug ?? activeWorkspaceSlug ?? undefined,
+  });
 };
 
 /**

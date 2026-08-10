@@ -1,9 +1,7 @@
 import { BRANDING_NAME, BRANDING_URL } from '@lobechat/business-const';
 
-import type { ChatModelCard, ModelProviderCard } from '@/types/llm';
-
 import cometapiModels from '../aiModels/cometapi';
-import type { AIChatModelCard } from '../types/aiModel';
+import type { AIChatModelCard, ChatModelCard, ModelProviderCard } from '../types';
 
 const featuredModels = [
   'gpt-5-chat-latest',

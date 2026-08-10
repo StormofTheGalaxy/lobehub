@@ -12,7 +12,9 @@ import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 
 import { isSuperAdmin } from '../enterprise/superAdmin';
 
-const memberRoleSchema = z.enum(['owner', 'member', 'viewer']);
+const memberRoleSchema = z.enum(['admin', 'member', 'viewer']);
+const normalizeMemberRole = (role: string) =>
+  memberRoleSchema.parse(role === 'owner' ? 'admin' : role);
 
 const assertWorkspaceMember = async (
   ctx: { serverDB: LobeChatDatabase; userId: string; workspaceMemberModel: WorkspaceMemberModel },
@@ -97,7 +99,7 @@ export const workspaceMemberRouter = router({
       }
 
       const member = await ctx.workspaceMemberModel.addMember({
-        role: invitation.role as 'owner' | 'member' | 'viewer',
+        role: normalizeMemberRole(invitation.role),
         userId: ctx.userId,
         workspaceId: invitation.workspaceId,
       });
@@ -141,7 +143,7 @@ export const workspaceMemberRouter = router({
       }
 
       const member = await ctx.workspaceMemberModel.addMember({
-        role: pending.invitation.role as 'owner' | 'member' | 'viewer',
+        role: normalizeMemberRole(pending.invitation.role),
         userId: ctx.userId,
         workspaceId: pending.workspace.id,
       });
@@ -296,33 +298,16 @@ export const workspaceMemberRouter = router({
     .input(z.object({ role: memberRoleSchema, userId: z.string(), workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await assertWorkspaceOwner(ctx, input.workspaceId);
-      const actorIsSuperAdmin = await isSuperAdmin(ctx.serverDB, ctx.userId);
 
-      if (input.role === 'owner') {
-        if (actorIsSuperAdmin) {
-          await ctx.workspaceMemberModel.addMember({
-            role: 'owner',
-            userId: input.userId,
-            workspaceId: input.workspaceId,
-          });
-        } else {
-          await ctx.workspaceModel.promoteToOwner(input.workspaceId, input.userId);
-        }
-      } else {
-        const workspace = await ctx.workspaceModel.findById(input.workspaceId);
-        if (workspace?.primaryOwnerId === input.userId) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Transfer primary ownership before demoting this owner',
-          });
-        }
-
-        await ctx.workspaceMemberModel.updateMemberRole(
-          input.workspaceId,
-          input.userId,
-          input.role,
-        );
+      const workspace = await ctx.workspaceModel.findById(input.workspaceId);
+      if (workspace?.primaryOwnerId === input.userId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Transfer primary ownership before changing this owner role',
+        });
       }
+
+      await ctx.workspaceMemberModel.updateMemberRole(input.workspaceId, input.userId, input.role);
 
       await ctx.workspaceAuditLogModel.create({
         action: 'member.role_updated',

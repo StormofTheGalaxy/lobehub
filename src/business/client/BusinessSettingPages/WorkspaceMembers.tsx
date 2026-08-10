@@ -1,5 +1,5 @@
-import { Button, Flexbox, Input, Tag, Text } from '@lobehub/ui';
-import { Select } from '@lobehub/ui/base-ui';
+import { Flexbox, Input, Tag, Text } from '@lobehub/ui';
+import { Button, Select } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { Link2, ShieldCheck, UserPlus, UsersRound } from 'lucide-react';
 import { useState } from 'react';
@@ -65,14 +65,26 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
   `,
 }));
 
-const roleOptions = [
-  { label: 'Владелец', value: 'owner' },
+const memberRoleOptions = [
+  { label: 'Администратор', value: 'admin' },
   { label: 'Участник', value: 'member' },
   { label: 'Наблюдатель', value: 'viewer' },
 ];
 
 const roleLabel = (role: string) =>
-  role === 'owner' ? 'Владелец' : role === 'viewer' ? 'Наблюдатель' : 'Участник';
+  role === 'owner'
+    ? 'Владелец'
+    : role === 'admin'
+      ? 'Администратор'
+      : role === 'viewer'
+        ? 'Наблюдатель'
+        : 'Участник';
+
+type MemberRole = 'admin' | 'member' | 'viewer';
+type RoleFilter = 'all' | 'owner' | MemberRole;
+
+const resolveMemberRole = (role: string, isPrimaryOwner: boolean): MemberRole | 'owner' =>
+  isPrimaryOwner ? 'owner' : role === 'owner' ? 'admin' : (role as MemberRole);
 
 export default function WorkspaceMembers() {
   const workspace = useActiveWorkspace();
@@ -81,8 +93,8 @@ export default function WorkspaceMembers() {
   const [inviting, setInviting] = useState(false);
   const [lastInviteUrl, setLastInviteUrl] = useState('');
   const [query, setQuery] = useState('');
-  const [role, setRole] = useState<'member' | 'owner' | 'viewer'>('member');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'member' | 'owner' | 'viewer'>('all');
+  const [role, setRole] = useState<MemberRole>('member');
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [userId, setUserId] = useState('');
   const canManage = workspace?.role === 'owner' || workspace?.role === 'super_admin';
   const { data = [], mutate: mutateMembers } = useSWR(
@@ -132,7 +144,11 @@ export default function WorkspaceMembers() {
 
   const normalizedQuery = query.trim().toLowerCase();
   const filteredMembers = data.filter((member) => {
-    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
+    const effectiveRole = resolveMemberRole(
+      member.role,
+      member.userId === workspace.primaryOwnerId,
+    );
+    const matchesRole = roleFilter === 'all' || effectiveRole === roleFilter;
     const matchesQuery =
       !normalizedQuery ||
       member.userId.toLowerCase().includes(normalizedQuery) ||
@@ -174,10 +190,10 @@ export default function WorkspaceMembers() {
           </Flexbox>
           <div className={styles.controls}>
             <Select
-              options={roleOptions}
+              options={memberRoleOptions}
               style={{ width: 150 }}
               value={role}
-              onChange={(value) => setRole(value as 'member' | 'owner' | 'viewer')}
+              onChange={(value) => setRole(value as MemberRole)}
             />
             <Button
               icon={<Link2 size={16} />}
@@ -235,10 +251,14 @@ export default function WorkspaceMembers() {
               onChange={(e) => setQuery(e.target.value)}
             />
             <Select
-              options={[{ label: 'Все роли', value: 'all' }, ...roleOptions]}
               style={{ width: 150 }}
               value={roleFilter}
-              onChange={(value) => setRoleFilter(value as 'all' | 'member' | 'owner' | 'viewer')}
+              options={[
+                { label: 'Все роли', value: 'all' },
+                { label: 'Владелец', value: 'owner' },
+                ...memberRoleOptions,
+              ]}
+              onChange={(value) => setRoleFilter(value as RoleFilter)}
             />
           </Flexbox>
         </Flexbox>
@@ -250,53 +270,58 @@ export default function WorkspaceMembers() {
             </Text>
           </Flexbox>
         )}
-        {filteredMembers.map((member) => (
-          <div className={styles.item} key={`${member.workspaceId}-${member.userId}`}>
-            <Flexbox gap={2}>
-              <Text>{member.email || member.userId}</Text>
-              <Flexbox horizontal gap={6}>
-                <Tag>{roleLabel(member.role)}</Tag>
-                {member.userId === workspace.primaryOwnerId && <Tag>Основной владелец</Tag>}
+        {filteredMembers.map((member) => {
+          const isPrimaryOwner = member.userId === workspace.primaryOwnerId;
+          const effectiveRole = resolveMemberRole(member.role, isPrimaryOwner);
+
+          return (
+            <div className={styles.item} key={`${member.workspaceId}-${member.userId}`}>
+              <Flexbox gap={2}>
+                <Text>{member.email || member.userId}</Text>
+                <Flexbox horizontal gap={6}>
+                  <Tag>{roleLabel(effectiveRole)}</Tag>
+                  {isPrimaryOwner && <Tag>Основной владелец</Tag>}
+                </Flexbox>
               </Flexbox>
-            </Flexbox>
-            <Flexbox horizontal align="center" className={styles.mobileStack} gap={8}>
-              {canManage ? (
-                <Select
-                  options={roleOptions}
-                  style={{ width: 130 }}
-                  value={member.role}
-                  onChange={async (value) => {
-                    await lambdaClient.workspaceMember.updateRole.mutate({
-                      role: value as 'member' | 'owner' | 'viewer',
-                      userId: member.userId,
-                      workspaceId: workspace.id,
-                    });
-                    await mutateMembers();
-                  }}
-                />
-              ) : (
-                <Text className={styles.muted} fontSize={13}>
-                  Управлять ролями может только владелец workspace.
-                </Text>
-              )}
-              {canManage && (
-                <Button
-                  size="small"
-                  onClick={async () => {
-                    if (!globalThis.confirm('Удалить пользователя из workspace?')) return;
-                    await lambdaClient.workspaceMember.remove.mutate({
-                      userId: member.userId,
-                      workspaceId: workspace.id,
-                    });
-                    await mutateMembers();
-                  }}
-                >
-                  Удалить
-                </Button>
-              )}
-            </Flexbox>
-          </div>
-        ))}
+              <Flexbox horizontal align="center" className={styles.mobileStack} gap={8}>
+                {canManage && !isPrimaryOwner ? (
+                  <Select
+                    options={memberRoleOptions}
+                    style={{ width: 130 }}
+                    value={effectiveRole}
+                    onChange={async (value) => {
+                      await lambdaClient.workspaceMember.updateRole.mutate({
+                        role: value as MemberRole,
+                        userId: member.userId,
+                        workspaceId: workspace.id,
+                      });
+                      await mutateMembers();
+                    }}
+                  />
+                ) : !canManage ? (
+                  <Text className={styles.muted} fontSize={13}>
+                    Управлять ролями может только владелец workspace.
+                  </Text>
+                ) : null}
+                {canManage && !isPrimaryOwner && (
+                  <Button
+                    size="small"
+                    onClick={async () => {
+                      if (!globalThis.confirm('Удалить пользователя из workspace?')) return;
+                      await lambdaClient.workspaceMember.remove.mutate({
+                        userId: member.userId,
+                        workspaceId: workspace.id,
+                      });
+                      await mutateMembers();
+                    }}
+                  >
+                    Удалить
+                  </Button>
+                )}
+              </Flexbox>
+            </div>
+          );
+        })}
       </Flexbox>
       {canManage && invitations.length > 0 && (
         <Flexbox gap={8}>

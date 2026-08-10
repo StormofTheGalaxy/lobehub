@@ -1,13 +1,19 @@
 import type { MetaData } from '@lobechat/types';
-import { type ItemType } from 'antd/es/menu/interface';
+import type { ItemType } from 'antd/es/menu/interface';
 
 import { lambdaClient } from '@/libs/trpc/client';
 
 import { useWorkspaceTransferItems } from './useWorkspaceTransferItems';
 
+export interface AgentTransferScope {
+  userId?: string | null;
+  visibility?: 'private' | 'public';
+}
+
 export const useAgentTransferMenuItem = (
   agentId?: string,
   _agentMeta?: MetaData,
+  _scope?: AgentTransferScope,
 ): ItemType[] | null =>
   useWorkspaceTransferItems({
     enabled: !!agentId,

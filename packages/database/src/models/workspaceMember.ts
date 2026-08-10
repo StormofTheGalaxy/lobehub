@@ -1,12 +1,13 @@
 import { INVITATION_EXPIRY_DAYS } from '@lobechat/const';
-import { and, count, eq, isNull, ne } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull, or } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
 
+import { devices } from '../schemas/device';
 import { users } from '../schemas/user';
 import { workspaceInvitations, workspaceMembers, workspaces } from '../schemas/workspace';
 import type { LobeChatDatabase, Transaction } from '../type';
 
-type MemberRole = 'member' | 'owner' | 'viewer';
+type MemberRole = 'admin' | 'member' | 'viewer';
 
 const lockWorkspaceForOwnerChange = async (tx: Transaction, workspaceId: string) => {
   const [workspace] = await tx
@@ -90,32 +91,20 @@ export class WorkspaceMemberModel {
         throw new Error('Cannot remove the primary owner — transfer primary ownership first');
       }
 
-      const member = await tx.query.workspaceMembers.findFirst({
-        columns: { role: true },
-        where: and(
-          eq(workspaceMembers.workspaceId, workspaceId),
-          eq(workspaceMembers.userId, userId),
-          isNull(workspaceMembers.deletedAt),
-        ),
-      });
-      if (!member) return;
+      // Departed-member device cleanup: private enrollments and devices shared
+      // from the user's personal list no longer belong in the workspace.
+      const removedDevices = await tx
+        .delete(devices)
+        .where(
+          and(
+            eq(devices.workspaceId, workspaceId),
+            eq(devices.userId, userId),
+            or(eq(devices.visibility, 'private'), isNotNull(devices.sharedFromDeviceId)),
+          ),
+        )
+        .returning({ deviceId: devices.deviceId });
 
-      if (member.role === 'owner') {
-        const [otherOwners] = await tx
-          .select({ count: count() })
-          .from(workspaceMembers)
-          .where(
-            and(
-              eq(workspaceMembers.workspaceId, workspaceId),
-              eq(workspaceMembers.role, 'owner'),
-              ne(workspaceMembers.userId, userId),
-              isNull(workspaceMembers.deletedAt),
-            ),
-          );
-        if ((otherOwners?.count ?? 0) === 0) throw new Error('Cannot remove the last owner');
-      }
-
-      return tx
+      await tx
         .update(workspaceMembers)
         .set({ deletedAt: new Date() })
         .where(
@@ -125,39 +114,16 @@ export class WorkspaceMemberModel {
             isNull(workspaceMembers.deletedAt),
           ),
         );
+
+      return { removedDeviceIds: removedDevices.map((device) => device.deviceId) };
     });
   };
 
   updateMemberRole = async (workspaceId: string, userId: string, role: MemberRole) => {
     return this.db.transaction(async (tx) => {
       const workspace = await lockWorkspaceForOwnerChange(tx, workspaceId);
-      if (workspace.primaryOwnerId === userId && role !== 'owner') {
+      if (workspace.primaryOwnerId === userId) {
         throw new Error('Cannot demote the primary owner — transfer primary ownership first');
-      }
-
-      const member = await tx.query.workspaceMembers.findFirst({
-        columns: { role: true },
-        where: and(
-          eq(workspaceMembers.workspaceId, workspaceId),
-          eq(workspaceMembers.userId, userId),
-          isNull(workspaceMembers.deletedAt),
-        ),
-      });
-      if (!member) return;
-
-      if (member.role === 'owner' && role !== 'owner') {
-        const [otherOwners] = await tx
-          .select({ count: count() })
-          .from(workspaceMembers)
-          .where(
-            and(
-              eq(workspaceMembers.workspaceId, workspaceId),
-              eq(workspaceMembers.role, 'owner'),
-              ne(workspaceMembers.userId, userId),
-              isNull(workspaceMembers.deletedAt),
-            ),
-          );
-        if ((otherOwners?.count ?? 0) === 0) throw new Error('Cannot demote the last owner');
       }
 
       return tx

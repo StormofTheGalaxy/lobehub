@@ -33,6 +33,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -89,6 +90,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -139,6 +141,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -195,6 +198,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -254,6 +258,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -316,6 +321,7 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
       const handler = new HeterogeneousPersistenceHandler({
         messageModel: {
           findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
           listMessagePluginsByTopic: vi.fn(async () => []),
           update: vi.fn(async () => ({ success: true })),
         } as any,
@@ -355,6 +361,95 @@ describe('HeterogeneousAgentService — phase 2c session id persistence + resume
 
       // Terminal agent_runtime_end still published
       expect(stream.publishStreamEvent).toHaveBeenCalled();
+    });
+  });
+
+  describe('eager session-id persistence on stream_start (survives watchdog abandon)', () => {
+    it('persists heteroSessionId as soon as stream_start reports it, without waiting for heteroFinish', async () => {
+      const updateMetadata = vi.fn(async () => undefined);
+      const findById = vi.fn(async () => ({
+        agentId: null,
+        id: 'topic-abandon',
+        metadata: {
+          runningOperation: { assistantMessageId: 'asst-a', operationId: 'op-abandon' },
+        },
+      }));
+
+      const handler = new HeterogeneousPersistenceHandler({
+        messageModel: {
+          findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
+          listMessagePluginsByTopic: vi.fn(async () => []),
+          update: vi.fn(async () => ({ success: true })),
+        } as any,
+        threadModel: {} as any,
+        topicModel: { findById, updateMetadata } as any,
+      });
+
+      // Only a stream_start reporting the CC session id — NO heteroFinish. This
+      // is the inactivity-watchdog path: the run starts, emits its session id,
+      // then gets abandoned by AbandonOperationService (which never calls finish).
+      await handler.ingest({
+        events: [
+          {
+            data: { sessionId: 'cc-live-session' },
+            operationId: 'op-abandon',
+            stepIndex: 0,
+            timestamp: 1,
+            type: 'stream_start',
+          },
+        ],
+        operationId: 'op-abandon',
+        topicId: 'topic-abandon',
+      });
+
+      // The resume token is already on topic.metadata — the next turn can resume.
+      expect(updateMetadata).toHaveBeenCalledWith('topic-abandon', {
+        heteroSessionId: 'cc-live-session',
+      });
+    });
+
+    it('does not re-write when stream_start repeats the same session id', async () => {
+      const updateMetadata = vi.fn(async () => undefined);
+      const findById = vi.fn(async () => ({
+        agentId: null,
+        id: 'topic-dedupe',
+        metadata: { runningOperation: { assistantMessageId: 'asst-d', operationId: 'op-dedupe' } },
+      }));
+
+      const handler = new HeterogeneousPersistenceHandler({
+        messageModel: {
+          findById: vi.fn(async () => null),
+          getLatestSpineMessageId: vi.fn(async () => null),
+          listMessagePluginsByTopic: vi.fn(async () => []),
+          update: vi.fn(async () => ({ success: true })),
+        } as any,
+        threadModel: {} as any,
+        topicModel: { findById, updateMetadata } as any,
+      });
+
+      await handler.ingest({
+        events: [
+          {
+            data: { sessionId: 'cc-same' },
+            operationId: 'op-dedupe',
+            stepIndex: 0,
+            timestamp: 1,
+            type: 'stream_start',
+          },
+          {
+            data: { sessionId: 'cc-same' },
+            operationId: 'op-dedupe',
+            stepIndex: 1,
+            timestamp: 2,
+            type: 'stream_start',
+          },
+        ],
+        operationId: 'op-dedupe',
+        topicId: 'topic-dedupe',
+      });
+
+      expect(updateMetadata).toHaveBeenCalledTimes(1);
     });
   });
 

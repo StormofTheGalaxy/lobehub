@@ -31,11 +31,14 @@ export const FILE_URL = {
 
 export const BRANDING_EMAIL = {
   business: 'support@acensus.ru',
+  replyTo: undefined,
   support: 'support@acensus.ru',
 };
 
 // Internal provider id. Keep stable until Acensus has a dedicated model-bank/runtime provider.
 export const BRANDING_PROVIDER = 'lobehub';
+
+export const APPLE_APP_STORE_ID = '';
 
 export const COPYRIGHT = `© ${new Date().getFullYear()} ${ORG_NAME}`;
 export const COPYRIGHT_FULL = `${COPYRIGHT}. All rights reserved.`;

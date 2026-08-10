@@ -6,8 +6,10 @@ import {
   type ComposioServiceSummary,
   CredsIdentifier,
   type CredSummary,
+  excludeDisabledComposioServices,
   generateComposioServicesList,
   generateCredsList,
+  resolveAvailableComposioServices,
 } from '@lobechat/builtin-tool-creds';
 import { GroupAgentBuilderIdentifier } from '@lobechat/builtin-tool-group-agent-builder';
 import { LobeAgentIdentifier } from '@lobechat/builtin-tool-lobe-agent';
@@ -36,11 +38,13 @@ import type {
 } from '@lobechat/context-engine';
 import { MessagesEngine, resolveTopicReferences } from '@lobechat/context-engine';
 import { historySummaryPrompt } from '@lobechat/prompts';
-import type {
-  OpenAIChatMessage,
-  RuntimeInitialContext,
-  RuntimeStepContext,
-  UIChatMessage,
+import {
+  getActivePluginIds,
+  type OpenAIChatMessage,
+  type RuntimeAdditionalContextFragment,
+  type RuntimeInitialContext,
+  type RuntimeStepContext,
+  type UIChatMessage,
 } from '@lobechat/types';
 import debug from 'debug';
 
@@ -70,6 +74,7 @@ import {
 import { ComposioServerStatus } from '@/store/tool/slices/composioStore';
 
 import {
+  getRuntimeModelDisplayName,
   getRuntimeModelKnowledgeCutoff,
   isCanUseAudio,
   isCanUseVideo,
@@ -81,11 +86,25 @@ import { resolveClientSkills } from './skillEngineering';
 const log = debug('context-engine:contextEngineering');
 
 interface ContextEngineeringContext {
+  /** Agent-materialized presentation contexts for this LLM call */
+  additionalContexts?: readonly RuntimeAdditionalContextFragment[];
   /** Agent Builder context for injecting current agent info */
   agentBuilderContext?: AgentBuilderContext;
   agentDocuments?: AgentContextDocument[];
   /** The agent ID that will respond (for group context injection) */
   agentId?: string;
+  /**
+   * Identifiers the agent has explicitly disabled (`agents.plugins` tri-state).
+   * Excluded from the client skill candidate pool entirely — not just left
+   * out of `plugins` (pinned) — so a disabled skill is neither listed in
+   * `<available_skills>` nor resolvable by name via `activateSkill`.
+   */
+  disabledPluginIds?: string[];
+  /**
+   * Runtime-resolved agent mode. Callers may force chat mode for models without
+   * function calling while keeping the stored chatConfig unchanged.
+   */
+  enableAgentMode?: boolean;
   enableHistoryCount?: boolean;
   enableUserMemories?: boolean;
   /** Group ID for multi-agent scenarios */
@@ -121,6 +140,7 @@ interface ContextEngineeringContext {
 
 // REVIEW: Maybe we can constrain identity, preference, exp to reorder or trim the context instead of passing everything in
 export const contextEngineering = async ({
+  additionalContexts,
   messages = [],
   manifests,
   tools,
@@ -135,6 +155,8 @@ export const contextEngineering = async ({
   agentBuilderContext,
   agentDocuments,
   agentId,
+  disabledPluginIds,
+  enableAgentMode,
   groupId,
   initialContext,
   plugins,
@@ -199,6 +221,10 @@ export const contextEngineering = async ({
 
   // Get agent store state (used for both group agent builder context and file/knowledge base)
   const agentStoreState = getAgentStoreState();
+  // Example: preset-task calls omit `enableAgentMode`; preserve explicit chat mode
+  // from stored config instead of letting MessagesEngine treat `undefined` as agent mode.
+  const effectiveEnableAgentMode =
+    enableAgentMode ?? agentChatConfigSelectors.currentChatConfig(agentStoreState).enableAgentMode;
 
   // Build group agent builder context if Group Agent Builder is enabled
   // Note: Uses activeGroupId from chatStore to get the group being edited
@@ -217,12 +243,15 @@ export const contextEngineering = async ({
           const supervisorAgentConfig = agentSelectors.getAgentConfigById(
             activeGroupDetail.supervisorAgentId,
           )(agentStoreState);
+          // Pinned identifiers only — GroupAgentBuilderContext.supervisorConfig.plugins
+          // is a display/prompt-formatting DTO (still `string[]`) that joins
+          // entries as plain text, and a disabled plugin isn't "enabled".
+          enabledPlugins = getActivePluginIds(supervisorAgentConfig.plugins);
           supervisorConfig = {
             model: supervisorAgentConfig.model,
-            plugins: supervisorAgentConfig.plugins,
+            plugins: enabledPlugins,
             provider: supervisorAgentConfig.provider,
           };
-          enabledPlugins = supervisorAgentConfig.plugins || [];
         }
 
         // Build official tools list (builtin tools + Composio tools)
@@ -418,15 +447,23 @@ export const contextEngineering = async ({
     try {
       const toolState = getToolStoreState();
       const allComposioServers = composioStoreSelectors.getServers(toolState);
+      const disabledIdSet = new Set(disabledPluginIds ?? []);
 
-      const connected: ComposioServiceSummary[] = allComposioServers
-        .filter((s) => s.status === ComposioServerStatus.ACTIVE)
-        .map((s) => ({ identifier: s.identifier, name: s.label }));
+      // Disabled services are dropped from both lists — not surfaced as
+      // "connected, use directly" (this agent shouldn't use it) nor as
+      // "available to connect" (the user's account-level OAuth connection,
+      // if any, is untouched; this agent just isn't meant to see it).
+      const connected: ComposioServiceSummary[] = excludeDisabledComposioServices(
+        allComposioServers.filter((s) => s.status === ComposioServerStatus.ACTIVE),
+        disabledIdSet,
+      ).map((s) => ({ identifier: s.identifier, name: s.label }));
 
       const connectedIds = new Set(connected.map((s) => s.identifier));
-      const available: ComposioServiceSummary[] = COMPOSIO_APP_TYPES.filter(
-        (t) => !connectedIds.has(t.identifier),
-      ).map((t) => ({ identifier: t.identifier, name: t.label }));
+      const available = resolveAvailableComposioServices(
+        COMPOSIO_APP_TYPES,
+        connectedIds,
+        disabledIdSet,
+      );
 
       composioServicesList = generateComposioServicesList(connected, available);
       log(
@@ -658,7 +695,7 @@ export const contextEngineering = async ({
   // In manual mode: only expose user-selected skills (filtered by pluginIds).
   let enabledSkills: OperationSkillSet['skills'] | undefined;
   if (plugins) {
-    const skillSet = await resolveClientSkills(plugins);
+    const skillSet = await resolveClientSkills(plugins, disabledPluginIds);
     if (isInAutoSkillMode) {
       enabledSkills = skillSet.skills;
     } else {
@@ -669,6 +706,7 @@ export const contextEngineering = async ({
 
   // Create MessagesEngine with injected dependencies
   const engine = new MessagesEngine({
+    additionalContexts,
     // Agent configuration
     enableHistoryCount,
     formatHistorySummary: historySummaryPrompt,
@@ -700,6 +738,7 @@ export const contextEngineering = async ({
 
     // Model info
     model,
+    modelDisplayName: getRuntimeModelDisplayName(model, provider),
     modelKnowledgeCutoff: getRuntimeModelKnowledgeCutoff(model, provider),
     provider,
 
@@ -711,9 +750,10 @@ export const contextEngineering = async ({
     selectedSkills: initialContext?.selectedSkills,
     selectedTools: initialContext?.selectedTools,
 
-    // Pass enableAgentMode through; MessagesEngine force-disables skills /
-    // agent-document injectors when this is `false` (chat mode).
-    enableAgentMode: agentChatConfigSelectors.currentChatConfig(agentStoreState).enableAgentMode,
+    // MessagesEngine force-disables skills / agent-document injectors when this
+    // is `false` (chat mode). ChatService resolves it from stored user intent
+    // plus the selected model's function-call ability.
+    enableAgentMode: effectiveEnableAgentMode,
 
     // Skills configuration (resolved above)
     skillsConfig: {

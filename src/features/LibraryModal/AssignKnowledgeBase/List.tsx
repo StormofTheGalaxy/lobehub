@@ -15,16 +15,27 @@ import Loading from './Loading';
 import MasonrySkeleton from './MasonrySkeleton';
 import { type ViewMode } from './ViewSwitcher';
 import ViewSwitcher from './ViewSwitcher';
+import VisibilityTabs, { type PickerVisibility } from './VisibilityTabs';
 
 export const List = memo(() => {
   const { t } = useTranslation(['file', 'chat']);
 
-  const [useFetchFilesAndKnowledgeBases, activeAgentId] = useAgentStore((s) => [
+  const [useFetchFilesAndKnowledgeBases, activeAgentId, agentVisibility] = useAgentStore((s) => [
     s.useFetchFilesAndKnowledgeBases,
     s.activeAgentId,
+    s.activeAgentId ? s.agentMap[s.activeAgentId]?.visibility : undefined,
   ]);
 
-  const { isLoading, error, data } = useFetchFilesAndKnowledgeBases(activeAgentId);
+  // Public agents can only reference workspace resources. The backend
+  // enforces this hard (see agent.getKnowledgeBasesAndFiles) — this flag
+  // just drives the UX: hide the tab, show an explainer, and force the
+  // fetch to workspace scope so the client can't ask for private items.
+  const isPublicAgent = agentVisibility === 'public';
+
+  const [mode, setMode] = useState<PickerVisibility>('public');
+  const effectiveMode: PickerVisibility = isPublicAgent ? 'public' : mode;
+
+  const { isLoading, error, data } = useFetchFilesAndKnowledgeBases(activeAgentId, effectiveMode);
 
   const [columnCount, setColumnCount] = useState(2);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -77,8 +88,15 @@ export const List = memo(() => {
 
   return (
     <Flexbox height={500}>
-      <Flexbox paddingInline={16} style={{ paddingBlockEnd: 12 }}>
-        <Flexbox horizontal align={'center'} justify={'flex-end'}>
+      {/*
+       * Toolbar sits flush with the list items below: Virtuoso uses
+       * `marginInline: -16` to pull rows back to the outer edge and each
+       * Item re-applies `paddingInline={16}`. Match that here so the tab
+       * group and view switcher line up with the item icons / add buttons.
+       */}
+      <Flexbox gap={8} style={{ paddingBlockEnd: 12 }}>
+        <Flexbox horizontal align={'center'} justify={'space-between'}>
+          {isPublicAgent ? <span /> : <VisibilityTabs value={mode} onChange={setMode} />}
           <ViewSwitcher view={viewMode} onViewChange={setViewMode} />
         </Flexbox>
         <Alert
@@ -91,6 +109,13 @@ export const List = memo(() => {
             total: AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT.toLocaleString(),
           })}
         />
+        {isPublicAgent && (
+          <Alert
+            showIcon
+            message={t('resources.knowledgePicker.publicAgentHint', { ns: 'chat' })}
+            type={'info'}
+          />
+        )}
       </Flexbox>
       {isLoading || isTransitioning ? (
         viewMode === 'masonry' ? (

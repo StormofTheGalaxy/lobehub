@@ -3,6 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import type { Context, Next } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
+import { canUseWorkspaceApiKeys } from '@/business/server/workspaceApiKey';
 import { getServerDB } from '@/database/core/db-adaptor';
 import { workspaceMembers, workspaces } from '@/database/schemas';
 
@@ -10,17 +11,34 @@ const log = debug('lobe-hono:workspace-middleware');
 
 export const OPENAPI_WORKSPACE_HEADER = 'X-Workspace-Id';
 
-export const workspaceAuthMiddleware = async (c: Context, next: Next) => {
-  const headerWorkspaceId = c.req.header(OPENAPI_WORKSPACE_HEADER)?.trim();
-  const apiKeyWorkspaceId = (c.get('workspaceId') as string | null | undefined)?.trim();
+const resolveWorkspaceId = (c: Context): string | undefined => {
+  const requestedWorkspaceId = c.req.header(OPENAPI_WORKSPACE_HEADER)?.trim() || undefined;
 
-  if (headerWorkspaceId && apiKeyWorkspaceId && headerWorkspaceId !== apiKeyWorkspaceId) {
+  if (c.get('authType') !== 'apikey') return requestedWorkspaceId;
+
+  const apiKeyWorkspaceId = c.get('apiKeyWorkspaceId') as string | null | undefined;
+
+  if (!apiKeyWorkspaceId) {
+    if (requestedWorkspaceId) {
+      throw new HTTPException(403, {
+        message: 'Personal API Key cannot access workspace data',
+      });
+    }
+
+    return;
+  }
+
+  if (requestedWorkspaceId && requestedWorkspaceId !== apiKeyWorkspaceId) {
     throw new HTTPException(403, {
-      message: 'Workspace header does not match the API key workspace',
+      message: 'Workspace API Key cannot access a different workspace',
     });
   }
 
-  const workspaceId = headerWorkspaceId || apiKeyWorkspaceId;
+  return apiKeyWorkspaceId;
+};
+
+export const workspaceAuthMiddleware = async (c: Context, next: Next) => {
+  const workspaceId = resolveWorkspaceId(c);
 
   if (!workspaceId) {
     c.set('workspaceId', undefined);
@@ -69,6 +87,24 @@ export const workspaceAuthMiddleware = async (c: Context, next: Next) => {
     throw new HTTPException(403, {
       message: 'Not a member of this workspace',
     });
+  }
+
+  if (c.get('authType') === 'apikey') {
+    // `workspace_members.role` is the single source of truth for built-in
+    // workspace roles.
+    const isWorkspaceAdmin = membership.role === 'owner' || membership.role === 'admin';
+
+    if (!isWorkspaceAdmin) {
+      throw new HTTPException(403, {
+        message: 'Workspace API Key requires an admin account',
+      });
+    }
+
+    if (!(await canUseWorkspaceApiKeys(workspaceId))) {
+      throw new HTTPException(403, {
+        message: 'Workspace API Key access is not available',
+      });
+    }
   }
 
   c.set('workspaceId', workspaceId);

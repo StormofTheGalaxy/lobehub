@@ -2,13 +2,13 @@
 -- Откат схемы БД к состоянию тега v0.1.12 (8ed7ea89,
 -- 116 файлов миграций / 115 записей в drizzle journal).
 --
--- Отменяет 21 миграцию (0115..0135), накатившуюся с PR #6 и #8.
--- Все 21 — чисто аддитивные по схеме: ни одного DROP COLUMN, ни одной
+-- Отменяет 24 миграции (0115..0138), добавленные после тега.
+-- Все 24 — чисто аддитивные по схеме: ни одного DROP COLUMN, ни одной
 -- удалённой ранее существовавшей таблицы. Поэтому откат детерминирован.
 --
 -- ЧТО ЭТОТ СКРИПТ НЕ ВЕРНЁТ (читать до запуска):
 --
---   1. Данные в 23 удаляемых таблицах и 37 удаляемых колонках. Комментарии к
+--   1. Данные в 24 удаляемых таблицах и 35 удаляемых колонках. Комментарии к
 --      топикам, проекты, метки агентов, квоты, acceptances, work-реестр,
 --      workspace_user_settings, notifications.context/workspace_id,
 --      agents.name, api_keys.scopes — всё это исчезнет вместе с объектами.
@@ -35,7 +35,7 @@
 BEGIN;
 
 -- ---------------------------------------------------------------------------
--- 1. Таблицы, созданные миграциями 0117..0134.
+-- 1. Таблицы, созданные миграциями 0117..0138.
 --    CASCADE снимает их внешние ключи, индексы и зависимые ограничения.
 -- ---------------------------------------------------------------------------
 DROP TABLE IF EXISTS "project_completion_reviews" CASCADE;
@@ -44,6 +44,7 @@ DROP TABLE IF EXISTS "project_chat_groups"        CASCADE;
 DROP TABLE IF EXISTS "project_agents"             CASCADE;
 DROP TABLE IF EXISTS "projects"                   CASCADE;
 
+DROP TABLE IF EXISTS "agent_history_job_groups"   CASCADE;
 DROP TABLE IF EXISTS "agent_history_job_topics"   CASCADE;
 DROP TABLE IF EXISTS "agent_history_job_agents"   CASCADE;
 DROP TABLE IF EXISTS "agent_history_jobs"         CASCADE;
@@ -156,7 +157,7 @@ ALTER TABLE "verify_runs"              DROP COLUMN IF EXISTS "user_decision";
 ALTER TABLE "verify_runs"              DROP COLUMN IF EXISTS "visibility";
 
 -- ---------------------------------------------------------------------------
--- 5. Журнал drizzle: снять записи 21 миграции, иначе старое приложение
+-- 5. Журнал drizzle: снять записи 24 миграций, иначе старое приложение
 --    посчитает их применёнными и не накатит заново.
 --
 --    Миграции определяются по created_at (folderMillis) — drizzle сравнивает
@@ -168,7 +169,7 @@ ALTER TABLE "verify_runs"              DROP COLUMN IF EXISTS "visibility";
 -- ---------------------------------------------------------------------------
 DELETE FROM "drizzle"."__drizzle_migrations" WHERE created_at > 1782009459420;
 
--- Контроль: на теге v0.1.12 в journal ровно 115 записей (136 сейчас − 21).
+-- Контроль: на теге v0.1.12 в journal ровно 115 записей (139 сейчас - 24).
 DO $$
 DECLARE n integer;
 BEGIN

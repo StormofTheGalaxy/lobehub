@@ -126,24 +126,24 @@ describe('KnowledgeRepo', () => {
       expect(uploadedPdf).toBeUndefined();
     });
 
-    it('should include documents with sourceType="api" in Documents category', async () => {
+    it('should exclude document-table rows from Documents category (files only)', async () => {
       const results = await knowledgeRepo.query({ category: FilesTabs.Documents });
 
-      // Should include API PDF (application/pdf with sourceType='api')
-      const apiPdf = results.find((item) => item.name === 'api-pdf.pdf');
-      expect(apiPdf).toBeDefined();
-      expect(apiPdf?.sourceType).toBe('document');
-      expect(apiPdf?.fileType).toBe('application/pdf');
+      // Documents means uploaded document FILES; derived document rows stay out
+      expect(results.find((item) => item.name === 'api-pdf.pdf')).toBeUndefined();
+      expect(results.find((item) => item.name === 'web-doc.txt')).toBeUndefined();
+      expect(results.every((item) => item.sourceType === 'file')).toBe(true);
     });
 
-    it('should include documents with sourceType="web" in Documents category', async () => {
-      const results = await knowledgeRepo.query({ category: FilesTabs.Documents });
+    it('should surface custom/* document rows under the Pages category', async () => {
+      const results = await knowledgeRepo.query({ category: FilesTabs.Pages });
 
-      // Should include web document (custom/other with sourceType='web')
+      // custom/other derived doc belongs to Pages
       const webDoc = results.find((item) => item.name === 'web-doc.txt');
       expect(webDoc).toBeDefined();
       expect(webDoc?.sourceType).toBe('document');
-      expect(webDoc?.fileType).toBe('custom/other');
+      // uploaded files never surface under Pages
+      expect(results.every((item) => item.sourceType === 'document')).toBe(true);
     });
 
     it('should include files from files table in Documents category', async () => {
@@ -180,18 +180,14 @@ describe('KnowledgeRepo', () => {
       expect(regularFile).toBeDefined();
     });
 
-    it('should apply both filters together in Documents category', async () => {
+    it('should keep the Documents category free of document-table rows', async () => {
       const results = await knowledgeRepo.query({ category: FilesTabs.Documents });
 
-      // Count documents with sourceType='document'
       const documentTypeItems = results.filter((item) => item.sourceType === 'document');
+      expect(documentTypeItems).toHaveLength(0);
 
-      // Should have exactly 2 documents (api-pdf and web-doc)
-      // Excluded: uploaded-pdf (sourceType='file') and editor-doc (fileType='custom/document')
-      expect(documentTypeItems).toHaveLength(2);
-
-      const names = documentTypeItems.map((item) => item.name).sort();
-      expect(names).toEqual(['api-pdf.pdf', 'web-doc.txt']);
+      // the uploaded pdf file from the files table is still there
+      expect(results.find((item) => item.name === 'regular-pdf-file.pdf')).toBeDefined();
     });
   });
 
@@ -321,12 +317,112 @@ describe('KnowledgeRepo', () => {
       expect(names).toEqual(['workspace-owner-doc.pdf', 'workspace-owner-file.pdf']);
     });
 
+    it('should restrict workspace query results to the requested creator', async () => {
+      const workspaceRepo = new KnowledgeRepo(serverDB, otherUserId, workspaceId);
+
+      const ownerRows = await workspaceRepo.query({
+        category: FilesTabs.All,
+        creatorUserId: userId,
+      });
+      const callerRows = await workspaceRepo.query({
+        category: FilesTabs.All,
+        creatorUserId: otherUserId,
+      });
+
+      expect(ownerRows.map((item) => item.name).sort()).toEqual([
+        'workspace-owner-doc.pdf',
+        'workspace-owner-file.pdf',
+      ]);
+      expect(callerRows).toEqual([]);
+    });
+
     it('should not return workspace items in personal mode', async () => {
       const results = await knowledgeRepo.query({ category: FilesTabs.All });
 
       const names = results.map((item) => item.name).sort();
       expect(names).not.toContain('workspace-owner-doc.pdf');
       expect(names).not.toContain('workspace-owner-file.pdf');
+    });
+  });
+
+  describe('query - workspace visibility', () => {
+    const workspaceId = 'knowledge-visibility-workspace';
+
+    beforeEach(async () => {
+      await serverDB.insert(workspaces).values({
+        id: workspaceId,
+        name: 'Visibility Workspace',
+        primaryOwnerId: userId,
+        slug: workspaceId,
+      });
+
+      await serverDB.insert(documents).values([
+        {
+          content: 'Public workspace document',
+          fileType: 'application/pdf',
+          filename: 'public-doc.pdf',
+          source: 'public-source',
+          sourceType: 'api',
+          totalCharCount: 100,
+          totalLineCount: 10,
+          userId,
+          visibility: 'public',
+          workspaceId,
+        },
+        {
+          content: 'Caller private document',
+          fileType: 'application/pdf',
+          filename: 'caller-private-doc.pdf',
+          source: 'caller-private-source',
+          sourceType: 'api',
+          totalCharCount: 100,
+          totalLineCount: 10,
+          userId,
+          visibility: 'private',
+          workspaceId,
+        },
+        {
+          content: 'Other member private document',
+          fileType: 'application/pdf',
+          filename: 'other-private-doc.pdf',
+          source: 'other-private-source',
+          sourceType: 'api',
+          totalCharCount: 100,
+          totalLineCount: 10,
+          userId: otherUserId,
+          visibility: 'private',
+          workspaceId,
+        },
+      ]);
+    });
+
+    it('should hide other members private documents in All view', async () => {
+      const repo = new KnowledgeRepo(serverDB, userId, workspaceId);
+
+      const names = (await repo.query({ category: FilesTabs.All })).map((item) => item.name).sort();
+
+      expect(names).toEqual(['caller-private-doc.pdf', 'public-doc.pdf']);
+      expect(names).not.toContain('other-private-doc.pdf');
+    });
+
+    it('should only return caller-owned private documents when visibility=private', async () => {
+      const repo = new KnowledgeRepo(serverDB, userId, workspaceId);
+
+      const names = (await repo.query({ category: FilesTabs.All, visibility: 'private' })).map(
+        (item) => item.name,
+      );
+
+      expect(names).toEqual(['caller-private-doc.pdf']);
+    });
+
+    it('should hide other members private documents in queryRecent', async () => {
+      const repo = new KnowledgeRepo(serverDB, userId, workspaceId);
+
+      const names = (await repo.queryRecent(10)).map((item) => item.name).sort();
+
+      expect(names).toContain('caller-private-doc.pdf');
+      expect(names).toContain('public-doc.pdf');
+      expect(names).not.toContain('other-private-doc.pdf');
     });
   });
 
