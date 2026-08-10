@@ -314,6 +314,8 @@
   "knowledgeBase.all": "All Content",
   "knowledgeBase.allFiles": "All Files",
   "knowledgeBase.allLibraries": "All Libraries",
+  "knowledgeBase.contextBudget.description": "Up to {{perFile}} characters per file and {{total}} total are added to each request. Larger files stay searchable, so the agent can retrieve the rest when needed.",
+  "knowledgeBase.contextBudget.title": "Large files won’t inflate every message",
   "knowledgeBase.disabled": "Library chat isn’t available in this deployment. Switch to a server-side database, or use {{cloud}}.",
   "knowledgeBase.files": "Files",
   "knowledgeBase.libraries": "Libraries",

@@ -1,5 +1,10 @@
 // @vitest-environment node
-import { DEFAULT_INBOX_AVATAR, DEFAULT_INBOX_TITLE, INBOX_SESSION_ID } from '@lobechat/const';
+import {
+  AGENT_KNOWLEDGE_FILE_CHAR_LIMIT,
+  DEFAULT_INBOX_AVATAR,
+  DEFAULT_INBOX_TITLE,
+  INBOX_SESSION_ID,
+} from '@lobechat/const';
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -310,6 +315,55 @@ describe('AgentModel', () => {
       expect(result).toBeDefined();
       expect(result?.knowledgeBases).toHaveLength(1);
       expect(result?.files).toHaveLength(1);
+    });
+
+    it('should only load a bounded prefix of an enabled file, reporting the real size', async () => {
+      const agentId = 'test-agent-huge-file';
+      const hugeContent = 'a'.repeat(AGENT_KNOWLEDGE_FILE_CHAR_LIMIT * 3);
+
+      await serverDB.insert(agents).values({ id: agentId, userId });
+      await serverDB.insert(agentsFiles).values({ agentId, enabled: true, fileId: '1', userId });
+      await serverDB.insert(documents).values({
+        content: hugeContent,
+        fileId: '1',
+        fileType: 'text/plain',
+        id: 'doc-huge',
+        source: 'test',
+        sourceType: 'file',
+        totalCharCount: hugeContent.length,
+        totalLineCount: 1,
+        userId,
+      });
+
+      const result = await agentModel.getAgentConfig(agentId);
+      const file = result?.files?.[0];
+
+      // the megabyte-scale body never leaves the database
+      expect(file?.content).toHaveLength(AGENT_KNOWLEDGE_FILE_CHAR_LIMIT);
+      // but the caller still learns how big the document really is
+      expect(file?.charCount).toBe(hugeContent.length);
+    });
+
+    it('should not load content for a disabled file', async () => {
+      const agentId = 'test-agent-disabled-file';
+
+      await serverDB.insert(agents).values({ id: agentId, userId });
+      await serverDB.insert(agentsFiles).values({ agentId, enabled: false, fileId: '1', userId });
+      await serverDB.insert(documents).values({
+        content: 'secret content',
+        fileId: '1',
+        fileType: 'text/plain',
+        id: 'doc-disabled',
+        source: 'test',
+        sourceType: 'file',
+        totalCharCount: 14,
+        totalLineCount: 1,
+        userId,
+      });
+
+      const result = await agentModel.getAgentConfig(agentId);
+
+      expect(result?.files?.[0]?.content).toBeUndefined();
     });
   });
 

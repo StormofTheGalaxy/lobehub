@@ -755,8 +755,7 @@ export const createRuntimeExecutors = (
     // was populated by a bug or a mid-run side effect. Plans absent on old /
     // resumed operations fall back to the policy-only gate.
     const devicePolicy = state.metadata?.deviceAccessPolicy as
-      | { canUseDevice: boolean; reason: DeviceAccessReason }
-      | undefined;
+      { canUseDevice: boolean; reason: DeviceAccessReason } | undefined;
     const executionPlan = state.metadata?.executionPlan as ExecutionPlan | undefined;
     const planAllowsDevice = !executionPlan || isDeviceCapablePlan(executionPlan);
     const activeDeviceId =
@@ -1094,8 +1093,7 @@ export const createRuntimeExecutors = (
         const lobehubSkillAgentId = state.metadata?.agentId;
         const lobehubSkillTopicId = state.metadata?.topicId;
         const lobehubSkillAgentMeta = state.metadata?.agentConfig as
-          | { description?: string | null; title?: string | null }
-          | undefined;
+          { description?: string | null; title?: string | null } | undefined;
 
         let lobehubSkillTopicTitle = '';
         if (lobehubSkillTopicId && ctx.serverDB && ctx.userId) {
@@ -1180,14 +1178,12 @@ export const createRuntimeExecutors = (
             const credsResult = await marketService.market.creds.list();
             const userCreds = (credsResult as any)?.data ?? [];
             credsListStr = generateCredsList(
-              userCreds.map(
-                (cred: any): CredSummary => ({
-                  description: cred.description,
-                  key: cred.key,
-                  name: cred.name,
-                  type: cred.type,
-                }),
-              ),
+              userCreds.map((cred: any): CredSummary => ({
+                description: cred.description,
+                key: cred.key,
+                name: cred.name,
+                type: cred.type,
+              })),
             );
             log('Fetched %d creds for {{CREDS_LIST}} substitution', userCreds.length);
           } catch (error) {
@@ -1293,11 +1289,20 @@ export const createRuntimeExecutors = (
           knowledge: {
             fileContents: agentConfig.files
               ?.filter((f: { enabled?: boolean | null }) => f.enabled === true)
-              .map((f: { content?: string | null; id?: string; name?: string }) => ({
-                content: f.content ?? '',
-                fileId: f.id ?? '',
-                filename: f.name ?? '',
-              })),
+              .map(
+                (f: {
+                  charCount?: number | null;
+                  content?: string | null;
+                  id?: string;
+                  name?: string;
+                }) => ({
+                  // `content` is a bounded prefix; `charCount` is the full document size
+                  charCount: f.charCount ?? undefined,
+                  content: f.content ?? '',
+                  fileId: f.id ?? '',
+                  filename: f.name ?? '',
+                }),
+              ),
             knowledgeBases: agentConfig.knowledgeBases
               ?.filter((kb: { enabled?: boolean | null }) => kb.enabled === true)
               .map((kb: { id?: string; name?: string }) => ({
@@ -2614,8 +2619,7 @@ export const createRuntimeExecutors = (
           // true here; recording the policy reason inline lets an operator
           // distinguish first-party vs bot-owner runs without joining logs.
           const policy = state.metadata?.deviceAccessPolicy as
-            | { canUseDevice: boolean; reason: DeviceAccessReason }
-            | undefined;
+            { canUseDevice: boolean; reason: DeviceAccessReason } | undefined;
           logDeviceToolAudit({
             apiName: chatToolPayload.apiName,
             botContext: state.metadata?.botContext,
@@ -2898,8 +2902,7 @@ export const createRuntimeExecutors = (
 
         // Persist ToolsActivator discovery results to state.activatedStepTools
         const discoveredTools = executionResult.state?.activatedTools as
-          | Array<{ identifier: string }>
-          | undefined;
+          Array<{ identifier: string }> | undefined;
         if (discoveredTools?.length) {
           const existingIds = new Set(
             (newState.activatedStepTools ?? []).map((t: { id: string }) => t.id),
@@ -3205,8 +3208,7 @@ export const createRuntimeExecutors = (
 
             if (isDeviceToolIdentifier(chatToolPayload.identifier) && !batchHookResult?.isMocked) {
               const policy = state.metadata?.deviceAccessPolicy as
-                | { canUseDevice: boolean; reason: DeviceAccessReason }
-                | undefined;
+                { canUseDevice: boolean; reason: DeviceAccessReason } | undefined;
               logDeviceToolAudit({
                 apiName: chatToolPayload.apiName,
                 botContext: state.metadata?.botContext,
@@ -3520,8 +3522,7 @@ export const createRuntimeExecutors = (
     );
     for (const result of toolResults) {
       const discovered = result.data?.state?.activatedTools as
-        | Array<{ identifier: string }>
-        | undefined;
+        Array<{ identifier: string }> | undefined;
       if (discovered?.length) {
         const newActivations = discovered
           .filter((t) => !existingActivationIds.has(t.identifier))

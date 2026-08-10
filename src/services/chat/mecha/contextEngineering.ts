@@ -319,7 +319,13 @@ export const contextEngineering = async ({
 
   const fileContents = agentFiles
     .filter((file) => file.enabled && file.content)
-    .map((file) => ({ content: file.content!, fileId: file.id, filename: file.name }));
+    .map((file) => ({
+      // `content` is a bounded prefix; `charCount` is the full document size
+      charCount: file.charCount,
+      content: file.content!,
+      fileId: file.id,
+      filename: file.name,
+    }));
 
   const knowledgeBases = agentKnowledgeBases
     .filter((kb) => kb.enabled)
@@ -387,14 +393,12 @@ export const contextEngineering = async ({
     try {
       const credsResult = await lambdaClient.market.creds.list.query();
       const userCreds = (credsResult as any)?.data ?? [];
-      credsList = userCreds.map(
-        (cred: any): CredSummary => ({
-          description: cred.description,
-          key: cred.key,
-          name: cred.name,
-          type: cred.type,
-        }),
-      );
+      credsList = userCreds.map((cred: any): CredSummary => ({
+        description: cred.description,
+        key: cred.key,
+        name: cred.name,
+        type: cred.type,
+      }));
       log('Creds context resolved: count=%d', credsList?.length ?? 0);
     } catch (error) {
       // Silently fail - creds context is optional

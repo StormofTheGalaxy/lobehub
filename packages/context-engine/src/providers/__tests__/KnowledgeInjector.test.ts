@@ -248,4 +248,56 @@ describe('KnowledgeInjector', () => {
       expect(result.messages[1].content).toBe('First question');
     });
   });
+
+  describe('char budget', () => {
+    it('should clip an oversized file instead of injecting it whole', async () => {
+      const provider = new KnowledgeInjector({
+        fileCharLimit: 50,
+        fileContents: [{ content: 'a'.repeat(10_000), fileId: 'file-1', filename: 'big.txt' }],
+      });
+
+      const context = createContext([{ content: 'Hello', id: 'user-1', role: 'user' }]);
+
+      const result = await provider.process(context);
+      const injected = result.messages[0].content as string;
+
+      expect(injected).toContain('truncated="true"');
+      expect(injected).not.toContain('a'.repeat(51));
+      expect(result.metadata.knowledgeFileCharsTotal).toBe(10_000);
+    });
+
+    it('should report the original size when content arrived pre-clipped', async () => {
+      const provider = new KnowledgeInjector({
+        fileContents: [
+          { charCount: 5_000_000, content: 'a'.repeat(100), fileId: 'file-1', filename: 'big.csv' },
+        ],
+      });
+
+      const context = createContext([{ content: 'Hello', id: 'user-1', role: 'user' }]);
+
+      const result = await provider.process(context);
+
+      expect(result.metadata.knowledgeFileCharsTotal).toBe(5_000_000);
+      expect(result.metadata.knowledgeFileCharsInjected).toBe(100);
+    });
+
+    it('should report the exact injected size after per-file and total limits', async () => {
+      const provider = new KnowledgeInjector({
+        fileCharLimit: 100,
+        fileContents: [
+          { content: 'a'.repeat(100), fileId: 'file-1', filename: 'first.txt' },
+          { content: 'b'.repeat(100), fileId: 'file-2', filename: 'second.txt' },
+          { content: 'c'.repeat(100), fileId: 'file-3', filename: 'third.txt' },
+          { content: 'd'.repeat(100), fileId: 'file-4', filename: 'fourth.txt' },
+        ],
+        totalCharLimit: 250,
+      });
+
+      const context = createContext([{ content: 'Hello', id: 'user-1', role: 'user' }]);
+      const result = await provider.process(context);
+
+      expect(result.metadata.knowledgeFileCharsTotal).toBe(400);
+      expect(result.metadata.knowledgeFileCharsInjected).toBe(250);
+    });
+  });
 });

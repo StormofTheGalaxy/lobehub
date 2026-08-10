@@ -314,6 +314,8 @@
   "knowledgeBase.all": "全部内容",
   "knowledgeBase.allFiles": "全部文件",
   "knowledgeBase.allLibraries": "全部资源库",
+  "knowledgeBase.contextBudget.description": "每个文件最多向每次请求加入 {{perFile}} 个字符，全部文件合计最多 {{total}} 个字符。大文件的完整内容仍可搜索，助理会在需要时读取其余部分。",
+  "knowledgeBase.contextBudget.title": "大文件不会反复撑大每条消息",
   "knowledgeBase.disabled": "当前部署模式不支持资源库对话。可切换到服务端数据库部署，或使用 {{cloud}} 服务",
   "knowledgeBase.files": "文件",
   "knowledgeBase.libraries": "资源库",

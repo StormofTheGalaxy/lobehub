@@ -1,3 +1,5 @@
+import { AGENT_KNOWLEDGE_FILE_CHAR_LIMIT, AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT } from '@lobechat/const';
+
 import type { FileContent } from '../knowledgeBaseQA';
 
 export interface KnowledgeBaseInfo {
@@ -7,31 +9,98 @@ export interface KnowledgeBaseInfo {
 }
 
 export interface PromptKnowledgeOptions {
+  /**
+   * Max characters injected inline for a single file.
+   * @default AGENT_KNOWLEDGE_FILE_CHAR_LIMIT
+   */
+  fileCharLimit?: number;
   /** File contents to inject */
   fileContents?: FileContent[];
   /** Knowledge bases to include */
   knowledgeBases?: KnowledgeBaseInfo[];
+  /**
+   * Max characters injected inline across all files combined.
+   * @default AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT
+   */
+  totalCharLimit?: number;
+}
+
+/** How a file ended up being rendered, used to build the instruction block. */
+type FileRenderMode = 'full' | 'truncated' | 'omitted';
+
+interface RenderedFile {
+  injectedChars: number;
+  mode: FileRenderMode;
+  xml: string;
 }
 
 /**
- * Formats a single file content with XML tags
+ * Total size of a file's content. `charCount` is the size of the ORIGINAL
+ * document — the data layer may already have truncated `content` before it got
+ * here, so `content.length` alone would under-report and make a clipped file
+ * look complete.
  */
-const formatFileContent = (file: FileContent): string => {
-  if (file.error) {
-    return `<file id="${file.fileId}" name="${file.filename}" error="${file.error}" />`;
-  }
+const fullCharCount = (file: FileContent): number =>
+  Math.max(file.charCount ?? 0, file.content?.length ?? 0);
 
-  return `<file id="${file.fileId}" name="${file.filename}">
-${file.content}
-</file>`;
+/**
+ * Formats a single file, clipping its content to `budget` characters.
+ *
+ * A clipped file keeps its `id` so the model can fetch the rest through the
+ * Knowledge Base tool, and advertises `chars` / `injectedChars` so it can
+ * judge how much it is missing instead of assuming it saw everything.
+ */
+const formatFileContent = (file: FileContent, budget: number): RenderedFile => {
+  if (file.error)
+    return {
+      injectedChars: 0,
+      mode: 'full',
+      xml: `<file id="${file.fileId}" name="${file.filename}" error="${file.error}" />`,
+    };
+
+  const charCount = fullCharCount(file);
+  const content = file.content ?? '';
+  const injectedChars = Math.min(content.length, Math.max(budget, 0));
+
+  // No budget left at all: advertise the file without paying for its content.
+  if (injectedChars === 0 && charCount > 0)
+    return {
+      injectedChars: 0,
+      mode: 'omitted',
+      xml: `<file id="${file.fileId}" name="${file.filename}" chars="${charCount}" injectedChars="0" truncated="true" />`,
+    };
+
+  if (content.length <= budget && charCount <= injectedChars)
+    return {
+      injectedChars,
+      mode: 'full',
+      xml: `<file id="${file.fileId}" name="${file.filename}">
+${content}
+</file>`,
+    };
+
+  return {
+    injectedChars,
+    mode: 'truncated',
+    xml: `<file id="${file.fileId}" name="${file.filename}" chars="${charCount}" injectedChars="${injectedChars}" truncated="true">
+${content.slice(0, injectedChars)}
+</file>`,
+  };
 };
 
 /**
- * Format agent knowledge (files + knowledge bases) as unified XML prompt
+ * Format agent knowledge (files + knowledge bases) as unified XML prompt.
+ *
+ * File content is injected under a character budget: this block lands in the
+ * first user message and is therefore replayed on every request of the topic,
+ * so an unbounded file would multiply the cost of every single turn (and blow
+ * past the context window of small models). See `@lobechat/const/knowledge`.
  */
 export const promptAgentKnowledge = ({
   fileContents = [],
+  fileCharLimit = AGENT_KNOWLEDGE_FILE_CHAR_LIMIT,
   knowledgeBases = [],
+  totalCharLimit = AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT,
 }: PromptKnowledgeOptions) => {
   const hasFiles = fileContents.length > 0;
   const hasKnowledgeBases = knowledgeBases.length > 0;
@@ -42,6 +111,19 @@ export const promptAgentKnowledge = ({
   }
 
   const contentParts: string[] = [];
+
+  // Render files first: the instruction depends on whether anything got clipped.
+  let remaining = totalCharLimit;
+  let clipped = false;
+  const renderedFiles = fileContents.map((file) => {
+    const budget = Math.min(fileCharLimit, remaining);
+    const rendered = formatFileContent(file, budget);
+
+    if (rendered.mode !== 'full') clipped = true;
+    remaining -= rendered.injectedChars;
+
+    return rendered;
+  });
 
   // Add instruction based on what's available
   if (hasFiles && hasKnowledgeBases) {
@@ -58,9 +140,15 @@ export const promptAgentKnowledge = ({
     );
   }
 
+  if (clipped) {
+    contentParts.push(
+      `<truncation_notice>Files marked truncated="true" are too large to include in full — only the first injectedChars of chars are shown (files with injectedChars="0" are listed by name only). Do NOT assume the omitted part is empty or irrelevant. When the answer may depend on it, retrieve the rest on demand with the Knowledge Base tool: readKnowledge with the file id, or searchKnowledgeBase to locate the relevant passage. If that tool is not available to you, say so instead of answering from the partial content.</truncation_notice>`,
+    );
+  }
+
   // Add files section
   if (hasFiles) {
-    const filesXml = fileContents.map((file) => formatFileContent(file)).join('\n');
+    const filesXml = renderedFiles.map((file) => file.xml).join('\n');
     contentParts.push(`<files totalCount="${fileContents.length}">
 ${filesXml}
 </files>`);

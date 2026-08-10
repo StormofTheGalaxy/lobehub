@@ -1,5 +1,5 @@
 import { getAgentPersistConfig } from '@lobechat/builtin-agents';
-import { INBOX_SESSION_ID } from '@lobechat/const';
+import { AGENT_KNOWLEDGE_FILE_CHAR_LIMIT, INBOX_SESSION_ID } from '@lobechat/const';
 import type { AgentRankItem, LobeAgentAgencyConfig } from '@lobechat/types';
 import { pruneWorkingDirByDeviceDeletes } from '@lobechat/types';
 import { TRPCError } from '@trpc/server';
@@ -360,24 +360,40 @@ export class AgentModel {
     const knowledge = await this.getAgentAssignedKnowledge(agent.id);
     const normalizedAgent = normalizeInboxAgentMeta(agent, { slug: agent.slug });
 
-    // Fetch document content for enabled files
+    // Fetch document content for enabled files.
+    //
+    // Only a bounded prefix is selected: this content is injected into the
+    // first user message and therefore replayed on every request of the topic,
+    // so a multi-megabyte file would inflate the cost of every turn (and be
+    // shipped over the wire on every config fetch). `charCount` carries the
+    // real document size so the prompt layer can tell the model what it is
+    // missing and point it at the Knowledge Base tool for the rest.
     const enabledFileIds = knowledge.files
       .filter((f) => f.enabled)
       .map((f) => f.id)
       .filter((id) => id !== undefined);
-    let files: Array<(typeof knowledge.files)[number] & { content?: string | null }> =
-      knowledge.files;
+    let files: Array<
+      (typeof knowledge.files)[number] & { charCount?: number; content?: string | null }
+    > = knowledge.files;
 
     if (enabledFileIds.length > 0) {
-      const documentsData = await this.db.query.documents.findMany({
-        where: and(this.documentsOwnership(), inArray(documents.fileId, enabledFileIds)),
-      });
+      const documentsData = await this.db
+        .select({
+          charCount: sql<number>`coalesce(${documents.totalCharCount}, char_length(${documents.content}), 0)`,
+          content: sql<
+            string | null
+          >`substr(${documents.content}, 1, ${AGENT_KNOWLEDGE_FILE_CHAR_LIMIT})`,
+          fileId: documents.fileId,
+        })
+        .from(documents)
+        .where(and(this.documentsOwnership(), inArray(documents.fileId, enabledFileIds)));
 
-      const documentMap = new Map(documentsData.map((doc) => [doc.fileId, doc.content]));
-      files = knowledge.files.map((file) => ({
-        ...file,
-        content: file.enabled && file.id ? documentMap.get(file.id) : undefined,
-      }));
+      const documentMap = new Map(documentsData.map((doc) => [doc.fileId, doc]));
+      files = knowledge.files.map((file) => {
+        const doc = file.enabled && file.id ? documentMap.get(file.id) : undefined;
+
+        return { ...file, charCount: doc?.charCount, content: doc?.content };
+      });
     }
 
     return { ...normalizedAgent, ...knowledge, files };

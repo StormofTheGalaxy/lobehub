@@ -210,8 +210,7 @@ export class MessagesEngine {
     const currentUserMessage = [...messages]
       .reverse()
       .find((m) => m.role === 'user' && typeof m.content === 'string')?.content as
-      | string
-      | undefined;
+      string | undefined;
 
     // Shared config for all agent document injectors
     const agentDocConfig = {
@@ -296,7 +295,9 @@ export class MessagesEngine {
       // Knowledge (agent files + knowledge bases)
       new KnowledgeInjector({
         fileContents: knowledge?.fileContents,
+        fileCharLimit: knowledge?.fileCharLimit,
         knowledgeBases: knowledge?.knowledgeBases,
+        totalCharLimit: knowledge?.totalCharLimit,
       }),
       // Agent documents → before first user message
       new AgentDocumentContextInjector(agentDocConfig),

@@ -1,4 +1,10 @@
 export interface FileContent {
+  /**
+   * Character count of the ORIGINAL document. Set it whenever `content` may
+   * have been clipped upstream (e.g. the DB only selected a prefix), so the
+   * prompt layer can report the real size instead of the injected size.
+   */
+  charCount?: number;
   content: string;
   error?: string;
   fileId: string;

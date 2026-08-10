@@ -1,4 +1,5 @@
-import { Center, Empty, Flexbox, Icon } from '@lobehub/ui';
+import { AGENT_KNOWLEDGE_FILE_CHAR_LIMIT, AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT } from '@lobechat/const';
+import { Alert, Center, Empty, Flexbox, Icon } from '@lobehub/ui';
 import { VirtuosoMasonry } from '@virtuoso.dev/masonry';
 import { BookOpen, ServerCrash } from 'lucide-react';
 import React, { memo, useMemo, useState } from 'react';
@@ -16,7 +17,7 @@ import { type ViewMode } from './ViewSwitcher';
 import ViewSwitcher from './ViewSwitcher';
 
 export const List = memo(() => {
-  const { t } = useTranslation('file');
+  const { t } = useTranslation(['file', 'chat']);
 
   const [useFetchFilesAndKnowledgeBases, activeAgentId] = useAgentStore((s) => [
     s.useFetchFilesAndKnowledgeBases,
@@ -80,6 +81,16 @@ export const List = memo(() => {
         <Flexbox horizontal align={'center'} justify={'flex-end'}>
           <ViewSwitcher view={viewMode} onViewChange={setViewMode} />
         </Flexbox>
+        <Alert
+          style={{ marginTop: 12 }}
+          title={t('chat:knowledgeBase.contextBudget.title')}
+          type={'info'}
+          variant={'borderless'}
+          description={t('chat:knowledgeBase.contextBudget.description', {
+            perFile: AGENT_KNOWLEDGE_FILE_CHAR_LIMIT.toLocaleString(),
+            total: AGENT_KNOWLEDGE_TOTAL_CHAR_LIMIT.toLocaleString(),
+          })}
+        />
       </Flexbox>
       {isLoading || isTransitioning ? (
         viewMode === 'masonry' ? (
