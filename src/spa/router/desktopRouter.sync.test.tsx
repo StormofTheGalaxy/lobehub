@@ -108,6 +108,13 @@ describe('desktop router shared definition', () => {
     expect(matches?.map((match) => match.route.path)).not.toContain(':workspaceSlug');
   });
 
+  it.each(mainAreaVariants)('%s registers the business admin route', (_, factory) => {
+    const matches = matchRoutes(createMainAreaRoutes(factory), '/admin/business');
+
+    expect(matches?.at(-1)?.route.path).toBe('admin/business');
+    expect(matches?.map((match) => match.route.path)).not.toContain(':workspaceSlug');
+  });
+
   it.each(mainAreaVariants)(
     '%s personal memory settings are not shadowed by workspace memory routes',
     (_, factory) => {

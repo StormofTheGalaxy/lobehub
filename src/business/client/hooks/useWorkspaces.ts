@@ -28,16 +28,18 @@ export const useWorkspaceListSWR = () => {
 };
 
 export const useWorkspaces = (): WorkspaceListItem[] => {
-  const { data = [] } = useWorkspaceListSWR();
+  const { data = [], error, isLoading } = useWorkspaceListSWR();
 
   useEffect(() => {
+    if (isLoading || error) return;
+
     const activeId = getWorkspaceSnapshot().id ?? hydrateActiveWorkspaceId();
     if (!activeId) return;
 
     const active = data.find((workspace) => workspace.id === activeId);
     if (active) setActiveWorkspaceSnapshot({ id: active.id, slug: active.slug });
     else setActiveWorkspaceSnapshot({ id: null, slug: null });
-  }, [data]);
+  }, [data, error, isLoading]);
 
   return data;
 };

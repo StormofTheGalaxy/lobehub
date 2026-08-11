@@ -938,6 +938,15 @@ const createMainAreaChildrenDefinition = (options: MainAreaRouteOptions = {}): R
     path: 'invite/:token',
   },
 
+  {
+    element: dynamicElement(
+      () => import('@/routes/(main)/admin/business'),
+      'Desktop > Business Admin',
+    ),
+    errorElement: <ErrorBoundary />,
+    path: 'admin/business',
+  },
+
   // Workspace slug routes — `/:workspaceSlug/*` mirrors the shared main area.
   // Must come AFTER all reserved root paths so they don't shadow e.g. /agent.
   {

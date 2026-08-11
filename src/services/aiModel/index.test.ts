@@ -1,7 +1,7 @@
 import { DEFAULT_PROVIDER } from '@lobechat/business-const';
+import { loadModels } from '@lobechat/business-model-bank/model-config';
 import { DEFAULT_SETTINGS } from '@lobechat/config';
 import { DEFAULT_MINI_MODEL, DEFAULT_MODEL } from '@lobechat/const';
-import { LOBE_DEFAULT_MODEL_LIST } from 'model-bank';
 import { DEFAULT_MODEL_PROVIDER_LIST } from 'model-bank/modelProviders';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -83,13 +83,13 @@ describe('Default model configuration', () => {
     expect(match!.enabled, `DEFAULT_PROVIDER "${DEFAULT_PROVIDER}" is not enabled`).toBe(true);
   });
 
-  it('DEFAULT_MODEL should be enabled in LOBE_DEFAULT_MODEL_LIST', () => {
-    const match = LOBE_DEFAULT_MODEL_LIST.find(
+  it('DEFAULT_MODEL should be enabled in the resolved model list', async () => {
+    const match = (await loadModels()).find(
       (m) => m.id === DEFAULT_MODEL && m.providerId === DEFAULT_PROVIDER,
     );
     expect(
       match,
-      `DEFAULT_MODEL "${DEFAULT_PROVIDER}/${DEFAULT_MODEL}" not found in LOBE_DEFAULT_MODEL_LIST`,
+      `DEFAULT_MODEL "${DEFAULT_PROVIDER}/${DEFAULT_MODEL}" not found in resolved models`,
     ).toBeDefined();
     expect(
       match!.enabled,
@@ -97,11 +97,13 @@ describe('Default model configuration', () => {
     ).toBe(true);
   });
 
-  it('DEFAULT_MINI_MODEL should be enabled in LOBE_DEFAULT_MODEL_LIST', () => {
-    const match = LOBE_DEFAULT_MODEL_LIST.find((m) => m.id === DEFAULT_MINI_MODEL);
+  it('DEFAULT_MINI_MODEL should be enabled in the resolved model list', async () => {
+    const match = (await loadModels()).find(
+      (m) => m.id === DEFAULT_MINI_MODEL && m.providerId === DEFAULT_PROVIDER,
+    );
     expect(
       match,
-      `DEFAULT_MINI_MODEL "${DEFAULT_MINI_MODEL}" not found in LOBE_DEFAULT_MODEL_LIST`,
+      `DEFAULT_MINI_MODEL "${DEFAULT_PROVIDER}/${DEFAULT_MINI_MODEL}" not found in resolved models`,
     ).toBeDefined();
     expect(match!.enabled, `DEFAULT_MINI_MODEL "${DEFAULT_MINI_MODEL}" is not enabled`).toBe(true);
   });

@@ -53,6 +53,7 @@ export const useResourceAccess = (
     resourceType === 'agent' && !!resourceId && builtinAgentSlugs.has(resourceId);
   const blockedByResourceScope =
     !!workspaceId &&
+    !!resourceId &&
     (!hasKnownResourceWorkspace ||
       resolvedResourceWorkspaceId !== workspaceId ||
       unresolvedBuiltinSlug);

@@ -129,15 +129,18 @@ describe('useWorkspaceUrlSync (desktop)', () => {
     expect(switchToPersonal).toHaveBeenCalled();
   });
 
-  it.each(['/agents', '/downloads'])('treats %s as a personal root route', (url) => {
-    vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');
-    setTabs([{ id: 'a', url }], 'a');
+  it.each(['/acceptance/report-1', '/agents', '/downloads'])(
+    'treats %s as a personal root route',
+    (url) => {
+      vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');
+      setTabs([{ id: 'a', url }], 'a');
 
-    renderHook(() => useWorkspaceUrlSync(), { wrapper });
+      renderHook(() => useWorkspaceUrlSync(), { wrapper });
 
-    expect(switchToPersonal).toHaveBeenCalled();
-    expect(switchWorkspace).not.toHaveBeenCalled();
-  });
+      expect(switchToPersonal).toHaveBeenCalled();
+      expect(switchWorkspace).not.toHaveBeenCalled();
+    },
+  );
 
   it('clears stale workspace context for an unknown slug', () => {
     vi.spyOn(useActiveWorkspaceIdModule, 'useActiveWorkspaceId').mockReturnValue('ws-1');

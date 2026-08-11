@@ -1,22 +1,16 @@
 import { TRPCError } from '@trpc/server';
-import { and, eq, isNull } from 'drizzle-orm';
 
 import { getServerDB } from '@/database/core/db-adaptor';
-import { workspaceMembers } from '@/database/schemas';
+import { RbacModel } from '@/database/models/rbac';
 import { trpc } from '@/libs/trpc/lambda/init';
 
 import { isSuperAdmin } from '../enterprise/superAdmin';
+import { resolveScopedPermissionCodes } from './rbacPermissionCodes';
 
-const OWNER_ACTIONS = new Set(['manage', 'transfer']);
-const WRITE_ACTIONS = new Set(['create', 'delete', 'update']);
+export { resolveScopedPermissionCodes } from './rbacPermissionCodes';
 
-const requiresOwner = (code: string) => {
-  const action = code.split(':').at(-1) ?? '';
-  return OWNER_ACTIONS.has(action);
-};
-
-const assertPermission = async (params: {
-  code: string;
+const assertAnyPermission = async (params: {
+  codes: string[];
   userId?: string | null;
   workspaceId?: string | null;
 }) => {
@@ -26,62 +20,54 @@ const assertPermission = async (params: {
   const db = await getServerDB();
   if (await isSuperAdmin(db, params.userId)) return;
 
-  const membership = await db.query.workspaceMembers.findFirst({
-    where: and(
-      eq(workspaceMembers.workspaceId, params.workspaceId),
-      eq(workspaceMembers.userId, params.userId),
-      isNull(workspaceMembers.deletedAt),
-    ),
+  const rbac = new RbacModel(db, params.userId);
+  const permissionCodes = params.codes.flatMap(resolveScopedPermissionCodes);
+  const allowed = await rbac.hasAnyPermission(permissionCodes, {
+    workspaceId: params.workspaceId,
   });
 
-  if (!membership) throw new TRPCError({ code: 'FORBIDDEN', message: 'Нет доступа к workspace' });
-  const action = params.code.split(':').at(-1) ?? '';
-  if (WRITE_ACTIONS.has(action) && membership.role === 'viewer') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Требуется роль участника workspace' });
-  }
-  if (requiresOwner(params.code) && membership.role !== 'owner') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Требуется роль владельца workspace' });
+  if (!allowed) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: `Missing any of: ${permissionCodes.join(', ')}`,
+    });
   }
 };
 
 export const withRbacPermission = (code: string) =>
   trpc.middleware(async (opts) => {
-    await assertPermission({ code, userId: opts.ctx.userId, workspaceId: opts.ctx.workspaceId });
+    await assertAnyPermission({
+      codes: [code],
+      userId: opts.ctx.userId,
+      workspaceId: opts.ctx.workspaceId,
+    });
 
     return opts.next();
   });
 
 export const withAnyRbacPermission = (codes: string[]) =>
   trpc.middleware(async (opts) => {
-    let lastError: unknown;
-    for (const code of codes) {
-      try {
-        await assertPermission({
-          code,
-          userId: opts.ctx.userId,
-          workspaceId: opts.ctx.workspaceId,
-        });
-        return opts.next();
-      } catch (error) {
-        lastError = error;
-      }
-    }
+    await assertAnyPermission({
+      codes,
+      userId: opts.ctx.userId,
+      workspaceId: opts.ctx.workspaceId,
+    });
 
-    throw lastError;
+    return opts.next();
   });
 
 export const withAllRbacPermissions = (codes: string[]) =>
   trpc.middleware(async (opts) => {
     for (const code of codes) {
-      await assertPermission({ code, userId: opts.ctx.userId, workspaceId: opts.ctx.workspaceId });
+      await assertAnyPermission({
+        codes: [code],
+        userId: opts.ctx.userId,
+        workspaceId: opts.ctx.workspaceId,
+      });
     }
 
     return opts.next();
   });
 
-/**
- * Sugar for the "member-or-owner" gate — in cloud this fans the action code
- * out into the `:all | :owner` scope pair so a member with the `:owner` grant
- * passes alongside an owner with the `:all` grant. OSS no-op.
- */
+/** Expand an unscoped action into the `:all | :owner` alternatives. */
 export const withScopedPermission = (action: string) => withRbacPermission(action);

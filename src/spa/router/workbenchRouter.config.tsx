@@ -6,6 +6,7 @@ import { Outlet, useRouteError } from 'react-router';
 
 import WorkbenchShell, { WorkbenchNamespace } from '@/features/WorkbenchShell';
 import WorkbenchLoading from '@/features/WorkbenchShell/WorkbenchLoading';
+import WorkbenchWorkspaceContext from '@/features/WorkbenchShell/WorkbenchWorkspaceContext';
 import { isChunkLoadError, notifyChunkError } from '@/utils/chunkError';
 
 // Keep this helper local. Importing the shared SPA router helper would pull the
@@ -76,6 +77,14 @@ export const workbenchRoutes: RouteObject[] = [
       {
         element: lazyElement(() => import('@/routes/(workbench)/agent/docs/[docId]')),
         path: 'agent/:aid/docs/:docId',
+      },
+      {
+        element: (
+          <WorkbenchWorkspaceContext>
+            {lazyElement(() => import('@/routes/(workbench)/agent/docs/[docId]'))}
+          </WorkbenchWorkspaceContext>
+        ),
+        path: ':workspaceSlug/agent/:aid/docs/:docId',
       },
       {
         children: [

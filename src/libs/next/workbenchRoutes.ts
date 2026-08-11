@@ -1,4 +1,4 @@
-const AGENT_DOCUMENT_ROUTE = /^\/agent\/[^/]+\/docs\/[^/]+\/?$/;
+const AGENT_DOCUMENT_ROUTE = /^\/(?:[^/]+\/)?agent\/[^/]+\/docs\/[^/]+\/?$/;
 const ACCEPTANCE_ROUTE = /^\/acceptance(?:\/[^/]+(?:\/check\/[^/]+)?)?\/?$/;
 
 /** Routes owned by the mobile Workbench SPA at the public URL boundary. */

@@ -6,15 +6,12 @@ class TaskTemplateService {
   };
 
   listDailyRecommend = async (
-    interestKeys: string[],
-    options: { count?: number; locale?: string; refreshSeed?: string } = {},
+    _interestKeys: string[],
+    _options: { count?: number; locale?: string; refreshSeed?: string } = {},
   ) => {
-    return lambdaClient.taskTemplate.listDailyRecommend.query({
-      count: options.count,
-      interestKeys,
-      locale: options.locale,
-      refreshSeed: options.refreshSeed,
-    });
+    // Disabled: remote Market auth and rate limits made this optional Home
+    // surface unstable.
+    return { data: [], success: true as const };
   };
 
   recordCreated = async (templateId: number) => {

@@ -6,6 +6,7 @@ describe('isWorkbenchSpaRoute', () => {
   it.each([
     '/agent/agt_9GOn6nUgGw35/docs/TWuw2YunjhwLblZ7',
     '/agent/agt_9GOn6nUgGw35/docs/TWuw2YunjhwLblZ7/',
+    '/acme/agent/agt_9GOn6nUgGw35/docs/TWuw2YunjhwLblZ7',
     '/acceptance',
     '/acceptance/',
     '/acceptance/acceptance-1',

@@ -85,6 +85,18 @@ describe('useResourceAccess', () => {
     expect(testState.swrKey).toBeNull();
   });
 
+  it('keeps unbound and inbox inputs usable without requesting permissions', () => {
+    const { result } = renderHook(() => useResourceAccess('agent', undefined));
+
+    expect(testState.swrKey).toBeNull();
+    expect(result.current).toMatchObject({
+      canEditResource: true,
+      canManageResource: true,
+      canUseResource: true,
+      isAccessResolved: true,
+    });
+  });
+
   it('does not automatically retry missing or cross-workspace resources', () => {
     renderHook(() => useResourceAccess('agent', 'agent-1'));
 

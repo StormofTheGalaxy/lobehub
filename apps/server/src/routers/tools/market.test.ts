@@ -10,6 +10,7 @@ const mockCreateSandboxService = vi.hoisted(() =>
     callTool: mockSandboxCallTool,
   })),
 );
+const mockTrustedClient = vi.hoisted(() => ({ enabled: false }));
 const mockMarketSDK = vi.hoisted(() => ({
   connect: {
     listConnections: vi.fn(),
@@ -39,6 +40,10 @@ vi.mock('@/libs/trpc/lambda/middleware/marketSDK', () => ({
   requireMarketAuth: vi.fn((opts: any) => opts.next({ ctx: opts.ctx })),
 }));
 
+vi.mock('@/libs/trusted-client', () => ({
+  isTrustedClientEnabled: () => mockTrustedClient.enabled,
+}));
+
 vi.mock('@/server/services/file', () => ({
   FileService: vi.fn(() => ({})),
 }));
@@ -58,6 +63,7 @@ vi.mock('debug', () => ({
 describe('tools marketRouter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTrustedClient.enabled = false;
   });
 
   it('should pass workspace scope when preprocessing sandbox lh commands', async () => {
@@ -99,6 +105,7 @@ describe('tools marketRouter', () => {
   });
 
   it('should request optional Market connections with trusted-client user info', async () => {
+    mockTrustedClient.enabled = true;
     const caller = marketRouter.createCaller({
       marketUserInfo: { userId: 'user-1' },
       userId: 'user-1',
@@ -109,6 +116,16 @@ describe('tools marketRouter', () => {
       connections: [{ id: 'conn-1' }],
     });
     expect(mockMarketSDK.connect.listConnections).toHaveBeenCalledOnce();
+  });
+
+  it('should not treat user info as trusted-client authentication by itself', async () => {
+    const caller = marketRouter.createCaller({
+      marketUserInfo: { userId: 'user-1' },
+      userId: 'user-1',
+    } as any);
+
+    await expect(caller.connectListConnections()).resolves.toEqual({ connections: [] });
+    expect(mockMarketSDK.connect.listConnections).not.toHaveBeenCalled();
   });
 
   it('should fall back to static tools when live discovery fails', async () => {

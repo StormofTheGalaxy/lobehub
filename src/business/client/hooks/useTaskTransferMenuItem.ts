@@ -9,6 +9,4 @@ export const useTaskTransferMenuItem = (taskId?: string): ItemType[] | null =>
     copy: (targetWorkspaceId) =>
       lambdaClient.task.copyTaskToWorkspace.mutate({ targetWorkspaceId, taskId: taskId! }),
     enabled: !!taskId,
-    move: (targetWorkspaceId) =>
-      lambdaClient.task.transferTask.mutate({ targetWorkspaceId, taskId: taskId! }),
   });

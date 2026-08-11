@@ -552,7 +552,8 @@ export const marketRouter = router({
   connectListConnections: lobehubSkillBaseProcedure.query(async ({ ctx }) => {
     log('connectListConnections');
 
-    if (!ctx.marketAccessToken && !ctx.marketUserInfo) return { connections: [] };
+    const hasTrustedClientAuth = isTrustedClientEnabled() && !!ctx.marketUserInfo;
+    if (!ctx.marketAccessToken && !hasTrustedClientAuth) return { connections: [] };
 
     try {
       const response = await listOptionalMarketConnectionsWithTimeout(ctx.marketSDK.connect);

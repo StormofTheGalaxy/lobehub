@@ -65,7 +65,7 @@ export const config = {
     {
       has: [{ key: 'accept', type: 'header', value: '.*text/html.*' }],
       source:
-        '/((?!(?:api|trpc|webapi|market|f|_next|_spa(?:-auth|-workbench)?|spa(?:-auth|-workbench)?|_dangerous_local_dev_proxy|discover)(?:/|$)|.*\\..*).*)',
+        '/((?!(?:api|trpc|webapi|market|f|_next|_spa(?:-auth|-workbench)?|spa(?:-auth|-workbench)?|_dangerous_local_dev_proxy|discover)(?:/|$)|.*\\.(?:avif|css|eot|gif|ico|jpe?g|js|json|map|mjs|png|svg|ttf|txt|webmanifest|webp|woff2?)$).*)',
     },
   ],
 };

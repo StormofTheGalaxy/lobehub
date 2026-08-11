@@ -13,12 +13,14 @@ const matches = (pathname: string, accept = 'text/html') =>
   });
 
 describe('proxy matcher', () => {
-  it.each(['/acme', '/acme/agent/agent-1', '/acme/settings/members'])(
-    'serves workspace deep link %s through the SPA proxy',
-    (pathname) => {
-      expect(matches(pathname)).toBe(true);
-    },
-  );
+  it.each([
+    '/acme',
+    '/acme/agent/agent-1',
+    '/acme/community/model/gpt-4.1',
+    '/acme/settings/members',
+  ])('serves workspace deep link %s through the SPA proxy', (pathname) => {
+    expect(matches(pathname)).toBe(true);
+  });
 
   it.each([
     '/api/auth/session',
