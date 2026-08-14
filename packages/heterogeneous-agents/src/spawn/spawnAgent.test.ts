@@ -171,6 +171,41 @@ describe('spawnAgent', () => {
     expect(spawnCalls).toHaveLength(0);
   });
 
+  it('spawns Cursor with positional prompt, resume, native args, and no stdin payload', async () => {
+    const fake = createFakeProc();
+    nextFakeProc = fake.proc;
+    const { spawnAgent } = await import('./spawnAgent');
+    await spawnAgent({
+      agentType: 'cursor',
+      extraArgs: ['--model', 'sonnet', '--mode', 'plan'],
+      operationId: 'op-cursor',
+      prompt: 'do a thing',
+      resumeSessionId: 'cursor-session',
+    });
+
+    expect(spawnCalls[0]).toMatchObject({
+      args: [
+        '-p',
+        '--force',
+        '--trust',
+        '--output-format',
+        'stream-json',
+        '--stream-partial-output',
+        '--resume',
+        'cursor-session',
+        '--model',
+        'sonnet',
+        '--mode',
+        'plan',
+        '--',
+        'do a thing',
+      ],
+      command: 'agent',
+    });
+    expect(fake.stdinWrites).toEqual([]);
+    expect(fake.proc.stdin.end).toHaveBeenCalledOnce();
+  });
+
   it('passes --include-partial-messages only when includePartialMessages=true', async () => {
     nextFakeProc = createFakeProc().proc;
     const { spawnAgent } = await import('./spawnAgent');
@@ -242,6 +277,33 @@ describe('spawnAgent', () => {
     });
   });
 
+  it('spawns CodeBuddy with its stream-json protocol, resume id, and stable headless env', async () => {
+    nextFakeProc = createFakeProc().proc;
+    const { spawnAgent } = await import('./spawnAgent');
+    await spawnAgent({
+      agentType: 'codebuddy',
+      operationId: 'op-codebuddy',
+      prompt: 'continue',
+      resumeSessionId: 'cb-prev-123',
+    });
+
+    const { args, command, options } = spawnCalls[0];
+    expect(command).toBe('codebuddy');
+    expect(args).toContain('-p');
+    expect(args).toContain('--input-format');
+    expect(args).toContain('--output-format');
+    expect(args).toContain('--permission-mode');
+    expect(args[args.indexOf('--permission-mode') + 1]).toBe('bypassPermissions');
+    expect(args[args.indexOf('--disallowedTools') + 1]).toBe('AskUserQuestion,Monitor');
+    expect(args[args.indexOf('--resume') + 1]).toBe('cb-prev-123');
+    expect(args).not.toContain('continue');
+    expect(JSON.parse((nextFakeProc as any).stdin.write.mock.calls[0][0].trim())).toMatchObject({
+      message: { content: [{ text: 'continue', type: 'text' }], role: 'user' },
+      type: 'user',
+    });
+    expect(options.env.CODEBUDDY_CODE_DISABLE_BACKGROUND_TASKS).toBe('1');
+  });
+
   it('spawns AMP with its private headless stream-json protocol', async () => {
     nextFakeProc = createFakeProc().proc;
     const { spawnAgent } = await import('./spawnAgent');
@@ -263,6 +325,53 @@ describe('spawnAgent', () => {
       message: { content: [{ text: 'hello', type: 'text' }], role: 'user' },
       type: 'user',
     });
+  });
+
+  it('emits a protocol error when AMP exits zero without a terminal result', async () => {
+    const fake = createFakeProc({ stdoutChunks: [ccInit, ccText] });
+    nextFakeProc = fake.proc;
+    const { spawnAgent } = await import('./spawnAgent');
+    const handle = await spawnAgent({
+      agentType: 'amp',
+      operationId: 'op-amp',
+      prompt: 'hello',
+    });
+    fake.start();
+
+    const events: any[] = [];
+    for await (const event of handle.events) events.push(event);
+    await handle.exit;
+
+    expect(events.some((event) => event.type === 'agent_runtime_end')).toBe(false);
+    expect(events.at(-1)).toMatchObject({
+      data: {
+        agentType: 'amp',
+        code: 'protocol_error',
+        details: { expectedEventType: 'result', sessionId: 'cc-1' },
+      },
+      operationId: 'op-amp',
+      type: 'error',
+    });
+  });
+
+  it('does not classify a user-killed AMP process as a missing-result protocol error', async () => {
+    const fake = createFakeProc({ stdoutChunks: [ccInit] });
+    nextFakeProc = fake.proc;
+    const { spawnAgent } = await import('./spawnAgent');
+    const handle = await spawnAgent({
+      agentType: 'amp',
+      operationId: 'op-amp-cancelled',
+      prompt: 'hello',
+    });
+
+    handle.kill();
+    fake.start();
+
+    const events: any[] = [];
+    for await (const event of handle.events) events.push(event);
+    await handle.exit;
+
+    expect(events.some((event) => event.data?.code === 'protocol_error')).toBe(false);
   });
 
   it('uses `threads continue <id>` before AMP execution flags on resume', async () => {
@@ -326,6 +435,21 @@ describe('spawnAgent', () => {
     expect(args[0]).toBe('exec');
   });
 
+  it('rejects an oversized Windows Kimi prompt before spawning the process', async () => {
+    platformMock.mockReturnValue('win32');
+    callExecFile('C:\\Tools\\kimi.exe\r\n');
+
+    const { spawnAgent } = await import('./spawnAgent');
+    await expect(
+      spawnAgent({
+        agentType: 'kimi-code',
+        operationId: 'op-1',
+        prompt: 'a'.repeat(33_000),
+      }),
+    ).rejects.toThrow(/Shorten the prompt or conversation context/);
+    expect(spawnCalls).toHaveLength(0);
+  });
+
   it('uses codex `exec resume` form with thread id + `-` stdin marker on resume', async () => {
     const codexHome = await mkdtemp(path.join(os.tmpdir(), 'lobe-codex-spawn-empty-'));
     tempDirs.push(codexHome);
@@ -362,6 +486,31 @@ describe('spawnAgent', () => {
       'anthropic/claude-sonnet-4',
     ]);
     expect((nextFakeProc as any).stdin.write.mock.calls[0][0]).toBe('hello opencode');
+  });
+
+  it('spawns Kimi Code fresh and resumed with prompt only in argv', async () => {
+    nextFakeProc = createFakeProc().proc;
+    const { spawnAgent } = await import('./spawnAgent');
+    await spawnAgent({
+      agentType: 'kimi-code',
+      extraArgs: ['--model', 'kimi-for-coding'],
+      operationId: 'op-kimi',
+      prompt: 'private prompt',
+      resumeSessionId: 'kimi-session',
+    });
+
+    expect(spawnCalls[0]).toMatchObject({ command: 'kimi' });
+    expect(spawnCalls[0].args).toEqual([
+      '--output-format',
+      'stream-json',
+      '--session',
+      'kimi-session',
+      '--model',
+      'kimi-for-coding',
+      '--prompt',
+      'private prompt',
+    ]);
+    expect((nextFakeProc as any).stdin.write.mock.calls[0][0]).toBe('');
   });
 
   it('spawns OpenCode resume with --session and --file before extra args', async () => {

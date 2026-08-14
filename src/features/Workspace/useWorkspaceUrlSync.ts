@@ -25,6 +25,7 @@ const RESERVED_FIRST_SEGMENTS = new Set([
   'community',
   'memory',
   'page',
+  'project',
   'resource',
   'image',
   'video',

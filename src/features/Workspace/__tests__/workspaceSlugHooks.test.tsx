@@ -123,7 +123,10 @@ describe('useWorkspaceUrlSync', () => {
     expect(state.switchToPersonal).not.toHaveBeenCalled();
   });
 
-  it('leaves the current workspace untouched for an unknown slug', () => {
+  // An unknown slug must not keep the previous workspace active while the 404
+  // boundary renders: every workspace-scoped request fired from that page would
+  // otherwise be pinned to a workspace the URL is not asking for.
+  it('clears workspace context for an unknown slug', () => {
     const state = createState({ activeWorkspaceId: 'ws-1' });
     mockWorkspaceStore(state);
 
@@ -132,7 +135,21 @@ describe('useWorkspaceUrlSync', () => {
     });
 
     expect(state.switchWorkspace).not.toHaveBeenCalled();
-    expect(state.switchToPersonal).not.toHaveBeenCalled();
+    expect(state.switchToPersonal).toHaveBeenCalled();
+  });
+
+  it('keeps a mirrored root segment out of slug resolution', () => {
+    const state = createState({ activeWorkspaceId: 'ws-1' });
+    mockWorkspaceStore(state);
+
+    // `/project/:projectId` is a real root route (upstream #18020), not a
+    // workspace slug — resolving it as one would 404 every project link.
+    renderHook(() => useWorkspaceUrlSync(), {
+      wrapper: createRouteWrapper('/project/proj-1', '*'),
+    });
+
+    expect(state.switchWorkspace).not.toHaveBeenCalled();
+    expect(state.switchToPersonal).toHaveBeenCalled();
   });
 
   it('switches to personal mode on reserved personal routes', () => {

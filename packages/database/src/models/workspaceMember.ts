@@ -75,7 +75,11 @@ export class WorkspaceMemberModel {
         joinedAt: workspaceMembers.joinedAt,
         updatedAt: workspaceMembers.updatedAt,
         deletedAt: workspaceMembers.deletedAt,
+        // Display profile — the members roster and every avatar-bearing member
+        // UI read these; omitting them renders anonymous initials-only rows.
+        avatar: users.avatar,
         email: users.email,
+        fullName: users.fullName,
         normalizedEmail: users.normalizedEmail,
         username: users.username,
       })

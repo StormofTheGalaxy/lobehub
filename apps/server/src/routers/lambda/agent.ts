@@ -11,7 +11,7 @@ import {
 } from '@/business/server/agent-transfer/jobRunner';
 import { withScopedPermission } from '@/business/server/trpc-middlewares/rbacPermission';
 import { wsCompatProcedure } from '@/business/server/trpc-middlewares/workspaceAuth';
-import { AgentModel } from '@/database/models/agent';
+import { AgentModel, AgentOwnedByGroupError } from '@/database/models/agent';
 import { AGENT_COPY_IN_PROGRESS } from '@/database/models/agentCopyJob';
 import {
   AGENT_TRANSFER_IN_PROGRESS,
@@ -626,8 +626,17 @@ export const agentRouter = router({
       // in the model layer, and (b) hard-force `visibility='public'` when
       // the agent is public — the client tab is a UX aid, not a gate.
       const agentVisibility = await ctx.agentModel.getAgentVisibility(input.agentId);
-      const effectiveVisibility =
-        agentVisibility === 'public' ? ('public' as const) : input.visibility;
+
+      // `visibility` is workspace-scoped. In personal mode buildWorkspaceWhere
+      // ignores the column entirely (every row is implicitly private to its
+      // owner) while the column still defaults to 'public', so forcing a scope
+      // here would filter personal rows by a value that carries no meaning.
+      // Only workspace agents get a visibility scope.
+      const effectiveVisibility = ctx.workspaceId
+        ? agentVisibility === 'public'
+          ? ('public' as const)
+          : input.visibility
+        : undefined;
 
       const knowledgeBases = await ctx.knowledgeBaseModel.query({
         callerAgentVisibility: agentVisibility,
@@ -845,6 +854,23 @@ export const agentRouter = router({
     }),
 
   /**
+   * What moving these agents would do to the chat groups they are in.
+   *
+   * Asked before the move, because both outcomes are invisible otherwise: a
+   * transfer drops every group link the agent holds — historically without a
+   * word — and a group-owned agent cannot be moved at all. The mutation
+   * enforces the second case regardless; this endpoint exists so the user
+   * learns about it while they can still choose differently.
+   */
+  getGroupMembershipImpact: agentProcedure
+    .input(z.object({ agentIds: z.array(z.string()).min(1).max(100) }))
+    .query(async ({ input, ctx }) =>
+      // Reports only on agents the caller can see — the model does that scoping
+      // itself, because the guard path deliberately does not.
+      ctx.agentModel.getGroupMembershipImpact(input.agentIds),
+    ),
+
+  /**
    * The user opened a topic whose history is still migrating — jump it to the
    * front of the backfill queue. Returns whether the topic was still pending
    * (false → already migrated, the client can refetch messages immediately).
@@ -967,6 +993,15 @@ export const agentRouter = router({
             cause: { data: { code: TransferErrorCode.OwnerOnly } },
             code: 'FORBIDDEN',
             message: "Only workspace owners can transfer an agent carrying others' conversations",
+          });
+        }
+        if (error instanceof AgentOwnedByGroupError) {
+          throw new TRPCError({
+            // The group list travels with the code: "this agent belongs to a
+            // group" is only actionable once the user knows which group.
+            cause: { data: { code: TransferErrorCode.AgentOwnedByGroup, groups: error.groups } },
+            code: 'CONFLICT',
+            message: 'This agent belongs to a chat group and cannot be moved on its own',
           });
         }
         if (error instanceof Error && error.message === AGENT_COPY_IN_PROGRESS) {
@@ -1129,6 +1164,13 @@ export const agentRouter = router({
             cause: { data: { code: TransferErrorCode.OwnerOnly } },
             code: 'FORBIDDEN',
             message: "Only workspace owners can transfer agents carrying others' conversations",
+          });
+        }
+        if (error instanceof AgentOwnedByGroupError) {
+          throw new TRPCError({
+            cause: { data: { code: TransferErrorCode.AgentOwnedByGroup, groups: error.groups } },
+            code: 'CONFLICT',
+            message: 'One of these agents belongs to a chat group and cannot be moved on its own',
           });
         }
         if (error instanceof Error && error.message === AGENT_COPY_IN_PROGRESS) {

@@ -1,3 +1,5 @@
+import type { TopicGroupMode } from '../topic/topic';
+
 export interface HeterogeneousAgentAuthDescriptor {
   docsUrl: string;
   errorMessage: string;
@@ -19,6 +21,13 @@ export interface HeterogeneousAgentInstallDescriptor {
 export interface LocalHeterogeneousAgentDescriptor {
   auth: HeterogeneousAgentAuthDescriptor;
   defaultCommand: string;
+  /**
+   * Topic-list grouping the agent's conversations fall back to when neither the
+   * agent nor the user has pinned an explicit mode. CLI agents run anchored to a
+   * working directory, so folder-based `byProject` grouping is the natural
+   * default for them. Omit to inherit the global user preference.
+   */
+  defaultTopicGroupMode?: TopicGroupMode;
   iconId: string;
   install: HeterogeneousAgentInstallDescriptor;
   kind: 'local-cli';
@@ -50,6 +59,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'amp login',
     },
     defaultCommand: 'amp',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'Amp',
     install: {
       commands: [
@@ -78,6 +88,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'claude',
     },
     defaultCommand: 'claude',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'ClaudeCode',
     install: {
       commands: [
@@ -95,6 +106,35 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
   },
   {
     auth: {
+      docsUrl: 'https://www.codebuddy.ai/docs/cli/installation',
+      errorMessage: 'CodeBuddy could not authenticate. Run `codebuddy`, use `/login`, then retry.',
+      patterns: [
+        ...COMMON_AUTH_REQUIRED_PATTERNS,
+        'authentication required',
+        'please use \\/login',
+        'not logged in',
+      ],
+      signInCommand: 'codebuddy',
+    },
+    defaultCommand: 'codebuddy',
+    defaultTopicGroupMode: 'byProject',
+    iconId: 'CodeBuddy',
+    install: {
+      commands: [
+        'npm install -g @tencent-ai/codebuddy-code',
+        'brew install Tencent-CodeBuddy/tap/codebuddy-code',
+      ],
+      docsUrl: 'https://www.codebuddy.ai/docs/cli/installation',
+    },
+    kind: 'local-cli',
+    menuKey: 'newCodeBuddyAgent',
+    menuLabelKey: 'newCodeBuddyAgent',
+    resume: { supported: true },
+    title: 'CodeBuddy',
+    type: 'codebuddy',
+  },
+  {
+    auth: {
       docsUrl: 'https://github.com/openai/codex#installing-and-running-codex-cli',
       errorMessage:
         'Codex could not authenticate. Sign in again or refresh its credentials, then retry.',
@@ -102,6 +142,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'codex',
     },
     defaultCommand: 'codex',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'Codex',
     install: {
       commands: ['npm install -g @openai/codex', 'brew install --cask codex'],
@@ -116,6 +157,51 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
   },
   {
     auth: {
+      docsUrl: 'https://cursor.com/docs/cli/installation',
+      errorMessage: 'Cursor could not authenticate. Run `agent login`, then retry.',
+      patterns: [...COMMON_AUTH_REQUIRED_PATTERNS, 'authentication required', 'not logged in'],
+      signInCommand: 'agent login',
+    },
+    defaultCommand: 'agent',
+    defaultTopicGroupMode: 'byProject',
+    iconId: 'Cursor',
+    install: {
+      commands: ['curl https://cursor.com/install -fsS | bash'],
+      docsUrl: 'https://cursor.com/docs/cli/installation',
+    },
+    kind: 'local-cli',
+    menuKey: 'newCursorAgent',
+    menuLabelKey: 'newCursorAgent',
+    resume: { supported: true },
+    title: 'Cursor',
+    type: 'cursor',
+  },
+  {
+    auth: {
+      docsUrl: 'https://moonshotai.github.io/kimi-code/en/',
+      errorMessage: 'Kimi Code could not authenticate. Run `kimi`, use `/login`, then retry.',
+      patterns: [...COMMON_AUTH_REQUIRED_PATTERNS, 'no model configured'],
+      signInCommand: 'kimi',
+    },
+    defaultCommand: 'kimi',
+    defaultTopicGroupMode: 'byProject',
+    iconId: 'Kimi',
+    install: {
+      commands: [
+        'curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash',
+        'irm https://code.kimi.com/kimi-code/install.ps1 | iex',
+      ],
+      docsUrl: 'https://moonshotai.github.io/kimi-code/en/',
+    },
+    kind: 'local-cli',
+    menuKey: 'newKimiCodeAgent',
+    menuLabelKey: 'newKimiCodeAgent',
+    resume: { supported: true },
+    title: 'Kimi Code',
+    type: 'kimi-code',
+  },
+  {
+    auth: {
       docsUrl: 'https://opencode.ai/docs',
       errorMessage:
         'OpenCode could not authenticate. Sign in again or refresh its credentials, then retry.',
@@ -127,6 +213,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'opencode auth login',
     },
     defaultCommand: 'opencode',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'OpenCode',
     install: {
       commands: ['curl -fsSL https://opencode.ai/install | bash'],
@@ -150,6 +237,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'pi',
     },
     defaultCommand: 'pi',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'Pi',
     install: {
       commands: ['npm install -g @earendil-works/pi-coding-agent'],
@@ -170,6 +258,7 @@ export const HETEROGENEOUS_AGENT_CONFIGS = [
       signInCommand: 'qodercli login',
     },
     defaultCommand: 'qodercli',
+    defaultTopicGroupMode: 'byProject',
     iconId: 'Qoder',
     install: {
       commands: [

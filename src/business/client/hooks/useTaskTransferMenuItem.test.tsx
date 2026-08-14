@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useTaskTransferMenuItem } from './useTaskTransferMenuItem';
 
 const mocks = vi.hoisted(() => ({
-  useWorkspaceTransferItems: vi.fn(() => []),
+  useWorkspaceTransferItems: vi.fn((_params: Record<string, unknown>) => []),
 }));
 
 vi.mock('@/libs/trpc/client', () => ({
@@ -16,6 +16,8 @@ vi.mock('./useWorkspaceTransferItems', () => ({
 }));
 
 describe('useTaskTransferMenuItem', () => {
+  // `task.transferTask` is a hard 400 upstream ("no longer supported; use
+  // copyTaskToWorkspace instead") — offering a Move entry would only ever fail.
   it('offers copy only because task transfer is not supported', () => {
     renderHook(() => useTaskTransferMenuItem('task-1'));
 

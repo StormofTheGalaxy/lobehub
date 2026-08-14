@@ -5,7 +5,7 @@
 export const LOBE_CHAT_CLOUD = 'Acensus Cloud';
 
 export const BRANDING_NAME = 'Acensus';
-export const BRANDING_LOGO_URL = '/icons/acensus-logo.svg';
+export const BRANDING_LOGO_URL = '/app-icons/acensus-logo.svg';
 
 export const ORG_NAME = 'Acensus';
 

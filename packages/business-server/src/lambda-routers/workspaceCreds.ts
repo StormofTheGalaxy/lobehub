@@ -101,7 +101,7 @@ export const workspaceCredsRouter = router({
         key: z.string().min(1).max(100),
         name: z.string().min(1).max(255),
         type: z.enum(['kv-env', 'kv-header']),
-        values: z.record(z.string()),
+        values: z.record(z.string(), z.string()),
         workspaceId: z.string().optional(),
       }),
     )
@@ -271,7 +271,7 @@ export const workspaceCredsRouter = router({
         description: z.string().optional(),
         id: z.number(),
         name: z.string().optional(),
-        values: z.record(z.string()).optional(),
+        values: z.record(z.string(), z.string()).optional(),
         workspaceId: z.string().optional(),
       }),
     )

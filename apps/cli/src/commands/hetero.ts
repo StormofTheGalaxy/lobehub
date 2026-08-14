@@ -35,6 +35,9 @@ import { TrpcIngestSink } from '../utils/TrpcIngestSink';
 
 export const SUPPORTED_AGENT_TYPES = new Set<string>(LOCAL_HETEROGENEOUS_AGENT_TYPES);
 const SUPPORTED_AGENT_TITLES = HETEROGENEOUS_AGENT_CONFIGS.map(({ title }) => title).join(' / ');
+const SUPPORTED_AGENT_COMMANDS = HETEROGENEOUS_AGENT_CONFIGS.map(
+  ({ defaultCommand }) => `\`${defaultCommand}\``,
+).join(', ');
 const CODEX_REASONING_EFFORT_CONFIG_KEY = 'model_reasoning_effort';
 const CODEX_SERVICE_TIER_CONFIG_KEY = 'service_tier';
 
@@ -129,18 +132,22 @@ const buildExtraArgs = (
               : []),
             ...(options.speed ? ['-c', `${CODEX_SERVICE_TIER_CONFIG_KEY}="${options.speed}"`] : []),
           ]
-        : options.type === 'claude-code'
+        : options.type === 'claude-code' || options.type === 'codebuddy'
           ? [
               ...(options.model ? ['--model', options.model] : []),
               ...(options.effort ? ['--effort', options.effort] : []),
             ]
-          : options.type === 'opencode'
+          : options.type === 'cursor' ||
+              options.type === 'kimi-code' ||
+              options.type === 'opencode' ||
+              options.type === 'pi'
             ? [...(options.model ? ['--model', options.model] : [])]
-            : options.type === 'pi'
-              ? [...(options.model ? ['--model', options.model] : [])]
-              : options.type === 'qoder'
-                ? [...(options.model ? ['--model', options.model] : [])]
-                : [];
+            : options.type === 'qoder'
+              ? [
+                  ...(options.model ? ['--model', options.model] : []),
+                  ...(options.effort ? ['--reasoning-effort', options.effort] : []),
+                ]
+              : [];
   const extraArgs = [...(options.agentArg ?? []), ...selectorArgs];
 
   return extraArgs.length > 0 ? extraArgs : undefined;
@@ -899,7 +906,10 @@ const exec = async (options: ExecOptions): Promise<void> => {
   }
   if (askMcpConfigPath) await unlink(askMcpConfigPath).catch(() => {});
 
-  if (code !== null) process.exit(result.ingestError ? 1 : code);
+  if (code !== null) {
+    const hasRunError = result.ingestError || (!result.cancelled && result.sawTerminalError);
+    process.exit(hasRunError ? 1 : code);
+  }
   if (signal === 'SIGINT') process.exit(130);
   if (signal === 'SIGTERM') process.exit(143);
   if (signal === 'SIGKILL') process.exit(137);
@@ -944,7 +954,7 @@ export function registerHeteroCommand(program: Command) {
     )
     .option(
       '-c, --command <bin>',
-      'Override the agent CLI binary name (default: `amp`, `claude`, `codex`, `opencode`, `pi`, or `qodercli`)',
+      `Override the agent CLI binary name (defaults: ${SUPPORTED_AGENT_COMMANDS})`,
     )
     .option(
       '--operation-id <id>',

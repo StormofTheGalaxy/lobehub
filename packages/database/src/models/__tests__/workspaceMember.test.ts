@@ -167,6 +167,25 @@ describe('WorkspaceMemberModel', () => {
       expect(rows).toHaveLength(1);
       expect(rows[0].email).toBe('member@example.com');
     });
+
+    // The members roster and every member-avatar surface read these columns;
+    // omitting them renders anonymous, initials-only rows.
+    it('joins the display profile (avatar, full name) from the users table', async () => {
+      await serverDB
+        .update(users)
+        .set({ avatar: 'https://example.com/a.png', fullName: 'Ada Lovelace' })
+        .where(eq(users.id, memberId));
+
+      const model = new WorkspaceMemberModel(serverDB, inviterId);
+      await model.addMember({ userId: memberId, workspaceId });
+
+      const rows = await model.listMembers(workspaceId);
+
+      expect(rows[0]).toMatchObject({
+        avatar: 'https://example.com/a.png',
+        fullName: 'Ada Lovelace',
+      });
+    });
   });
 
   describe('removeMember', () => {

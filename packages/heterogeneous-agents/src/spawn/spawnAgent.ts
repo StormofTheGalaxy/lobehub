@@ -13,7 +13,7 @@ import type { AgentPromptInput, BuildAgentInputOptions } from './input';
 import { buildAgentInput } from './input';
 
 export interface SpawnAgentOptions {
-  /** Agent type key (`'amp'` | `'claude-code'` | `'codex'` | `'opencode'` | `'pi'` | `'qoder'`). */
+  /** Registered local heterogeneous-agent type key. */
   agentType: string;
   /**
    * Override the CLI binary name. Defaults to the agent's standard executable.
@@ -138,6 +138,24 @@ export const CLAUDE_CODE_BASE_ARGS = [
   CLAUDE_CODE_DISALLOWED_TOOLS.join(','),
 ] as const;
 
+/**
+ * Headless CodeBuddy stream-json flags shared by desktop and `lh hetero exec`.
+ * Interactive questions and background monitoring cannot be serviced reliably
+ * by a one-shot print-mode process, so disable both tools.
+ */
+const CODEBUDDY_DISALLOWED_TOOLS = ['AskUserQuestion', 'Monitor'] as const;
+
+export const CODEBUDDY_BASE_ARGS = [
+  '-p',
+  '--input-format',
+  'stream-json',
+  '--output-format',
+  'stream-json',
+  '--verbose',
+  '--disallowedTools',
+  CODEBUDDY_DISALLOWED_TOOLS.join(','),
+] as const;
+
 // bypassPermissions is blocked when running as root (e.g. cloud sandbox).
 // Fall back to acceptEdits + pre-approved tools so the agent can still run
 // headlessly without interactive permission prompts.
@@ -179,8 +197,18 @@ export const AMP_BASE_ARGS = [
   '--no-archive-after-execute',
 ] as const;
 
+export const CURSOR_BASE_ARGS = [
+  '-p',
+  '--force',
+  '--trust',
+  '--output-format',
+  'stream-json',
+  '--stream-partial-output',
+] as const;
+
 export const OPENCODE_BASE_ARGS = ['run', '--format', 'json', '--thinking', '--auto'] as const;
 export const PI_BASE_ARGS = ['--mode', 'json'] as const;
+export const KIMI_CODE_BASE_ARGS = ['--output-format', 'stream-json'] as const;
 export const QODER_BASE_ARGS = [
   '-p',
   '--input-format',
@@ -203,6 +231,8 @@ interface BuildSpawnArgsParams {
   includePartialMessages: boolean;
   /** Per-agent input args produced by `buildAgentInput` (e.g. Codex `--image`). */
   inputArgs: string[];
+  /** Text payload produced by `buildAgentInput`; Cursor passes it positionally. */
+  inputText: string;
   /** Native session id for resume; undefined for fresh runs. */
   resumeSessionId: string | undefined;
 }
@@ -216,6 +246,21 @@ const buildClaudeCodeArgs = ({
   ...CLAUDE_CODE_BASE_ARGS,
   ...(includePartialMessages ? ['--include-partial-messages'] : []),
   ...CLAUDE_CODE_PERMISSION_ARGS(),
+  ...(resumeSessionId ? ['--resume', resumeSessionId] : []),
+  ...inputArgs,
+  ...extraArgs,
+];
+
+const buildCodeBuddyArgs = ({
+  extraArgs,
+  includePartialMessages,
+  inputArgs,
+  resumeSessionId,
+}: BuildSpawnArgsParams) => [
+  ...CODEBUDDY_BASE_ARGS,
+  ...(includePartialMessages ? ['--include-partial-messages'] : []),
+  '--permission-mode',
+  'bypassPermissions',
   ...(resumeSessionId ? ['--resume', resumeSessionId] : []),
   ...inputArgs,
   ...extraArgs,
@@ -240,6 +285,20 @@ const buildAmpArgs = ({ extraArgs, inputArgs, resumeSessionId }: BuildSpawnArgsP
     : executionArgs;
 };
 
+const buildCursorArgs = ({
+  extraArgs,
+  inputArgs,
+  inputText,
+  resumeSessionId,
+}: BuildSpawnArgsParams) => [
+  ...CURSOR_BASE_ARGS,
+  ...(resumeSessionId ? ['--resume', resumeSessionId] : []),
+  ...extraArgs,
+  ...inputArgs,
+  '--',
+  inputText,
+];
+
 const buildOpenCodeArgs = ({ extraArgs, inputArgs, resumeSessionId }: BuildSpawnArgsParams) => [
   ...OPENCODE_BASE_ARGS,
   ...(resumeSessionId ? ['--session', resumeSessionId] : []),
@@ -252,6 +311,13 @@ const buildPiArgs = ({ extraArgs, inputArgs, resumeSessionId }: BuildSpawnArgsPa
   ...(resumeSessionId ? ['--session-id', resumeSessionId] : []),
   ...inputArgs,
   ...extraArgs,
+];
+
+const buildKimiCodeArgs = ({ extraArgs, inputArgs, resumeSessionId }: BuildSpawnArgsParams) => [
+  ...KIMI_CODE_BASE_ARGS,
+  ...(resumeSessionId ? ['--session', resumeSessionId] : []),
+  ...extraArgs,
+  ...inputArgs,
 ];
 
 export interface QoderSpawnArgsOptions {
@@ -279,8 +345,17 @@ const buildSpawnArgs = (params: BuildSpawnArgsParams): string[] => {
     case 'claude-code': {
       return buildClaudeCodeArgs(params);
     }
+    case 'codebuddy': {
+      return buildCodeBuddyArgs(params);
+    }
     case 'codex': {
       return buildCodexArgs(params);
+    }
+    case 'cursor': {
+      return buildCursorArgs(params);
+    }
+    case 'kimi-code': {
+      return buildKimiCodeArgs(params);
     }
     case 'opencode': {
       return buildOpenCodeArgs(params);
@@ -325,9 +400,10 @@ const killProcessTree = (proc: ChildProcess, signal: NodeJS.Signals): void => {
 };
 
 /**
- * Spawn an external agent CLI (Amp, Claude Code, Codex, OpenCode, Pi, or Qoder) and yield its stream as
- * unified `AgentStreamEvent`s. Used by `lh hetero exec` for both standalone
- * terminal runs and (later) sandbox-driven runs that ingest into the server.
+ * Spawn an external agent CLI (Amp, Claude Code, CodeBuddy, Codex, Kimi Code,
+ * OpenCode, Pi, or Qoder) and yield its stream as unified `AgentStreamEvent`s.
+ * Used by `lh hetero exec` for both standalone terminal runs and (later)
+ * sandbox-driven runs that ingest into the server.
  *
  * Stays minimal on purpose — no on-disk tracing, no proxy env composition,
  * no CLI-not-found classification. Those host concerns live in the desktop
@@ -346,6 +422,7 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
     extraArgs: options.extraArgs ?? [],
     includePartialMessages: options.includePartialMessages ?? false,
     inputArgs: inputPlan.args,
+    inputText: inputPlan.stdin,
     resumeSessionId: options.resumeSessionId,
   });
   const cwd = options.cwd || process.cwd();
@@ -355,7 +432,11 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
       workingDirectory: cwd,
     });
   }
-  const childEnv = { ...process.env, ...options.env };
+  const childEnv = {
+    ...process.env,
+    ...(options.agentType === 'codebuddy' ? { CODEBUDDY_CODE_DISABLE_BACKGROUND_TASKS: '1' } : {}),
+    ...options.env,
+  };
   const initialModel =
     options.agentType === 'codex'
       ? (await resolveCodexInitialModel({ args, env: childEnv }))?.model
@@ -390,6 +471,7 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
   // wakeup promise — keeps backpressure simple and avoids a third-party
   // dependency.
   const queue: AgentStreamEvent[] = [];
+  let killedByUs = false;
   let streamEnded = false;
   let streamError: Error | undefined;
   let wakeup: (() => void) | undefined;
@@ -419,9 +501,12 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
   );
 
   if (proc.stdin) {
-    proc.stdin.write(inputPlan.stdin, () => {
-      proc.stdin?.end();
-    });
+    if (options.agentType === 'cursor') proc.stdin.end();
+    else {
+      proc.stdin.write(inputPlan.stdin, () => {
+        proc.stdin?.end();
+      });
+    }
   }
 
   // ALL pipeline work — push / flush — runs through this single chain so:
@@ -454,6 +539,10 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
       try {
         const events = await pipeline.flush();
         for (const event of events) queue.push(event);
+        const { code } = await exit;
+        if (code === 0 && !killedByUs) {
+          for (const event of pipeline.validateCompletion()) queue.push(event);
+        }
       } catch (err) {
         streamError = err instanceof Error ? err : new Error(String(err));
       } finally {
@@ -510,7 +599,10 @@ export const spawnAgent = async (options: SpawnAgentOptions): Promise<SpawnAgent
   return {
     events,
     exit,
-    kill: (signal: NodeJS.Signals = 'SIGINT') => killProcessTree(proc, signal),
+    kill: (signal: NodeJS.Signals = 'SIGINT') => {
+      killedByUs = true;
+      killProcessTree(proc, signal);
+    },
     pid: proc.pid,
     get sessionId() {
       return pipeline.sessionId;

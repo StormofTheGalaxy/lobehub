@@ -5,6 +5,7 @@ import { Button } from '@lobehub/ui/base-ui';
 import { createStaticStyles } from 'antd-style';
 import { CheckCircle2, Clock3, ShieldAlert, UsersRound } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { mutate } from 'swr';
 
@@ -48,13 +49,17 @@ type State =
   | { slug: string; status: 'accepted'; workspaceId: string; workspaceName: string };
 
 const InvitePage = () => {
+  const { t } = useTranslation('setting');
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
   const [state, setState] = useState<State>({ status: 'ready' });
 
   const accept = async () => {
     if (!token) {
-      setState({ message: 'Ссылка приглашения неполная или повреждена.', status: 'error' });
+      setState({
+        message: t('workspaceSetting.invitePage.error.missingToken'),
+        status: 'error',
+      });
       return;
     }
 
@@ -62,7 +67,7 @@ const InvitePage = () => {
     try {
       const accepted = await lambdaClient.workspaceMember.acceptInvitation.mutate({ token });
       const workspace = accepted.workspace;
-      if (!workspace) throw new Error('Workspace приглашения не найден.');
+      if (!workspace) throw new Error(t('workspaceSetting.invitePage.error.missingWorkspace'));
 
       await mutate(WORKSPACE_LIST_KEY);
 
@@ -73,7 +78,12 @@ const InvitePage = () => {
         workspaceName: workspace.name || workspace.slug,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Не удалось принять приглашение.';
+      // Server messages are operator-facing English; the guidance below the
+      // headline is what actually tells the user what to do next.
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : t('workspaceSetting.invitePage.error.generic');
       setState({ message, status: 'error' });
     }
   };
@@ -87,37 +97,39 @@ const InvitePage = () => {
           </div>
           <Flexbox gap={4}>
             <Flexbox horizontal gap={8}>
-              <Tag color={state.status === 'error' ? 'red' : 'blue'}>Workspace invite</Tag>
-              {state.status === 'accepting' && <Tag icon={<Clock3 size={12} />}>Проверяем</Tag>}
+              <Tag color={state.status === 'error' ? 'red' : 'blue'}>
+                {t('workspaceSetting.invitePage.badge')}
+              </Tag>
+              {state.status === 'accepting' && (
+                <Tag icon={<Clock3 size={12} />}>{t('workspaceSetting.invitePage.checking')}</Tag>
+              )}
             </Flexbox>
             <Text as="h1" style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.1, margin: 0 }}>
               {state.status === 'accepted'
-                ? 'Приглашение принято'
+                ? t('workspaceSetting.invitePage.accepted.title')
                 : state.status === 'error'
-                  ? 'Не удалось принять приглашение'
+                  ? t('workspaceSetting.invitePage.error.title')
                   : state.status === 'accepting'
-                    ? 'Принимаем приглашение'
-                    : 'Вас пригласили в workspace'}
+                    ? t('workspaceSetting.invitePage.accepting.title')
+                    : t('workspaceSetting.invitePage.ready.title')}
             </Text>
           </Flexbox>
         </Flexbox>
 
         {state.status === 'ready' && (
           <Flexbox gap={14}>
-            <Text className={styles.muted}>
-              Нажмите кнопку, чтобы принять приглашение и добавить этот аккаунт в workspace.
-            </Text>
+            <Text className={styles.muted}>{t('workspaceSetting.invitePage.ready.desc')}</Text>
             <Button block type="primary" onClick={accept}>
-              Принять приглашение
+              {t('workspaceSetting.invitePage.ready.accept')}
             </Button>
           </Flexbox>
         )}
 
         {state.status === 'accepting' && (
           <Flexbox gap={14}>
-            <Text className={styles.muted}>Подключаем вас к workspace.</Text>
+            <Text className={styles.muted}>{t('workspaceSetting.invitePage.accepting.desc')}</Text>
             <Button block disabled loading type="primary">
-              Принимаем
+              {t('workspaceSetting.invitePage.accepting.title')}
             </Button>
           </Flexbox>
         )}
@@ -125,8 +137,7 @@ const InvitePage = () => {
         {state.status === 'accepted' && (
           <Flexbox gap={14}>
             <Text className={styles.muted}>
-              Вы добавлены в «{state.workspaceName}». Теперь доступны общие агенты, знания,
-              провайдеры и командные лимиты.
+              {t('workspaceSetting.invitePage.accepted.desc', { name: state.workspaceName })}
             </Text>
             <Button
               block
@@ -136,7 +147,7 @@ const InvitePage = () => {
                 navigate(`/${state.slug}`, { replace: true });
               }}
             >
-              Перейти в workspace
+              {t('workspaceSetting.invitePage.accepted.enter')}
             </Button>
           </Flexbox>
         )}
@@ -147,15 +158,14 @@ const InvitePage = () => {
               <ShieldAlert size={18} />
               <Text>{state.message}</Text>
             </Flexbox>
-            <Text className={styles.muted}>
-              Ссылка могла истечь, быть отозвана владельцем или уже использована. Попросите
-              владельца workspace отправить новое приглашение.
-            </Text>
+            <Text className={styles.muted}>{t('workspaceSetting.invitePage.error.desc')}</Text>
             <Flexbox horizontal gap={8}>
               <Button type="primary" onClick={() => navigate('/', { replace: true })}>
-                На главную
+                {t('workspaceSetting.invitePage.error.home')}
               </Button>
-              <Button onClick={() => globalThis.location.reload()}>Повторить</Button>
+              <Button onClick={() => setState({ status: 'ready' })}>
+                {t('workspaceSetting.invitePage.error.retry')}
+              </Button>
             </Flexbox>
           </Flexbox>
         )}

@@ -111,7 +111,11 @@ const createHarness = (initialSession?: OnboardingUnderstandingSession) => {
     diagnostics,
     sourceCount: 3,
   }));
-  providers.set('github', { collect: githubCollect, id: 'github' });
+  providers.set('github', {
+    collect: githubCollect,
+    connectionSource: 'composio',
+    id: 'github',
+  });
   providers.set('gmail', {
     collect: vi.fn(async () => ({
       context:
@@ -119,6 +123,7 @@ const createHarness = (initialSession?: OnboardingUnderstandingSession) => {
       diagnostics,
       sourceCount: 3,
     })),
+    connectionSource: 'composio',
     id: 'gmail',
   });
 
@@ -168,24 +173,33 @@ const createHarness = (initialSession?: OnboardingUnderstandingSession) => {
             ),
           },
         };
-        return session;
+        return {
+          attempts: providerIds
+            .filter((providerId) => session!.sources[providerId]?.status === 'pending')
+            .map((id) => ({ id, revision: 1 })),
+          session,
+        };
       },
     ),
     failProvider: vi.fn(async () => session!),
     failDetailedWriting: vi.fn(async () => session!),
-    failWriting: vi.fn(async ({ error, sourceFingerprint }) => {
-      session = {
-        ...session!,
-        writing: {
-          error,
-          resultMessageId: session?.writing?.resultMessageId,
-          sourceFingerprint,
-          status: 'failed',
-          updatedAt: '2026-07-20T00:00:00.000Z',
-        },
-      };
-      return session;
-    }),
+    failWriting: vi.fn(
+      async ({ error, feedbackRevision, generationRevision, sourceFingerprint }) => {
+        session = {
+          ...session!,
+          writing: {
+            error,
+            feedbackRevision,
+            generationRevision,
+            resultMessageId: session?.writing?.resultMessageId,
+            sourceFingerprint,
+            status: 'failed',
+            updatedAt: '2026-07-20T00:00:00.000Z',
+          },
+        };
+        return session;
+      },
+    ),
     get: vi.fn(async () => session),
     initialize: vi.fn(async (_topicId: string, sessionId: string, providerIds: string[]) => {
       session = {
@@ -340,6 +354,7 @@ describe('UnderstandingService', () => {
         providers: [{ id: 'gmail', revision: 1 }],
         responseLanguage: 'zh-CN',
         sessionId: 'session-1',
+        startedAt: expect.any(Number),
         topicId: 'topic-1',
         userId: 'user-1',
       },
@@ -352,6 +367,7 @@ describe('UnderstandingService', () => {
         responseLanguage: 'zh-CN',
         sessionId: 'session-1',
         sourceFingerprint: 'github@1',
+        startedAt: expect.any(Number),
         topicId: 'topic-1',
         userId: 'user-1',
       },
@@ -415,6 +431,7 @@ describe('UnderstandingService', () => {
         ],
         responseLanguage: 'zh-CN',
         sessionId: 'session-new',
+        startedAt: expect.any(Number),
         topicId: 'topic-1',
         userId: 'user-1',
       },
@@ -479,6 +496,52 @@ describe('UnderstandingService', () => {
       expect.objectContaining({
         providers: [{ id: 'github', revision: 1 }],
       }),
+      expect.any(Object),
+    );
+  });
+
+  /** @example Reconciliation dispatches only GitHub after Gmail fails for missing permission. */
+  it('dispatches only provider attempts selected by atomic reconciliation', async () => {
+    // ROOT CAUSE:
+    //
+    // Retrying a failed Understanding session operated only on its original provider manifest, so
+    // a GitHub connection added after navigating backward was never dispatched. Retrying each failed
+    // source independently also repeated non-retryable Gmail permission failures.
+    //
+    // We fixed this by letting the repository return the exact running revisions to dispatch.
+    const gmail = {
+      ...providerState('failed', 1),
+      errors: [
+        {
+          code: 'GMAIL_READ_PERMISSION_REQUIRED',
+          message: 'Gmail read permission is required',
+          operation: 'permission',
+          provider: 'gmail',
+          retryable: false,
+        },
+      ],
+      failedCount: 1,
+    };
+    const next = createSession({ github: providerState('running', 1), gmail });
+    const harness = createHarness(createSession({ gmail }));
+    harness.repository.extend.mockImplementationOnce(async () => {
+      harness.setSession(next);
+      return { attempts: [{ id: 'github', revision: 1 }], session: next };
+    });
+
+    await expect(
+      harness.service.revise({
+        providerIds: ['gmail', 'github'],
+        responseLanguage: 'zh-CN',
+        sessionId: 'session-1',
+        topicId: 'topic-1',
+      }),
+    ).resolves.toMatchObject({
+      sources: { github: { status: 'running' }, gmail: { status: 'failed' } },
+    });
+
+    expect(mockTriggerProviders).toHaveBeenCalledWith(
+      expect.objectContaining({ providers: [{ id: 'github', revision: 1 }] }),
       expect.any(Object),
     );
   });
@@ -736,7 +799,8 @@ describe('UnderstandingService', () => {
     expect(harness.generateObject).not.toHaveBeenCalled();
   });
 
-  it('ignores a writing failure before a generation is prepared', async () => {
+  /** @example A workflow failure after collection creates a terminal writing state. */
+  it('records a writing failure before a generation is prepared', async () => {
     const harness = createHarness(createSession({ github: providerState('completed', 1) }));
 
     await expect(
@@ -745,9 +809,22 @@ describe('UnderstandingService', () => {
         sourceFingerprint: 'github@1',
         topicId: 'topic-1',
       }),
-    ).resolves.toBeUndefined();
+    ).resolves.toMatchObject({
+      writing: {
+        feedbackRevision: 0,
+        generationRevision: 0,
+        sourceFingerprint: 'github@1',
+        status: 'failed',
+      },
+    });
     expect(harness.repository.prepareWriting).not.toHaveBeenCalled();
-    expect(harness.repository.failWriting).not.toHaveBeenCalled();
+    expect(harness.repository.failWriting).toHaveBeenCalledWith(
+      expect.objectContaining({
+        feedbackRevision: 0,
+        generationRevision: 0,
+        sourceFingerprint: 'github@1',
+      }),
+    );
   });
 
   it.each([

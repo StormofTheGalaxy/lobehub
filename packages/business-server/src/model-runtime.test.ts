@@ -13,6 +13,11 @@ const serverDB: LobeChatDatabase = await getTestDB();
 const userId = 'business-runtime-user';
 const workspaceId = 'business-runtime-workspace';
 
+// The business hooks only read the credit balance — they never touch the
+// runtime payload or context — so both are stubbed to keep call sites typed.
+const payload = {} as never;
+const context = {} as never;
+
 const cleanup = async () => {
   await serverDB.delete(workspaces);
   await serverDB.delete(userSettings);
@@ -41,7 +46,7 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai', workspaceId);
 
-    await expect(hooks.beforeChat?.()).rejects.toMatchObject({
+    await expect(hooks.beforeChat?.(payload)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('risk control') }),
     });
   });
@@ -57,11 +62,11 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai', workspaceId);
 
-    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 6 } } as never)).rejects.toMatchObject(
-      {
-        error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
-      },
-    );
+    await expect(
+      hooks.onChatFinal?.({ usage: { totalTokens: 6 } } as never, context),
+    ).rejects.toMatchObject({
+      error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
+    });
 
     const workspace = await serverDB.query.workspaces.findFirst({
       columns: { settings: true },
@@ -72,7 +77,7 @@ describe('getBusinessModelRuntimeHooks', () => {
       creditLedger: [expect.objectContaining({ amount: -5, balanceAfter: 0 })],
     });
 
-    await expect(hooks.beforeChat?.()).rejects.toMatchObject({
+    await expect(hooks.beforeChat?.(payload)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
     });
   });
@@ -89,11 +94,11 @@ describe('getBusinessModelRuntimeHooks', () => {
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai');
 
-    await expect(hooks.onChatFinal?.({ usage: { totalTokens: 8 } } as never)).rejects.toMatchObject(
-      {
-        error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
-      },
-    );
+    await expect(
+      hooks.onChatFinal?.({ usage: { totalTokens: 8 } } as never, context),
+    ).rejects.toMatchObject({
+      error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
+    });
 
     const settings = await serverDB.query.userSettings.findFirst({
       columns: { market: true },
@@ -104,7 +109,7 @@ describe('getBusinessModelRuntimeHooks', () => {
       personalCreditLedger: [expect.objectContaining({ amount: -3, balanceAfter: 0 })],
     });
 
-    await expect(hooks.beforeEmbeddings?.()).rejects.toMatchObject({
+    await expect(hooks.beforeEmbeddings?.(payload)).rejects.toMatchObject({
       error: expect.objectContaining({ message: expect.stringContaining('закончились токены') }),
     });
   });
@@ -120,7 +125,7 @@ describe('getBusinessModelRuntimeHooks', () => {
     });
 
     const hooks = getBusinessModelRuntimeHooks(serverDB, userId, 'openai');
-    await hooks.onEmbeddingsFinal?.({ usage: { total_tokens: 4 } } as never);
+    await hooks.onEmbeddingsFinal?.({ usage: { total_tokens: 4 } } as never, context);
 
     const settings = await serverDB.query.userSettings.findFirst({
       columns: { market: true },

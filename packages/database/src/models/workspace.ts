@@ -1,4 +1,5 @@
-import { and, count, desc, eq, isNull } from 'drizzle-orm';
+import type { WorkspaceApiKeyMemberCreation } from '@lobechat/types';
+import { and, count, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import {
   type NewWorkspace,
@@ -17,7 +18,7 @@ const lockWorkspaceById = async (tx: Transaction, id: string) => {
   return workspace;
 };
 
-const getActiveMembershipRole = async (
+export const getActiveWorkspaceMembershipRole = async (
   db: LobeChatDatabase,
   params: { userId: string; workspaceId: string },
 ): Promise<string | null> => {
@@ -50,7 +51,7 @@ export const hasWorkspaceOwnerAccess = async (
   db: LobeChatDatabase,
   params: { userId: string; workspaceId: string },
 ): Promise<boolean> => {
-  return (await getActiveMembershipRole(db, params)) === 'owner';
+  return (await getActiveWorkspaceMembershipRole(db, params)) === 'owner';
 };
 
 /**
@@ -61,8 +62,28 @@ export const hasWorkspaceAdminAccess = async (
   db: LobeChatDatabase,
   params: { userId: string; workspaceId: string },
 ): Promise<boolean> => {
-  const role = await getActiveMembershipRole(db, params);
+  const role = await getActiveWorkspaceMembershipRole(db, params);
   return role === 'owner' || role === 'admin';
+};
+
+export const hasActiveWorkspaceMembership = async (
+  db: LobeChatDatabase,
+  params: { userId: string; workspaceId: string },
+): Promise<boolean> => {
+  return (await getActiveWorkspaceMembershipRole(db, params)) !== null;
+};
+
+export const getWorkspaceApiKeyMemberCreation = (
+  settings: unknown,
+): WorkspaceApiKeyMemberCreation => {
+  if (!settings || typeof settings !== 'object') return 'all_members';
+
+  const apiKey = (settings as { apiKey?: unknown }).apiKey;
+  if (!apiKey || typeof apiKey !== 'object') return 'all_members';
+
+  return (apiKey as { memberCreation?: unknown }).memberCreation === 'admins_only'
+    ? 'admins_only'
+    : 'all_members';
 };
 
 export class WorkspaceModel {
@@ -164,6 +185,10 @@ export class WorkspaceModel {
     return workspace?.settings ?? {};
   };
 
+  getApiKeyMemberCreation = async (id: string): Promise<WorkspaceApiKeyMemberCreation> => {
+    return getWorkspaceApiKeyMemberCreation(await this.getSettings(id));
+  };
+
   /**
    * Count every workspace this user belongs to — owned + joined. Reads the
    * membership table directly because owners are always inserted as members on
@@ -211,6 +236,22 @@ export class WorkspaceModel {
     return this.db
       .update(workspaces)
       .set({ settings, updatedAt: new Date() })
+      .where(eq(workspaces.id, id));
+  };
+
+  updateApiKeyMemberCreation = async (
+    id: string,
+    memberCreation: WorkspaceApiKeyMemberCreation,
+  ) => {
+    return this.db
+      .update(workspaces)
+      .set({
+        settings: sql`coalesce(${workspaces.settings}, '{}'::jsonb) || jsonb_build_object(
+          'apiKey',
+          coalesce(${workspaces.settings}->'apiKey', '{}'::jsonb) || jsonb_build_object('memberCreation', ${memberCreation}::text)
+        )`,
+        updatedAt: new Date(),
+      })
       .where(eq(workspaces.id, id));
   };
 
