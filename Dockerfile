@@ -8,19 +8,13 @@ ARG USE_CN_MIRROR
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# xmllint (libxml2-utils) нужен инструменту отчётности ФГИС ЛК: он проверяет XML
-# по официальной XSD-схеме Рослесхоза. Его библиотеки не перечисляем вручную —
-# копируем фактические зависимости через ldd, чтобы сборка не ломалась при смене
-# выпуска Debian или архитектуры.
 RUN set -e && \
     if [ "${USE_CN_MIRROR:-false}" = "true" ]; then \
         sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" "/etc/apt/sources.list.d/debian.sources"; \
     fi && \
     apt update && \
-    apt install ca-certificates proxychains-ng libxml2-utils -qy && \
+    apt install ca-certificates proxychains-ng -qy && \
     mkdir -p /distroless/bin /distroless/etc /distroless/etc/ssl/certs /distroless/lib && \
-    cp /usr/bin/xmllint /distroless/bin/xmllint && \
-    ldd /usr/bin/xmllint | awk '/=> \//{print $3}' | xargs -I{} cp -L {} /distroless/lib/ && \
     cp /usr/lib/$(arch)-linux-gnu/libproxychains.so.4 /distroless/lib/libproxychains.so.4 && \
     cp /usr/lib/$(arch)-linux-gnu/libdl.so.2 /distroless/lib/libdl.so.2 && \
     cp /usr/bin/proxychains4 /distroless/bin/proxychains && \
@@ -30,6 +24,34 @@ RUN set -e && \
     cp /usr/lib/$(arch)-linux-gnu/librt.so.1 /distroless/lib/librt.so.1 && \
     cp /usr/local/bin/node /distroless/bin/node && \
     cp /etc/ssl/certs/ca-certificates.crt /distroless/etc/ssl/certs/ca-certificates.crt && \
+    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
+
+## xmllint for the FGIS LK reporting tool.
+##
+## Built on trixie to match busybox: the official busybox glibc image is itself
+## built from debian:trixie-slim, and the final image takes its shell and its libc
+## from there. `base` is node:*-slim, which is bookworm (glibc 2.36) — copying its
+## glibc into the final image downgrades the runtime and breaks even /bin/sh, so
+## glibc is never copied here, only libxml2 and its own dependencies.
+## Trixie's libxml2 additionally drops the ICU dependency that bookworm's carries,
+## keeping ~36 MB out of every image; what lands is ~2 MB.
+FROM debian:trixie-slim AS xmltools
+
+ARG USE_CN_MIRROR
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+RUN set -e && \
+    if [ "${USE_CN_MIRROR:-false}" = "true" ]; then \
+        sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" "/etc/apt/sources.list.d/debian.sources"; \
+    fi && \
+    apt update && \
+    apt install libxml2-utils -qy --no-install-recommends && \
+    mkdir -p /xmltools/bin /xmltools/lib && \
+    cp /usr/bin/xmllint /xmltools/bin/xmllint && \
+    ldd /usr/bin/xmllint | awk '/=> \//{print $3}' | \
+        grep -Ev '/(libc|libm|libpthread|libdl|librt)\.so' | \
+        xargs -I{} cp -L {} /xmltools/lib/ && \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
 ## Builder image, install all the dependencies and build the app
@@ -103,6 +125,9 @@ RUN npm run build:docker
 FROM busybox:latest AS app
 
 COPY --from=base /distroless/ /
+# xmllint + its own libraries (never glibc — busybox provides it, same trixie build)
+COPY --from=xmltools /xmltools/bin/ /bin/
+COPY --from=xmltools /xmltools/lib/ /lib/
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
