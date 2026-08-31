@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/country/types/2.0.1" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/country/types/2.0.1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--created: 2026-01-21T14:47:20+0300-->
+    <xs:simpleType name="CountryKindEType">
+        <xs:annotation>
+            <xs:documentation>Страны мира</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="004">
+                <xs:annotation>
+                    <xs:documentation>Переходное Исламское Государство Афганистан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="008">
+                <xs:annotation>
+                    <xs:documentation>Республика Албания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="012">
+                <xs:annotation>
+                    <xs:documentation>Алжирская Народная Демократическая Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="020">
+                <xs:annotation>
+                    <xs:documentation>Княжество Андорра</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="024">
+                <xs:annotation>
+                    <xs:documentation>Республика Ангола</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="031">
+                <xs:annotation>
+                    <xs:documentation>Республика Азербайджан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="032">
+                <xs:annotation>
+                    <xs:documentation>Аргентинская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="040">
+                <xs:annotation>
+                    <xs:documentation>Австрийская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="044">
+                <xs:annotation>
+                    <xs:documentation>Содружество Багамы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="048">
+                <xs:annotation>
+                    <xs:documentation>Королевство Бахрейн</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="050">
+                <xs:annotation>
+                    <xs:documentation>Народная Республика Бангладеш</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="051">
+                <xs:annotation>
+                    <xs:documentation>Республика Армения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="056">
+                <xs:annotation>
+                    <xs:documentation>Королевство Бельгия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="064">
+                <xs:annotation>
+                    <xs:documentation>Королевство Бутан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="068">
+                <xs:annotation>
+                    <xs:documentation>Многонациональное Государство Боливия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="072">
+                <xs:annotation>
+                    <xs:documentation>Республика Ботсвана</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="076">
+                <xs:annotation>
+                    <xs:documentation>Федеративная Республика Бразилия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="092">
+                <xs:annotation>
+                    <xs:documentation>Британские Виргинские острова</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="100">
+                <xs:annotation>
+                    <xs:documentation>Республика Болгария</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="104">
+                <xs:annotation>
+                    <xs:documentation>Республика Союза Мьянма</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="108">
+                <xs:annotation>
+                    <xs:documentation>Республика Бурунди</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="112">
+                <xs:annotation>
+                    <xs:documentation>Республика Беларусь</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="116">
+                <xs:annotation>
+                    <xs:documentation>Королевство Камбоджа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="120">
+                <xs:annotation>
+                    <xs:documentation>Республика Камерун</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="132">
+                <xs:annotation>
+                    <xs:documentation>Республика Кабо-Верде</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="144">
+                <xs:annotation>
+                    <xs:documentation>Демократическая Социалистическая Республика Шри-Ланка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="148">
+                <xs:annotation>
+                    <xs:documentation>Республика Чад</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="152">
+                <xs:annotation>
+                    <xs:documentation>Республика Чили</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="156">
+                <xs:annotation>
+                    <xs:documentation>Китайская Народная Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="170">
+                <xs:annotation>
+                    <xs:documentation>Республика Колумбия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="174">
+                <xs:annotation>
+                    <xs:documentation>Союз Коморы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="178">
+                <xs:annotation>
+                    <xs:documentation>Республика Конго</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="180">
+                <xs:annotation>
+                    <xs:documentation>Демократическая Республика Конго</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="188">
+                <xs:annotation>
+                    <xs:documentation>Республика Коста-Рика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="191">
+                <xs:annotation>
+                    <xs:documentation>Республика Хорватия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="192">
+                <xs:annotation>
+                    <xs:documentation>Республика Куба</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="196">
+                <xs:annotation>
+                    <xs:documentation>Республика Кипр</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="203">
+                <xs:annotation>
+                    <xs:documentation>Чешская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="204">
+                <xs:annotation>
+                    <xs:documentation>Республика Бенин</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="208">
+                <xs:annotation>
+                    <xs:documentation>Королевство Дания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="212">
+                <xs:annotation>
+                    <xs:documentation>Содружество Доминики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="218">
+                <xs:annotation>
+                    <xs:documentation>Республика Эквадор</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="222">
+                <xs:annotation>
+                    <xs:documentation>Республика Эль-Сальвадор</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="226">
+                <xs:annotation>
+                    <xs:documentation>Республика Экваториальная Гвинея</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="231">
+                <xs:annotation>
+                    <xs:documentation>Федеративная Демократическая Республика Эфиопия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="232">
+                <xs:annotation>
+                    <xs:documentation>Государство Эритрея</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="233">
+                <xs:annotation>
+                    <xs:documentation>Эстонская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="242">
+                <xs:annotation>
+                    <xs:documentation>Республика Фиджи</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="246">
+                <xs:annotation>
+                    <xs:documentation>Финляндская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="250">
+                <xs:annotation>
+                    <xs:documentation>Французская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="262">
+                <xs:annotation>
+                    <xs:documentation>Республика Джибути</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="266">
+                <xs:annotation>
+                    <xs:documentation>Габонская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="275">
+                <xs:annotation>
+                    <xs:documentation>Государство Палестина</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="276">
+                <xs:annotation>
+                    <xs:documentation>Федеративная Республика Германия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="288">
+                <xs:annotation>
+                    <xs:documentation>Республика Гана</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="296">
+                <xs:annotation>
+                    <xs:documentation>Республика Кирибати</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="300">
+                <xs:annotation>
+                    <xs:documentation>Греческая Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="320">
+                <xs:annotation>
+                    <xs:documentation>Республика Гватемала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="324">
+                <xs:annotation>
+                    <xs:documentation>Гвинейская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="332">
+                <xs:annotation>
+                    <xs:documentation>Республика Гаити</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="340">
+                <xs:annotation>
+                    <xs:documentation>Республика Гондурас</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="344">
+                <xs:annotation>
+                    <xs:documentation>Специальный административный район Гонконг Китайской Народной Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="352">
+                <xs:annotation>
+                    <xs:documentation>Республика Исландия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="356">
+                <xs:annotation>
+                    <xs:documentation>Республика Индия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="360">
+                <xs:annotation>
+                    <xs:documentation>Республика Индонезия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="364">
+                <xs:annotation>
+                    <xs:documentation>Исламская Республика Иран</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="368">
+                <xs:annotation>
+                    <xs:documentation>Республика Ирак</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="376">
+                <xs:annotation>
+                    <xs:documentation>Государство Израиль</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="380">
+                <xs:annotation>
+                    <xs:documentation>Итальянская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="384">
+                <xs:annotation>
+                    <xs:documentation>Республика Кот д'Ивуар</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="398">
+                <xs:annotation>
+                    <xs:documentation>Республика Казахстан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="400">
+                <xs:annotation>
+                    <xs:documentation>Иорданское Хашимитское Королевство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="404">
+                <xs:annotation>
+                    <xs:documentation>Республика Кения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="408">
+                <xs:annotation>
+                    <xs:documentation>Корейская Народно-Демократическая Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="410">
+                <xs:annotation>
+                    <xs:documentation>Республика Корея</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="414">
+                <xs:annotation>
+                    <xs:documentation>Государство Кувейт</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="417">
+                <xs:annotation>
+                    <xs:documentation>Киргизская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="422">
+                <xs:annotation>
+                    <xs:documentation>Ливанская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="426">
+                <xs:annotation>
+                    <xs:documentation>Королевство Лесото</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="428">
+                <xs:annotation>
+                    <xs:documentation>Латвийская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="430">
+                <xs:annotation>
+                    <xs:documentation>Республика Либерия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="438">
+                <xs:annotation>
+                    <xs:documentation>Княжество Лихтенштейн</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="440">
+                <xs:annotation>
+                    <xs:documentation>Литовская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="442">
+                <xs:annotation>
+                    <xs:documentation>Великое Герцогство Люксембург</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="446">
+                <xs:annotation>
+                    <xs:documentation>Специальный административный район Макао Китайской Народной Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="450">
+                <xs:annotation>
+                    <xs:documentation>Республика Мадагаскар</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="454">
+                <xs:annotation>
+                    <xs:documentation>Республика Малави</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="462">
+                <xs:annotation>
+                    <xs:documentation>Мальдивская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="466">
+                <xs:annotation>
+                    <xs:documentation>Республика Мали</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="470">
+                <xs:annotation>
+                    <xs:documentation>Республика Мальта</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="478">
+                <xs:annotation>
+                    <xs:documentation>Исламская Республика Мавритания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="480">
+                <xs:annotation>
+                    <xs:documentation>Республика Маврикий</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="484">
+                <xs:annotation>
+                    <xs:documentation>Мексиканские Соединенные Штаты</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="492">
+                <xs:annotation>
+                    <xs:documentation>Княжество Монако</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="498">
+                <xs:annotation>
+                    <xs:documentation>Республика Молдова</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="504">
+                <xs:annotation>
+                    <xs:documentation>Королевство Марокко</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="508">
+                <xs:annotation>
+                    <xs:documentation>Республика Мозамбик</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="512">
+                <xs:annotation>
+                    <xs:documentation>Султанат Оман</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="516">
+                <xs:annotation>
+                    <xs:documentation>Республика Намибия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="520">
+                <xs:annotation>
+                    <xs:documentation>Республика Науру</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="528">
+                <xs:annotation>
+                    <xs:documentation>Королевство Нидерландов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="548">
+                <xs:annotation>
+                    <xs:documentation>Республика Вануату</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="558">
+                <xs:annotation>
+                    <xs:documentation>Республика Никарагуа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="562">
+                <xs:annotation>
+                    <xs:documentation>Республика Нигер</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="566">
+                <xs:annotation>
+                    <xs:documentation>Федеративная Республика Нигерия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="578">
+                <xs:annotation>
+                    <xs:documentation>Королевство Норвегия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="580">
+                <xs:annotation>
+                    <xs:documentation>Содружество Северных Марианских островов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="583">
+                <xs:annotation>
+                    <xs:documentation>Федеративные штаты Микронезии</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="584">
+                <xs:annotation>
+                    <xs:documentation>Республика Маршалловы Острова</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="585">
+                <xs:annotation>
+                    <xs:documentation>Республика Палау</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="586">
+                <xs:annotation>
+                    <xs:documentation>Исламская Республика Пакистан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="591">
+                <xs:annotation>
+                    <xs:documentation>Республика Панама</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="598">
+                <xs:annotation>
+                    <xs:documentation>Независимое Государство Папуа Новая Гвинея</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="600">
+                <xs:annotation>
+                    <xs:documentation>Республика Парагвай</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="604">
+                <xs:annotation>
+                    <xs:documentation>Республика Перу</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="608">
+                <xs:annotation>
+                    <xs:documentation>Республика Филиппины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="616">
+                <xs:annotation>
+                    <xs:documentation>Республика Польша</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="620">
+                <xs:annotation>
+                    <xs:documentation>Португальская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="624">
+                <xs:annotation>
+                    <xs:documentation>Республика Гвинея-Бисау</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="626">
+                <xs:annotation>
+                    <xs:documentation>Демократическая Республика Тимор-Лесте</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="634">
+                <xs:annotation>
+                    <xs:documentation>Государство Катар</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="643">
+                <xs:annotation>
+                    <xs:documentation>Российская Федерация</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="646">
+                <xs:annotation>
+                    <xs:documentation>Руандийская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="674">
+                <xs:annotation>
+                    <xs:documentation>Республика Сан-Марино</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="678">
+                <xs:annotation>
+                    <xs:documentation>Демократическая Республика Сан-Томе и Принсипи</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="682">
+                <xs:annotation>
+                    <xs:documentation>Королевство Саудовская Аравия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="686">
+                <xs:annotation>
+                    <xs:documentation>Республика Сенегал</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="688">
+                <xs:annotation>
+                    <xs:documentation>Республика Сербия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="690">
+                <xs:annotation>
+                    <xs:documentation>Республика Сейшелы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="694">
+                <xs:annotation>
+                    <xs:documentation>Республика Сьерра-Леоне</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="702">
+                <xs:annotation>
+                    <xs:documentation>Республика Сингапур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="703">
+                <xs:annotation>
+                    <xs:documentation>Словацкая Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="704">
+                <xs:annotation>
+                    <xs:documentation>Социалистическая Республика Вьетнам</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="705">
+                <xs:annotation>
+                    <xs:documentation>Республика Словения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="706">
+                <xs:annotation>
+                    <xs:documentation>Федеративная Республика Сомали</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="710">
+                <xs:annotation>
+                    <xs:documentation>Южно-Африканская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="716">
+                <xs:annotation>
+                    <xs:documentation>Республика Зимбабве</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="724">
+                <xs:annotation>
+                    <xs:documentation>Королевство Испания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="728">
+                <xs:annotation>
+                    <xs:documentation>Республика Южный Судан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="729">
+                <xs:annotation>
+                    <xs:documentation>Республика Судан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="740">
+                <xs:annotation>
+                    <xs:documentation>Республика Суринам</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="748">
+                <xs:annotation>
+                    <xs:documentation>Королевство Эсватини</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="752">
+                <xs:annotation>
+                    <xs:documentation>Королевство Швеция</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="756">
+                <xs:annotation>
+                    <xs:documentation>Швейцарская Конфедерация</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="762">
+                <xs:annotation>
+                    <xs:documentation>Республика Таджикистан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="764">
+                <xs:annotation>
+                    <xs:documentation>Королевство Таиланд</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="768">
+                <xs:annotation>
+                    <xs:documentation>Тоголезская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="776">
+                <xs:annotation>
+                    <xs:documentation>Королевство Тонга</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="780">
+                <xs:annotation>
+                    <xs:documentation>Республика Тринидад и Тобаго</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="788">
+                <xs:annotation>
+                    <xs:documentation>Тунисская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="792">
+                <xs:annotation>
+                    <xs:documentation>Турецкая Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="795">
+                <xs:annotation>
+                    <xs:documentation>Туркменистан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="800">
+                <xs:annotation>
+                    <xs:documentation>Республика Уганда</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="807">
+                <xs:annotation>
+                    <xs:documentation>Республика Северная Македония</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="818">
+                <xs:annotation>
+                    <xs:documentation>Арабская Республика Египет</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="834">
+                <xs:annotation>
+                    <xs:documentation>Объединенная Республика Танзания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="840">
+                <xs:annotation>
+                    <xs:documentation>Соединенные Штаты Америки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="850">
+                <xs:annotation>
+                    <xs:documentation>Виргинские острова Соединенных Штатов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="858">
+                <xs:annotation>
+                    <xs:documentation>Восточная Республика Уругвай</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="860">
+                <xs:annotation>
+                    <xs:documentation>Республика Узбекистан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="862">
+                <xs:annotation>
+                    <xs:documentation>Боливарианская Республика Венесуэла</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="882">
+                <xs:annotation>
+                    <xs:documentation>Независимое Государство Самоа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="887">
+                <xs:annotation>
+                    <xs:documentation>Йеменская Республика</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="894">
+                <xs:annotation>
+                    <xs:documentation>Республика Замбия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="895">
+                <xs:annotation>
+                    <xs:documentation>Республика Абхазия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="896">
+                <xs:annotation>
+                    <xs:documentation>Республика Южная Осетия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

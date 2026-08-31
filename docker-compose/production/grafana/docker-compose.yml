@@ -159,7 +159,7 @@ services:
       - ENDPOINT=127.0.0.1:4317
 
   lobe:
-    image: lobehub/lobehub
+    image: ${LOBE_IMAGE:-ghcr.io/stormofthegalaxy/lobehub}
     container_name: lobehub
     network_mode: 'service:network-service'
     depends_on:

@@ -12,6 +12,7 @@ import { BriefManifest } from '@lobechat/builtin-tool-brief';
 import { BrowserManifest } from '@lobechat/builtin-tool-browser';
 import { CalculatorManifest } from '@lobechat/builtin-tool-calculator/manifest';
 import { CloudSandboxManifest } from '@lobechat/builtin-tool-cloud-sandbox';
+import { FgisLkManifest } from '@lobechat/builtin-tool-fgislk/manifest';
 import { CredsManifest } from '@lobechat/builtin-tool-creds';
 import { GoalManifest } from '@lobechat/builtin-tool-goal';
 import { GroupAgentBuilderManifest } from '@lobechat/builtin-tool-group-agent-builder';
@@ -329,6 +330,13 @@ const builtinToolRegistry: LobeBuiltinTool[] = [
   {
     identifier: CalculatorManifest.identifier,
     manifest: CalculatorManifest,
+    type: 'builtin',
+  },
+  {
+    // Отраслевой инструмент: устанавливается из магазина навыков теми, кто сдаёт
+    // отчётность во ФГИС ЛК, и не навязывается остальным агентам.
+    identifier: FgisLkManifest.identifier,
+    manifest: FgisLkManifest,
     type: 'builtin',
   },
   {

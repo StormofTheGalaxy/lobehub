@@ -8,13 +8,19 @@ ARG USE_CN_MIRROR
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
+# xmllint (libxml2-utils) нужен инструменту отчётности ФГИС ЛК: он проверяет XML
+# по официальной XSD-схеме Рослесхоза. Его библиотеки не перечисляем вручную —
+# копируем фактические зависимости через ldd, чтобы сборка не ломалась при смене
+# выпуска Debian или архитектуры.
 RUN set -e && \
     if [ "${USE_CN_MIRROR:-false}" = "true" ]; then \
         sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" "/etc/apt/sources.list.d/debian.sources"; \
     fi && \
     apt update && \
-    apt install ca-certificates proxychains-ng -qy && \
+    apt install ca-certificates proxychains-ng libxml2-utils -qy && \
     mkdir -p /distroless/bin /distroless/etc /distroless/etc/ssl/certs /distroless/lib && \
+    cp /usr/bin/xmllint /distroless/bin/xmllint && \
+    ldd /usr/bin/xmllint | awk '/=> \//{print $3}' | xargs -I{} cp -L {} /distroless/lib/ && \
     cp /usr/lib/$(arch)-linux-gnu/libproxychains.so.4 /distroless/lib/libproxychains.so.4 && \
     cp /usr/lib/$(arch)-linux-gnu/libdl.so.2 /distroless/lib/libdl.so.2 && \
     cp /usr/bin/proxychains4 /distroless/bin/proxychains && \
@@ -107,6 +113,9 @@ COPY --from=builder /app/public/_spa /app/public/_spa
 COPY --from=builder /app/public/_spa-workbench /app/public/_spa-workbench
 # Copy database migrations
 COPY --from=builder /app/packages/database/migrations /app/migrations
+# Copy FGIS LK reference data (XSD schemas + report form map).
+# Next.js output tracing can't see it: the path is resolved at runtime.
+COPY --from=builder /app/packages/builtin-tool-fgislk/data /app/fgislk-data
 COPY --from=builder /app/scripts/migrateServerDB/docker.cjs /app/docker.cjs
 COPY --from=builder /app/scripts/migrateServerDB/errorHint.js /app/errorHint.js
 
@@ -118,6 +127,18 @@ COPY --from=builder /deps/node_modules/drizzle-orm /app/node_modules/drizzle-orm
 # Copy server launcher and shared scripts
 COPY --from=builder /app/scripts/serverLauncher/startServer.js /app/startServer.js
 COPY --from=builder /app/scripts/_shared /app/scripts/_shared
+
+# Fail the build if the image can't actually run what it ships.
+# `xmllint` is required by the FGIS LK reporting tool: without it the tool refuses
+# to produce reports at all. Checking it here means a broken image never reaches
+# the registry — and it verifies the ldd-copied shared libraries really resolve,
+# on every platform the matrix builds. `node` is re-checked because the same copy
+# step touches shared libraries the runtime depends on.
+RUN set -e && \
+    node --version && \
+    xmllint --version && \
+    xmllint --noout /app/fgislk-data/schemas/forestReproduction_v3.0.7.xsd && \
+    test -s /app/fgislk-data/nsi/measures_1vl.csv
 
 RUN set -e && \
     addgroup -S -g 1001 nodejs && \
@@ -135,6 +156,11 @@ ENV NODE_ENV="production" \
     NODE_EXTRA_CA_CERTS="" \
     NODE_TLS_REJECT_UNAUTHORIZED="" \
     SSL_CERT_FILE="/etc/ssl/certs/ca-certificates.crt"
+
+# Официальные схемы и справочники ФГИС ЛК. Путь задан явно, чтобы поиск не зависел
+# от рабочего каталога. Чтобы перейти на новую версию схемы, смонтируйте свой
+# каталог томом и переопределите эту переменную — пересборка образа не нужна.
+ENV FGISLK_DATA_DIR="/app/fgislk-data"
 
 # Make the middleware rewrite through local as default
 # refs: https://github.com/lobehub/lobehub/issues/5876

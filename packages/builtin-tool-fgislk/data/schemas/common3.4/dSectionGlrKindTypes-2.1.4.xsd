@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/sectionGlr/types/2.1.4" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/sectionGlr/types/2.1.4" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--created: 2025-09-05T02:39:17+0300-->
+    <xs:simpleType name="SectionGlrKindEType">
+        <xs:annotation>
+            <xs:documentation>Разделы государственного лесного реестра</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="aMachineDesignedForFellingFore">
+                <xs:annotation>
+                    <xs:documentation>Машина, предназначенная для рубки лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aMachineDesignedForLoggingWork">
+                <xs:annotation>
+                    <xs:documentation>Машина, предназначенная для лесосечных работ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aMachineDesignedForTheRemovalO">
+                <xs:annotation>
+                    <xs:documentation>Машина, предназначенная для вывоза из леса древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aVehicleDesignedToTransportWoo">
+                <xs:annotation>
+                    <xs:documentation>Транспортное средство, предназначенное для транспортировки древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aac">
+                <xs:annotation>
+                    <xs:documentation>Расчетная лесосека</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="accountingJournals">
+                <xs:annotation>
+                    <xs:documentation>Журналы учета</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="actualFelling">
+                <xs:annotation>
+                    <xs:documentation>Фактическая рубка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="afforestation">
+                <xs:annotation>
+                    <xs:documentation>Лесоразведение</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agriculturalLand">
+                <xs:annotation>
+                    <xs:documentation>Использование лесов, расположенных на землях сельскохозяйственного назначения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="analyticalInformation">
+                <xs:annotation>
+                    <xs:documentation>Аналитическая информация</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="archivalCuttingAreas">
+                <xs:annotation>
+                    <xs:documentation>Архивные лесосеки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="balanceOfWoodAndProductsOfItsP">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины и продукции ее переработки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="balanceOfWoodStoredAtTheTimber">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины и продукции ее переработки, хранящихся на объекте лесоперерабатывающей инфраструктуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="balanceOfWoodStoredInTheWareho">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на складе</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutCaringFor">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке (при уходе за лесами)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutDurRefor">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке (при лесовосстановлении)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutFire">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке (охрана лесов от пожаров)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutFore">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке при использовании лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutOrgan">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке (защита лесов от вредных организмов)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="blnceOfWdStorInTheCutProtectOf">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке (охрана лесов от радиоактивного и нефтяного загрязнений)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="bordersOfTheMunicipalityCompo">
+                <xs:annotation>
+                    <xs:documentation>Границы мо (состав и границы земель лесного фонда, состав земель иных категорий, на которых расположены леса на территории муниципального образования)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="boundForestManagObjects">
+                <xs:annotation>
+                    <xs:documentation>Границы объектов лесоустройства с указанием планируемого года проведения мероприятий по лесоустройству в соответствии с федеральным планом проведения лесоустройства</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="boundForestSeedAreas">
+                <xs:annotation>
+                    <xs:documentation>Границы лесосеменных районов основных лесообразующих пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="boundForestVegetationZones">
+                <xs:annotation>
+                    <xs:documentation>Границы лесорастительных зон</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="briefReportcompletiontask">
+                <xs:annotation>
+                    <xs:documentation>Краткий отчет о выполнении задания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cartographicBasis">
+                <xs:annotation>
+                    <xs:documentation>Картографическая основа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="categoriesOfProtectiveForests">
+                <xs:annotation>
+                    <xs:documentation>Категории защитных лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="categoriesProtectiveForests">
+                <xs:annotation>
+                    <xs:documentation>Категории защитных лесов (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="compositionAndBoundariesOfFore">
+                <xs:annotation>
+                    <xs:documentation>Состав и границы земель лесного фонда, состав земель иных категорий, на которых расположены леса на территории субъекта Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="consignmentOfTransportedWood">
+                <xs:annotation>
+                    <xs:documentation>Партия транспортируемой древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="createdForestRoad">
+                <xs:annotation>
+                    <xs:documentation>Созданная лесная дорога</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaDuringAfforestatio">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (при лесоразведении)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaDuringReforestatio">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (при лесовосстановлении)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaProtctOfFrstOrga">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (защита лесов от вредных организмов)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaProtectionOfForest">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (охрана лесов от пожаров)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaWhenCaringForFores">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (при уходе за лесами)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingAreaWhenUsingScaffoldin">
+                <xs:annotation>
+                    <xs:documentation>Лесосека при использовании лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="districtForestry">
+                <xs:annotation>
+                    <xs:documentation>Участковое лесничество</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="districtForestryForestManag">
+                <xs:annotation>
+                    <xs:documentation>Участковое лесничество (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="equipmentDesignedForFellingFor">
+                <xs:annotation>
+                    <xs:documentation>Оборудование, предназначенное для рубки лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="equipmentDesignedForLoggingOpe">
+                <xs:annotation>
+                    <xs:documentation>Оборудование, предназначенное для лесосечных работ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="equipmentForTheRemovalOfWoodFr">
+                <xs:annotation>
+                    <xs:documentation>Оборудование, предназначенное для вывоза из леса древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fire">
+                <xs:annotation>
+                    <xs:documentation>Пожар</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestArea">
+                <xs:annotation>
+                    <xs:documentation>Лесной участок</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestAreaBoundaries">
+                <xs:annotation>
+                    <xs:documentation>Границы лесных районов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestCare">
+                <xs:annotation>
+                    <xs:documentation>Уход за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestCaregivers">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие уход за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestChanges">
+                <xs:annotation>
+                    <xs:documentation>Лесоизменения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestMaps">
+                <xs:annotation>
+                    <xs:documentation>Лесные карты</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestParkZone">
+                <xs:annotation>
+                    <xs:documentation>Лесопарковая зона</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPathologyEvents">
+                <xs:annotation>
+                    <xs:documentation>Лесопатологические мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPathologySelection">
+                <xs:annotation>
+                    <xs:documentation>Лесопатологический выдел</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPatrolact">
+                <xs:annotation>
+                    <xs:documentation>Акт патрулирования лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPatrolassignment">
+                <xs:annotation>
+                    <xs:documentation>Задание на осуществление патрулирования лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestProtectionFromFires">
+                <xs:annotation>
+                    <xs:documentation>Охрана лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestQuarter">
+                <xs:annotation>
+                    <xs:documentation>Лесной квартал</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestRegister">
+                <xs:annotation>
+                    <xs:documentation>Реестр лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestSeedProduction">
+                <xs:annotation>
+                    <xs:documentation>Лесное семеноводство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestTaxAllotmentForestManag">
+                <xs:annotation>
+                    <xs:documentation>Лесотаксационный выдел (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestTaxationAllotment">
+                <xs:annotation>
+                    <xs:documentation>Лесотаксационный выдел</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestUsageBasisDoc">
+                <xs:annotation>
+                    <xs:documentation>Документ основания использования лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestUsageNoSteadBasisDoc">
+                <xs:annotation>
+                    <xs:documentation>Документ основания использования лесов без предоставления лесного участка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestry">
+                <xs:annotation>
+                    <xs:documentation>Лесничество</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestryApprove">
+                <xs:annotation>
+                    <xs:documentation>Лесничество (ЕГРН)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestryForestManagement">
+                <xs:annotation>
+                    <xs:documentation>Лесничество (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestryQuarterForestManag">
+                <xs:annotation>
+                    <xs:documentation>Лесной квартал (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="greenZone">
+                <xs:annotation>
+                    <xs:documentation>Зеленая зона</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="indicatorsOfTheStateForestInve">
+                <xs:annotation>
+                    <xs:documentation>Показатели государственной инвентаризации лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="informAboutTheResults2">
+                <xs:annotation>
+                    <xs:documentation>Сведения о лесозащитном районировании</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="informationAboutResults1">
+                <xs:annotation>
+                    <xs:documentation>Информация о результатах дистанционного мониторинга использования лесов, проведенного в рамках государственной инвентаризации лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="landPlots">
+                <xs:annotation>
+                    <xs:documentation>Земельные участки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="lesosekaProtectionOfForestsFr">
+                <xs:annotation>
+                    <xs:documentation>Лесосека (охрана лесов от радиоактивного и нефтяного загрязнений)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="linearObject">
+                <xs:annotation>
+                    <xs:documentation>Линейный объект</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="meropriatiya">
+                <xs:annotation>
+                    <xs:documentation>Мероприятия по сохранению лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="navigationInformation">
+                <xs:annotation>
+                    <xs:documentation>Навигационная информация</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="negativeForestchanges">
+                <xs:annotation>
+                    <xs:documentation>Негативные изменения лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="notOperationalSquareClearcut">
+                <xs:annotation>
+                    <xs:documentation>Неэксплуатационные площади лесосеки и объекты биоразнообразия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="objectNotRelatedToTheCreationO">
+                <xs:annotation>
+                    <xs:documentation>Объект, не связанный с созданием лесной инфраструктуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="objectRegistry">
+                <xs:annotation>
+                    <xs:documentation>Реестр объектов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="offensePoint">
+                <xs:annotation>
+                    <xs:documentation>Правонарушения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="partOfTheForestArea">
+                <xs:annotation>
+                    <xs:documentation>Часть лесного участка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="patrolLog">
+                <xs:annotation>
+                    <xs:documentation>Журнал патрулирования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="patrolLogRecord">
+                <xs:annotation>
+                    <xs:documentation>Запись журнала патрулирования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="patrolPlanning">
+                <xs:annotation>
+                    <xs:documentation>Планирование патрулирования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="patrolRoute">
+                <xs:annotation>
+                    <xs:documentation>Маршрут патрулирования планируемый</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="patrolRouteReal">
+                <xs:annotation>
+                    <xs:documentation>Фактический маршрут патрулирования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="persTakingMeassToPrtctOil">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие мероприятия по охране лесов от нефтяного загрязнения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="persTakingMeassToPrtctOrgn">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие мероприятия по защите лесов от вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="persTakingMeassToPrtctRadia">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие мероприятия по охране лесов от радиоактивного загрязнения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsCarryingOutActivitiesTo">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие мероприятия по охране лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsEngagedInAfforestation">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие лесоразведение</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsEngagedInForestSeedProd">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие лесное семеноводство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsInWhoseFavorTheRestrict">
+                <xs:annotation>
+                    <xs:documentation>Лица, в пользу которых установлено ограничение права или обременение лесного участка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsOwningATimberWarehouseO">
+                <xs:annotation>
+                    <xs:documentation>Лица, владеющие на праве собственности или ином законном основании складом древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsOwningByTheRightOfOwner">
+                <xs:annotation>
+                    <xs:documentation>Лица, владеющие на праве собственности или ином законном основании объектов лесоперерабатывающией инфраструктуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsOwningOnTheBasisOfOwner">
+                <xs:annotation>
+                    <xs:documentation>Лица, владеющие на праве собственности или ином законном основании объектов, не связанным с созданием лесной инфраструктуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsUsingForestsWithoutProv">
+                <xs:annotation>
+                    <xs:documentation>Лица, использующие леса без предоставления лесного участка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="personsWhoHaveRegisteredTheRig">
+                <xs:annotation>
+                    <xs:documentation>Лица, за которыми зарегистрировано право на лесной участок</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="plannedForestRoad">
+                <xs:annotation>
+                    <xs:documentation>Планируемая к созданию лесная дорога</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="plotsOnMaps">
+                <xs:annotation>
+                    <xs:documentation>Участки на картах, на которых действует ограничение пребывания граждан в лесу (с причиной указания и отображением документа, обосновывающего ограничение)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="protectionOfForestsFromPests">
+                <xs:annotation>
+                    <xs:documentation>Защита лесов от вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="protectionOfForestsFromPolluti">
+                <xs:annotation>
+                    <xs:documentation>Охрана лесов от загрязнения (в том числе радиоактивного и нефтяного) и иного негативного воздействия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="publiclyAvailableInform1">
+                <xs:annotation>
+                    <xs:documentation>общедоступные сведения о границах земель лесного фонда и земель иных категорий, на которых расположены леса</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="publiclyAvailableInform2">
+                <xs:annotation>
+                    <xs:documentation>общедоступная информация о показателях государственной инвентаризации лесов в части обобщенных данных о количественных и качественных характеристиках лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="recordSummerCottage">
+                <xs:annotation>
+                    <xs:documentation>Запись о ценных лесах и лесах, выполняющих функции защиты природных и иных объектов (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="recordsCompBoundLands">
+                <xs:annotation>
+                    <xs:documentation>Записи о составе и границах земель лесного фонда и земель иных категорий, на которых расположены леса на территории субъекта РФ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reforestation">
+                <xs:annotation>
+                    <xs:documentation>Лесовосстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="regOfMachineryAndEquipmenNoGlr">
+                <xs:annotation>
+                    <xs:documentation>Реестр иной техники</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="registerOfDocuments">
+                <xs:annotation>
+                    <xs:documentation>Реестр документов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="registerOfMachineryAndEquipmen">
+                <xs:annotation>
+                    <xs:documentation>Реестр машин и оборудования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="registerOfWoodAccountingAndTra">
+                <xs:annotation>
+                    <xs:documentation>Реестр учета древесины и сделок с ней</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="restorationPersons">
+                <xs:annotation>
+                    <xs:documentation>Лица, осуществляющие восстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="resultsOfStateForestPathologic">
+                <xs:annotation>
+                    <xs:documentation>Результаты государственного лесопатологического мониторинга</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="schedule">
+                <xs:annotation>
+                    <xs:documentation>План-график</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="schemeMap">
+                <xs:annotation>
+                    <xs:documentation>Карта-схема</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionEntPubliclyAvailInf">
+                <xs:annotation>
+                    <xs:documentation>Раздел внесение общедоступных сведений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionI.CharacteristicsOfFore">
+                <xs:annotation>
+                    <xs:documentation>Характеристики лесов и лесных ресурсов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionIi.ForestUse">
+                <xs:annotation>
+                    <xs:documentation>Использование лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionIii.ForestSecurity">
+                <xs:annotation>
+                    <xs:documentation>Охрана лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionIv.ForestProtection">
+                <xs:annotation>
+                    <xs:documentation>Защита лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionIvForestPathologyEvents">
+                <xs:annotation>
+                    <xs:documentation>Защита лесов. ЛПО</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sectionV.Reforestation">
+                <xs:annotation>
+                    <xs:documentation>Воспроизводство лесов и лесоразведение</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="speciallyProtectedAreasOfFores">
+                <xs:annotation>
+                    <xs:documentation>Особо защитные участки лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="speciallyProtectedForestAreas">
+                <xs:annotation>
+                    <xs:documentation>Особо защитные участки лесов (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="subcategoriesOfCategories">
+                <xs:annotation>
+                    <xs:documentation>Запись о ценных лесах и лесах, выполняющих функции защиты природных и иных объектов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="techniqueUsedToExtinguishFores">
+                <xs:annotation>
+                    <xs:documentation>Техника, используемая для тушения лесных пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="techniqueUsedToForestControl">
+                <xs:annotation>
+                    <xs:documentation>Техника, используемая в рамках выполнения функций федерального государственного лесного контроля</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="techniqueUsedToForestGuard">
+                <xs:annotation>
+                    <xs:documentation>Техника, используемая в рамках выполнения функций лесной охраны</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="theBalanceOfWoodStoredInTheCut">
+                <xs:annotation>
+                    <xs:documentation>Баланс древесины, хранящейся на лесосеке при лесоразведении</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="timberProcessingInfrastructure">
+                <xs:annotation>
+                    <xs:documentation>Объект лесоперерабатывающей инфраструктуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="timberWarehouse">
+                <xs:annotation>
+                    <xs:documentation>Место (пункт) складирования древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="typesForestsAccIntendedPurpose">
+                <xs:annotation>
+                    <xs:documentation>Виды лесов в соответствии с их целевым назначением (Лесоустройство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="typesOfForestsByPurpose">
+                <xs:annotation>
+                    <xs:documentation>Виды лесов в соответствии с их целевым назначением</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="updatedDigitalFoundation">
+                <xs:annotation>
+                    <xs:documentation>Актуализированная цифровая основа, полученная в рамках государственной инвентаризации лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="useOfForestsWithoutProvisionOf">
+                <xs:annotation>
+                    <xs:documentation>Использование лесов без предоставления лесного участка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="woodDeal">
+                <xs:annotation>
+                    <xs:documentation>Сделка с древесиной</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="woodOwner">
+                <xs:annotation>
+                    <xs:documentation>Собственник древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="woodTransportation">
+                <xs:annotation>
+                    <xs:documentation>Транспортировка древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="zoneWithSpecialConditionsForTh">
+                <xs:annotation>
+                    <xs:documentation>Зона с особыми условиями использования территорий</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

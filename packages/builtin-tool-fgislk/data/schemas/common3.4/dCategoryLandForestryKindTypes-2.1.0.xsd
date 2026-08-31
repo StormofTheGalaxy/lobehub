@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/categoryLandForestry/types/2.1.0" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/categoryLandForestry/types/2.1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="CategoryLandForestryKindEType">
+        <xs:annotation>
+            <xs:documentation>Категории земель по земельному кодексу</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="3001000000">
+                <xs:annotation>
+                    <xs:documentation>Земли сельскохозяйственного назначения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3002000000">
+                <xs:annotation>
+                    <xs:documentation>Земли населенных пунктов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3003000000">
+                <xs:annotation>
+                    <xs:documentation>Земли обороны и безопасности</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3004000000">
+                <xs:annotation>
+                    <xs:documentation>Земли охраняемых природных территорий</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3005000000">
+                <xs:annotation>
+                    <xs:documentation>Земли лесного фонда</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3008000000">
+                <xs:annotation>
+                    <xs:documentation>Категория не установлена</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

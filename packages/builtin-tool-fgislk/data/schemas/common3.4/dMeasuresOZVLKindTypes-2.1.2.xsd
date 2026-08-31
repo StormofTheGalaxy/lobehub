@@ -1,0 +1,1460 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/measuresOZVL/types/2.1.2" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/measuresOZVL/types/2.1.2" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--created: 2026-01-21T11:19:09+0300-->
+    <xs:simpleType name="MeasuresOZVLKindEType">
+        <xs:annotation>
+            <xs:documentation>Мероприятия по охране, защите и воспроизводству лесов</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="32600001">
+                <xs:annotation>
+                    <xs:documentation>выпас сельскохозяйственных животных</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600002">
+                <xs:annotation>
+                    <xs:documentation>выращивание сельскохозяйственных культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600003">
+                <xs:annotation>
+                    <xs:documentation>иная сельскохозяйственная деятельность</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600004">
+                <xs:annotation>
+                    <xs:documentation>пантовое оленеводство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600005">
+                <xs:annotation>
+                    <xs:documentation>пчеловодство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600006">
+                <xs:annotation>
+                    <xs:documentation>северное оленеводство</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600007">
+                <xs:annotation>
+                    <xs:documentation>сенокошение</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="32600008">
+                <xs:annotation>
+                    <xs:documentation>товарная аквакультура (товарное рыбоводство)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="afforestation23Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесоразведение</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="afforestationByCreatingA109Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесоразведение путем создания искусственных лесных насаждений методами посадки саженцев, сеянцев, черенков или посева семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="afforestationTotal80Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесоразведение, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agroforestryMeasuresCrea116Ga">
+                <xs:annotation>
+                    <xs:documentation>Агролесомелиоративные мероприятия (создание и восстановление защитных лесных насаждений, их реконструкция и направленное формирование, омолаживание кустарников, содействие естественному возобновлению лесных растений, уход за подростом, закрепление подвижных песков, облесение деградированных земель и подверженных эрозии почв)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agrotechnicalCare28Ga">
+                <xs:annotation>
+                    <xs:documentation>Агротехнические уходы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agrotechnicalCareOfFores110Ga">
+                <xs:annotation>
+                    <xs:documentation>Агротехнический уход за лесными культурами путем ручной оправки растений от завала травой и почвой, заноса песком, размыва и выдувания почвы, выжимания морозом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agrotechnicalCareOfFores111Ga">
+                <xs:annotation>
+                    <xs:documentation>Агротехнический уход за лесными культурами путем рыхления почвы с одновременным уничтожением травянистой и древесной растительности в рядах культур и междурядьях</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agrotechnicalCareOfFores112Ga">
+                <xs:annotation>
+                    <xs:documentation>Агротехнический уход за лесными культурами путем уничтожения травянистой растительности химическими средствами на землях для лесоразведения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="agrotechnicalCareOfFores113Ga">
+                <xs:annotation>
+                    <xs:documentation>Агротехнический уход за лесными культурами путем дополнения лесных культур, подкормка минеральными удобрениями и полив лесных культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="allocationOfCuttingAreas124Ga">
+                <xs:annotation>
+                    <xs:documentation>Отвод лесосек под выборочные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="allocationOfFellingAreas125Ga">
+                <xs:annotation>
+                    <xs:documentation>Отвод лесосек под рубки, проводимые в целях ухода за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="allotmentOfCuttingAreasF126Ga">
+                <xs:annotation>
+                    <xs:documentation>Отвод лесосек под сплошные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="arrangementOfFirePrevent7Km">
+                <xs:annotation>
+                    <xs:documentation>Устройство противопожарных минерализованных полос</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="arrangementOfFirePreventKm">
+                <xs:annotation>
+                    <xs:documentation>Устройство противопожарных минерализованных полос</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="arrangementOfFireReservoPc">
+                <xs:annotation>
+                    <xs:documentation>Создание в целях тушения лесных пожаров условий для забора в любое время года воды из источников наружного водоснабжения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="artificial26Ga">
+                <xs:annotation>
+                    <xs:documentation>Искусственное</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="artificialReforestationB100Ga">
+                <xs:annotation>
+                    <xs:documentation>Искусственное лесовосстановление путем посева семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="artificialReforestationB97Ga">
+                <xs:annotation>
+                    <xs:documentation>Искусственное лесовосстановление путем посадки сеянцев с открытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="artificialReforestationB98Ga">
+                <xs:annotation>
+                    <xs:documentation>Искусственное лесовосстановление путем посадки сеянцев с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="artificialReforestationB99Ga">
+                <xs:annotation>
+                    <xs:documentation>Искусственное лесовосстановление путем посадки саженцев (черенков)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aviationMonitoringOfFireGa">
+                <xs:annotation>
+                    <xs:documentation>Авиационный мониторинг пожарной опасности в лесах и лесных пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aviationPatrol1Ga">
+                <xs:annotation>
+                    <xs:documentation>Авиационное патрулирование</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="aviationWorkToProtectFor36Ga">
+                <xs:annotation>
+                    <xs:documentation>Авиационные работы по защите лесов, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="biologicalPesticide29Ga">
+                <xs:annotation>
+                    <xs:documentation>Биологических пестицидов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="biotechnicalMeasures12Ga">
+                <xs:annotation>
+                    <xs:documentation>Биотехнические мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="biotechnicalMeasures13Pc">
+                <xs:annotation>
+                    <xs:documentation>Биотехнические мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="byChemicalMeans30Ga">
+                <xs:annotation>
+                    <xs:documentation>Химическим способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="byChemicalMeans56Ga">
+                <xs:annotation>
+                    <xs:documentation>химическим способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="byChemicalMeans91Ga">
+                <xs:annotation>
+                    <xs:documentation>химическим способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="campaignEvents7Pc">
+                <xs:annotation>
+                    <xs:documentation>Агитационные мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="careObjectForestFarmingGa">
+                <xs:annotation>
+                    <xs:documentation>Уход за объектами лесного семеноводства</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="careOfForestCropsInTerms53Ga">
+                <xs:annotation>
+                    <xs:documentation>Уход за лесными культурами в переводе на однократный, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="careOfForestPlantationsD88Ga">
+                <xs:annotation>
+                    <xs:documentation>Уход за лесными культурами при лесоразведении в переводе на однократный, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="carryingOutNaturalRefore101Ga">
+                <xs:annotation>
+                    <xs:documentation>Проведение естественного лесовосстановления вследствие природных процессов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="carryingOutOtherWorksToP39Ga">
+                <xs:annotation>
+                    <xs:documentation>проведение иных работ по защите леса от вредных организмов с использованием авиационных средств</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="carryingOutPreventiveConGa">
+                <xs:annotation>
+                    <xs:documentation>Проведение профилактического контролируемого противопожарного выжигания хвороста, лесной подстилки, сухой травы и других лесных горючих материалов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="carryingOutWorksOnHydromGa">
+                <xs:annotation>
+                    <xs:documentation>Проведение гидромелиорации земель</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfClearingsAndMa6Km">
+                <xs:annotation>
+                    <xs:documentation>Прочистка просек и уход за противопожарными разрывами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfClearingsAndMaGa">
+                <xs:annotation>
+                    <xs:documentation>Прочистка просек, противопожарных разрывов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfClearingsAndMaKm">
+                <xs:annotation>
+                    <xs:documentation>Прочистка просек, противопожарных разрывов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfFirePrevention8Km">
+                <xs:annotation>
+                    <xs:documentation>Прочистка противопожарных минерализованных полос и их обновление (уход)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfFirePreventionKm">
+                <xs:annotation>
+                    <xs:documentation>Прочистка противопожарных минерализованных полос и их обновление (уход)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfIlliquidWood20Ga">
+                <xs:annotation>
+                    <xs:documentation>Уборка неликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfIlliquidWood21Ga">
+                <xs:annotation>
+                    <xs:documentation>Уборка неликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cleaningOfIlliquidWood21М3">
+                <xs:annotation>
+                    <xs:documentation>Уборка неликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="clearFellingOfForestPlan32Ga">
+                <xs:annotation>
+                    <xs:documentation>Сплошная рубка лесных насаждений, зараженных вредными организмами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="clearFellingOfForestPlan33М3">
+                <xs:annotation>
+                    <xs:documentation>Сплошная рубка лесных насаждений, зараженных вредными организмами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="clearSanitaryCuttings14Ga">
+                <xs:annotation>
+                    <xs:documentation>Сплошные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="clearSanitaryCuttings15М3">
+                <xs:annotation>
+                    <xs:documentation>Сплошные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="clearSanitaryCuttings17Ga">
+                <xs:annotation>
+                    <xs:documentation>Сплошные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="combined27Ga">
+                <xs:annotation>
+                    <xs:documentation>Комбинированное</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="combined38Ga">
+                <xs:annotation>
+                    <xs:documentation>комбинированное лесовосстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="combinedReforestationThr108Ga">
+                <xs:annotation>
+                    <xs:documentation>Комбинированное лесовосстановление за счет сочетания естественного и искусственного восстановления лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="commissioningAcceptanceO93Ga">
+                <xs:annotation>
+                    <xs:documentation>Ввод (приемка) в эксплуатацию лесных насаждений, созданных при лесоразведении</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="constructionOfFireObserv9Pc">
+                <xs:annotation>
+                    <xs:documentation>Строительство пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов), пунктов сосредоточения противопожарного инвентаря</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="constructionOfFireObservPc">
+                <xs:annotation>
+                    <xs:documentation>Создание пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="constructionOfForestRoadKm">
+                <xs:annotation>
+                    <xs:documentation>Создание лесных дорог, предназначенных для охраны лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="constructionOfLandingSitPc">
+                <xs:annotation>
+                    <xs:documentation>Создание посадочных площадок, используемых в целях проведения авиационных работ по охране лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationAndMaintenanceOfGa">
+                <xs:annotation>
+                    <xs:documentation>Создание и содержание противопожарных заслонов и устройство лиственных опушек</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfArchivesOfClon9Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание архивов клонов плюсовых деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfForestPlantati15Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание лесных культур под пологом лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfForestSeedFaci146Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание объектов лесного семеноводства</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfForestSeedPlan4Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание лесосеменных плантаций</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfGeneticReserve127Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание генетических резерватов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfGeographicCult12Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание географических культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfMotherPlantati8Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание маточных плантаций</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfPopulationEcol11Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание популяционно-экологических культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="creationOfTestCultures10Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание испытательных культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cultivationOfStndPla13ThsndPic">
+                <xs:annotation>
+                    <xs:documentation>Выращивание стандартного посадочного материала деревьев и кустарников для лесовосстановления и лесоразведения, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingEmergencyTrees22Pc">
+                <xs:annotation>
+                    <xs:documentation>Рубка аварийных деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cuttingEmergencyTrees23М3">
+                <xs:annotation>
+                    <xs:documentation>Рубка аварийных деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfGarmf38Ga">
+                <xs:annotation>
+                    <xs:documentation>ликвидация очагов вредных организмов с использованием авиационных средств</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfGarmf40Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, уничтожение или подавление численности вредных организмов, при выполнении наземным способом, химическим методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfGarmf41Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, уничтожение или подавление численности вредных организмов, при выполнении наземным способом, биологическим методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfGarmf42Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, уничтожение или подавление численности вредных организмов, при выполнении авиационным способом, химическим методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfGarmf43Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, уничтожение или подавление численности вредных организмов, при выполнении авиационным способом, биологическим методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfPests46Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, рубки лесных насаждений в целях регулирования породного и возрастного состава лесных насаждений, зараженных вредными организмами, рубки лесных насаждений, являющихся очагами вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfFociOfPests47М3">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, рубки лесных насаждений в целях регулирования породного и возрастного состава лесных насаждений, зараженных вредными организмами, рубки лесных насаждений, являющихся очагами вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfHotbedsOfPe44Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, рубки лесных насаждений в целях регулирования породного и возрастного состава лесных насаждений, зараженных вредными организмами, рубка и выкладка ловчих деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eliminationOfHotbedsOfPe45М3">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов, рубки лесных насаждений в целях регулирования породного и возрастного состава лесных насаждений, зараженных вредными организмами, рубка и выкладка ловчих деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eradicationOfHotbedsOfPe24Ga">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="eradicationOfHotbedsOfPe25М3">
+                <xs:annotation>
+                    <xs:documentation>Ликвидация очагов вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="establishmentOfPermanent5Ga">
+                <xs:annotation>
+                    <xs:documentation>Создание постоянных лесосеменных участков</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="expenseCreateForestRoadKm">
+                <xs:annotation>
+                    <xs:documentation>Затраты на создание лесных дорог</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="expenseTaxationClearcut">
+                <xs:annotation>
+                    <xs:documentation>Затраты на проведение отвода и таксации лесосек</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingForTheConservatio120Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубки сохранения лесных насаждений, проводимые в целях ухода за лесами, осуществляемые в спелых и перестойных древостоях</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingForTheConservatio121М3">
+                <xs:annotation>
+                    <xs:documentation>Рубки сохранения лесных насаждений, проводимые в целях ухода за лесами, осуществляемые в спелых и перестойных древостоях</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingOfForestPlantatio13Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубки лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingOfForestPlantatio30Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубка лесных насаждений в целях регулирования породного и возрастного составов лесных насаждений, зараженных вредными организмами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingOfForestPlantatio31М3">
+                <xs:annotation>
+                    <xs:documentation>Рубка лесных насаждений в целях регулирования породного и возрастного составов лесных насаждений, зараженных вредными организмами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingOfSingleTreesIncl122Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубки единичных деревьев, в том числе семенников, выполнивших свою функцию, проводимые в целях ухода за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fellingOfSingleTreesIncl123М3">
+                <xs:annotation>
+                    <xs:documentation>Рубки единичных деревьев, в том числе семенников, выполнивших свою функцию, проводимые в целях ухода за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestCareTotal63Ga">
+                <xs:annotation>
+                    <xs:documentation>Уход за лесами, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestCareTotal64М3">
+                <xs:annotation>
+                    <xs:documentation>Уход за лесами, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestCropsTransferredTo95Ga">
+                <xs:annotation>
+                    <xs:documentation>Отнесено земель, предназначенных для лесовосстановления, к землям, на которых расположены леса</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestMaintenanceCutting31Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубки ухода за лесами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPathologicalExamin1Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесопатологические обследования</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPlotsExcludedFromE39Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесные участки, исключенные из хозяйственного оборота с целью охраны редких и находящихся под угрозой исчезновения деревьев, кустарников, лиан, иных лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestPlotsExcludedFromE41Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесные участки, исключенные из хозяйственного оборота с целью охраны среды обитания объектов животного мира и других природных объектов в лесах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="forestryActivities11Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесохозяйственные мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="formationOfInsuranceFund117Ga">
+                <xs:annotation>
+                    <xs:documentation>Формирование страховых фондов семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop32Ga">
+                <xs:annotation>
+                    <xs:documentation>из него - посадка лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop35Ga">
+                <xs:annotation>
+                    <xs:documentation>из него посадка лесных культур с использованием улучшенного посадочного материала с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop39Ga">
+                <xs:annotation>
+                    <xs:documentation>из него - посадка лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop49Ga">
+                <xs:annotation>
+                    <xs:documentation>из него - посадка лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop82Ga">
+                <xs:annotation>
+                    <xs:documentation>из него - посадка лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fromItPlantingForestCrop85Ga">
+                <xs:annotation>
+                    <xs:documentation>из него посадка лесных культур с использованием улучшенного посадочного материала с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="groundMethod5Ga">
+                <xs:annotation>
+                    <xs:documentation>Наземным методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="implementationOfForestPa37Ga">
+                <xs:annotation>
+                    <xs:documentation>осуществление лесопатологических обследований с использованием авиационных средств</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="improCharacteristic147ThndPics">
+                <xs:annotation>
+                    <xs:documentation>Сеянцев с улучшенными наследственными свойствами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="improvementOfRecreationAPc">
+                <xs:annotation>
+                    <xs:documentation>Благоустройство зон отдыха граждан, пребывающих в лесах в соответствии со статьей 11 Лесного кодекса Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="incldFromSeedsWithIm18ThndPics">
+                <xs:annotation>
+                    <xs:documentation>в том числе из семян с улучшенными наследственными свойствами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="incldSeedling14ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>в том числе: сеянцев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="incldThoseWithImprov22ThsndPcs">
+                <xs:annotation>
+                    <xs:documentation>В том числе саженцев с улучшенными наследственными свойствами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="incldiSeedling20ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>в том числе: саженцев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includeSeed148ThndPics">
+                <xs:annotation>
+                    <xs:documentation>В том числе: саженцев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingArtificial31Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе: искусственное лесовосстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingCareForYoungAni65Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе: уход за молодняками (осветление, прочистка)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingCareForYoungAni66М3">
+                <xs:annotation>
+                    <xs:documentation>в том числе: уход за молодняками (осветление, прочистка)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingClearing60Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе расчистка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingManual54Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе: ручным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingManual89Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе: ручным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingOnForestFundLan81Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе лесоразведение на землях лесного фонда</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores33Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores34Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур посадочным материалом с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores40Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores41Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур посадочным материалом с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores42Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores50Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores51Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур посадочным материалом с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores52Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores83Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур с использованием улучшенного посадочного материала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingPlantingOfFores84Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посадка лесных культур посадочным материалом с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingSowingForestCro37Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посев лесных культур с использованием улучшенных семян</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingSowingForestCro44Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посев лесных культур с использованием улучшенных семян</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingSowingForestCro87Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе посев лесных культур с использованием улучшенных семян</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingSowingImprovedS26Kg">
+                <xs:annotation>
+                    <xs:documentation>в том числе: посев улучшенных семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingSowingImprovedS27Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе: посев улучшенных семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="includingUnderForestCult58Ga">
+                <xs:annotation>
+                    <xs:documentation>в том числе - под лесные культуры будущего года</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="installationAndOperation36Pc">
+                <xs:annotation>
+                    <xs:documentation>Установка и эксплуатация шлагбаумов, устройство преград, обеспечивающих ограничение пребывания граждан в лесах в целях обеспечения пожарной и радиационной безопасности</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="installationAndOperationPc">
+                <xs:annotation>
+                    <xs:documentation>Установка и эксплуатация шлагбаумов, устройство преград, обеспечивающих ограничение пребывания граждан в лесах в целях обеспечения пожарной безопасности</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="installationAndPlacement37Pc">
+                <xs:annotation>
+                    <xs:documentation>Установка и размещение стендов и других знаков и указателей, содержащих информацию о мерах пожарной и радиационной безопасности в лесах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="installationAndPlacementPc">
+                <xs:annotation>
+                    <xs:documentation>Установка и размещение стендов и других знаков и указателей, содержащих информацию о мерах пожарной безопасности в лесах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="inventoryOfForestsForFie136Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов полевых работ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="landscapeFormationLandsc75Ga">
+                <xs:annotation>
+                    <xs:documentation>Формирования ландшафта (ландшафтная рубка)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="landscapeFormationLandsc76М3">
+                <xs:annotation>
+                    <xs:documentation>Формирования ландшафта (ландшафтная рубка)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="layingOfGladesAndFireBre5Km">
+                <xs:annotation>
+                    <xs:documentation>Прокладка просек и противопожарных разрывов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="layingOfGladesAndFireBreGa">
+                <xs:annotation>
+                    <xs:documentation>Прокладка просек и противопожарных разрывов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="layingOfGladesAndFireBreKm">
+                <xs:annotation>
+                    <xs:documentation>Прокладка просек и противопожарных разрывов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="layingOutTrapTrees34Pc">
+                <xs:annotation>
+                    <xs:documentation>Выкладка ловчих деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="layingOutTrapTrees35М3">
+                <xs:annotation>
+                    <xs:documentation>Выкладка ловчих деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="marketableWoodVolume14М3">
+                <xs:annotation>
+                    <xs:documentation>Объем ликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="marketableWoodVolume16М3">
+                <xs:annotation>
+                    <xs:documentation>Объем ликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="marketableWoodVolume18М3">
+                <xs:annotation>
+                    <xs:documentation>Объем ликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="marketableWoodVolume19М3">
+                <xs:annotation>
+                    <xs:documentation>Объем ликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="marketableWoodVolume20М3">
+                <xs:annotation>
+                    <xs:documentation>Объем ликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mecGanically29Ga">
+                <xs:annotation>
+                    <xs:documentation>Механическим способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mecGanizedWay55Ga">
+                <xs:annotation>
+                    <xs:documentation>механизированным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mecGanizedWay90Ga">
+                <xs:annotation>
+                    <xs:documentation>механизированным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="monitoringOfFireDangerInGa">
+                <xs:annotation>
+                    <xs:documentation>Мониторинг пожарной опасности в лесах и лесных пожаров путем наземного патрулирования лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="natural25Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="natural45Ga">
+                <xs:annotation>
+                    <xs:documentation>естественное лесовосстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm102Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем сохранения возобновившегося под пологом лесных насаждений жизнеспособного поколения главных лесных пород лесных насаждений (подрост)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm103Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем ухода за подростом главных лесных древесных пород на площадях, не занятых лесными насаждениями</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm104Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем минерализации поверхности почвы на местах планируемых рубок спелых и перестойных насаждений и на вырубках</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm105Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем оставление семенных деревьев, куртин и групп</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm106Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем огораживания площадей лесных участков</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="naturalReforestationProm107Ga">
+                <xs:annotation>
+                    <xs:documentation>Естественное лесовосстановление (содействие естественному лесовосстановлению) путем подавления корнеотпрысковой способности деревьев (инъекции арборицидов или окольцовывание)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="ofWhichConifer15ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>из них - хвойных пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="ofWhichConifer17ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>из них - хвойных пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="ofWhichConifer19ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>из них - хвойных пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="ofWhichConifer21ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>из них - хвойных пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="ofWhichConifer23ThousandPieces">
+                <xs:annotation>
+                    <xs:documentation>из них - хвойных пород</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfFireObservati11Pc">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов), пунктов сосредоточения противопожарного инвентаря</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfFireObservatiPc">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfFireReservoirPc">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация пожарных водоемов и подъездов к источникам водоснабжения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfForestRoadsDe4Km">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация лесных дорог</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfForestRoadsDeKm">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация лесных дорог, предназначенных для охраны лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="operationOfLandingSitesFPc">
+                <xs:annotation>
+                    <xs:documentation>Эксплуатация посадочных площадок, используемых в целях проведения авиационных работ по охране лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="otherMeasuresIncludingBy22Ga">
+                <xs:annotation>
+                    <xs:documentation>Иные меры, в том числе по видам</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="passingCabin69Ga">
+                <xs:annotation>
+                    <xs:documentation>проходная рубка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="passingCabin70М3">
+                <xs:annotation>
+                    <xs:documentation>проходная рубка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="passingCuttings34Ga">
+                <xs:annotation>
+                    <xs:documentation>Проходные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="pestEradicationOrSuppres27Ga">
+                <xs:annotation>
+                    <xs:documentation>Уничтожение или подавление численности вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="pestOutbreakSurveys26Ga">
+                <xs:annotation>
+                    <xs:documentation>Проведение обследований очагов вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="pestPreventionPreventive52Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, биотехнические мероприятия, посев травянистых нектароносных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="plantingForestCropsUsing134Ga">
+                <xs:annotation>
+                    <xs:documentation>Посадка лесных культур с использованием селекционного посадочного материала</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestAreas131Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков для создания лесных культур путем планирования поверхности лесного участка, при необходимости проведения мелиоративных работ, нарезки трасс на склонах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestPlots128Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков для создания лесных культур путем маркировки линий будущих рядов лесных культур или полос обработки почвы и обозначения мест, опасных для работы техники</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestPlots129Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков для создания лесных культур путем сплошной или полосной (частичной) расчистки площади от древесины, камней, нежелательной древесной растительности, мелких пней, стволов усохших деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestPlots130Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков для создания лесных культур путем раскорчевки пней, препятствующих движению техники или уменьшения их высоты до уровня, не препятствующего движению техники</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestPlots132Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков путем предварительной борьбы с вредными почвенными организмами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfForestPlots133Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесных участков для создания лесных культур путем проведения осушительных мероприятий на заболоченных, избыточно увлажненных почвах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfImprovedAnd3Kg">
+                <xs:annotation>
+                    <xs:documentation>Заготовка улучшенных и сортовых семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preparationOfTheForestAr59Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка лесного участка для лесовосстановления</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preservationOfUndergrowt46Ga">
+                <xs:annotation>
+                    <xs:documentation>сохранение подроста лесных древесных пород при проведении рубок лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventingTheSpreadOfPes6Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение распространения вредных организмов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfOccurrenceOf60Pc">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, уборка аварийных деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfOccurrenceOf61М3">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, уборка аварийных деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfPestsSanitar58Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, уборка неликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfPestsSanitar59М3">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, уборка неликвидной древесины</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheEmergence54Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, сплошные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheEmergence55М3">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, сплошные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc48Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, биотехнические мероприятия, улучшение условий обитания и размножения насекомоядных птиц и других насекомоядных животных</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc49Pc">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, биотехнические мероприятия, улучшение условий обитания и размножения насекомоядных птиц и других насекомоядных животных</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc50Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, биотехнические мероприятия, охрана местообитаний, выпуск, расселение и интродукция насекомых-энтомофагов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc51Pc">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, биотехнические мероприятия, охрана местообитаний, выпуск, расселение и интродукция насекомых-энтомофагов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc53Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, профилактические мероприятия по защите лесов, лесохозяйственные мероприятия, использование удобрений и минеральных добавок для повышения устойчивости лесных насаждений в неблагоприятные периоды, лечение деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc56Ga">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, выборочные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventionOfTheOccurrenc57М3">
+                <xs:annotation>
+                    <xs:documentation>Предупреждение возникновения вредных организмов, санитарно-оздоровительные мероприятия, выборочные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="preventiveMeasuresToProt8Ga">
+                <xs:annotation>
+                    <xs:documentation>Профилактические мероприятия по защите лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="procurementOfSeedsOfFore1Kg">
+                <xs:annotation>
+                    <xs:documentation>Заготовка семян лесных растений для лесовосстановления и лесоразведения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="procurementOfSeedsOfFore2Kg">
+                <xs:annotation>
+                    <xs:documentation>Заготовка семян лесных растений на объектах постоянной лесосеменной базы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="protectingTheGabitatOfWi40Ga">
+                <xs:annotation>
+                    <xs:documentation>Охрана среды обитания объектов животного мира и других природных объектов в лесах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="protectionOfRareAndEndan38Ga">
+                <xs:annotation>
+                    <xs:documentation>Охрана редких и находящихся под угрой исчезновения деревьев, кустарников, лиан, иных лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="puttingOutForestFires35Ga">
+                <xs:annotation>
+                    <xs:documentation>Тушение лесных пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="puttingOutForestFiresGa">
+                <xs:annotation>
+                    <xs:documentation>Тушение лесных пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reclamationWorks62Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесомелиоративные работы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionInMiddleAg71Ga">
+                <xs:annotation>
+                    <xs:documentation>реконструкция в средневозрастных, приспевающих, спелых и перестойных малоценных лесных насаждениях</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionInMiddleAg72М3">
+                <xs:annotation>
+                    <xs:documentation>реконструкция в средневозрастных, приспевающих, спелых и перестойных малоценных лесных насаждениях</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfBarriersPc">
+                <xs:annotation>
+                    <xs:documentation>Реконструкция шлагбаумов, преград, обеспечивающих ограничение пребывания граждан в лесах в целях обеспечения пожарной безопасности</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfFireObse10Pc">
+                <xs:annotation>
+                    <xs:documentation>Реконструкция пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов), пунктов сосредоточения противопожарного инвентаря</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfFireObsePc">
+                <xs:annotation>
+                    <xs:documentation>Содержание пожарных наблюдательных пунктов (вышек, мачт, павильонов и других наблюдательных пунктов)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfForestPl94Ga">
+                <xs:annotation>
+                    <xs:documentation>Реконструкция лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfForestRo3Km">
+                <xs:annotation>
+                    <xs:documentation>Реконструкция лесных дорог</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfForestRoKm">
+                <xs:annotation>
+                    <xs:documentation>Содержание лесных дорог, предназначенных для охраны лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfLandingSPc">
+                <xs:annotation>
+                    <xs:documentation>Содержание посадочных площадок, используемых в целях проведения авиационных работ по охране лесов от пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reconstructionOfYoungAni79Ga">
+                <xs:annotation>
+                    <xs:documentation>Реконструкция молодняков</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reducingTheNaturalFireGa12Ga">
+                <xs:annotation>
+                    <xs:documentation>Снижение природной пожарной опасности лесов путем регулирования породного состава лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reducingTheNaturalFireGaGa">
+                <xs:annotation>
+                    <xs:documentation>Снижение природной пожарной опасности лесов путем регулирования породного состава лесных насаждений (расшифровать мероприятия)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reforestation24Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесовосстановление</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reforestationTotal30Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесовосстановление, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reformation77Ga">
+                <xs:annotation>
+                    <xs:documentation>переформирование</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reformation78М3">
+                <xs:annotation>
+                    <xs:documentation>переформирование</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="remoteMethod4Ga">
+                <xs:annotation>
+                    <xs:documentation>Дистанционным методом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="renewalOfForestPlantatio73Ga">
+                <xs:annotation>
+                    <xs:documentation>обновление лесных насаждений (рубка обновления)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="renewalOfForestPlantatio74М3">
+                <xs:annotation>
+                    <xs:documentation>обновление лесных насаждений (рубка обновления)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sanitaryAndRecreationalA10М3">
+                <xs:annotation>
+                    <xs:documentation>Санитарно-оздоровительные мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sanitaryAndRecreationalA16Ga">
+                <xs:annotation>
+                    <xs:documentation>Санитарно-оздоровительные мероприятия, проводимые в целях защиты лесов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sanitaryAndRecreationalA9Ga">
+                <xs:annotation>
+                    <xs:documentation>Санитарно-оздоровительные мероприятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="seedWitGaClosedRoot16ThsndPic">
+                <xs:annotation>
+                    <xs:documentation>сеянцев с закрытой корневой системой</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="selectionOfPlusForestPla6Ga">
+                <xs:annotation>
+                    <xs:documentation>Отбор плюсовых лесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="selectionOfPlusTrees7Pc">
+                <xs:annotation>
+                    <xs:documentation>Отбор плюсовых деревьев</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="selectiveSanitaryFelling17Ga">
+                <xs:annotation>
+                    <xs:documentation>Выборочные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="selectiveSanitaryFelling18М3">
+                <xs:annotation>
+                    <xs:documentation>Выборочные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="selectiveSanitaryFelling19Ga">
+                <xs:annotation>
+                    <xs:documentation>Выборочные санитарные рубки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="silviculturalCareByDestr114Ga">
+                <xs:annotation>
+                    <xs:documentation>Лесоводственный уход путем уничтожения или предупреждения появления травянистой и нежелательной древесной растительности</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="soilCultivationForForest115Ga">
+                <xs:annotation>
+                    <xs:documentation>Обработка почвы под лесные культуры на всем участке (сплошная обработка) или на его части (частичная обработка) механическим, химическим или огневым способами</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="soilPreparationForAffore92Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка почвы под лесоразведение, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="soilPreparationForForest57Ga">
+                <xs:annotation>
+                    <xs:documentation>Подготовка почвы под лесные культуры, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="soilSurfaceMineralizatio47Ga">
+                <xs:annotation>
+                    <xs:documentation>минерализация поверхности почвы</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingForestCropsTotal36Ga">
+                <xs:annotation>
+                    <xs:documentation>посев лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingForestCropsTotal43Ga">
+                <xs:annotation>
+                    <xs:documentation>посев лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingForestCropsTotal86Ga">
+                <xs:annotation>
+                    <xs:documentation>посев лесных культур, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingForestCropsUsingBr135Ga">
+                <xs:annotation>
+                    <xs:documentation>Посев лесных культур с использованием селекционных семян</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingSeedsInNurseriesTo24Kg">
+                <xs:annotation>
+                    <xs:documentation>Посев семян в питомниках, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="sowingSeedsInNurseriesTo25Ga">
+                <xs:annotation>
+                    <xs:documentation>Посев семян в питомниках, всего</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="spaceMonitoringOfFireDanGa">
+                <xs:annotation>
+                    <xs:documentation>Космический мониторинг пожарной опасности в лесах и лесных пожаров</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="storageOfSeedsOfForestPl118Ga">
+                <xs:annotation>
+                    <xs:documentation>Хранение семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="supplementForestCrops48Ga">
+                <xs:annotation>
+                    <xs:documentation>Дополнение лесных культур</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsIiCateg140Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов II разряда глазомерно-измерительным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsIiCateg141Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов II разряда глазомерным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfThe1S137Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов I разряда глазомерно-измерительным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfThe1S138Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов I разряда глазомерным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfThe1S139Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов I разряда дешифровочным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfTheIi142Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов II разряда дешифровочным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfTheIi143Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов III разряда дешифровочным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfForestsOfTheIi144Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов III разряда способом актуализации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="taxationOfOfficeWorkFore145Ga">
+                <xs:annotation>
+                    <xs:documentation>Таксация лесов камеральных работ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="thinning33Ga">
+                <xs:annotation>
+                    <xs:documentation>Прореживания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="thinning67Ga">
+                <xs:annotation>
+                    <xs:documentation>прореживание</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="thinning68М3">
+                <xs:annotation>
+                    <xs:documentation>прореживание</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="thinningInYoungForests32Ga">
+                <xs:annotation>
+                    <xs:documentation>Рубки ухода в молодняках</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="uprooting61Ga">
+                <xs:annotation>
+                    <xs:documentation>раскорчевка</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="uprootingOfForestPlotsAn119Ga">
+                <xs:annotation>
+                    <xs:documentation>Раскорчевка лесных участков и корчевка пней на лесных участках под лесные культуры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="usingChemicalPesticides28Ga">
+                <xs:annotation>
+                    <xs:documentation>С применением химических пестицидов</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="varietalSeedsOfForestPla28Kg">
+                <xs:annotation>
+                    <xs:documentation>сортовых семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="varietalSeedsOfForestPla29Ga">
+                <xs:annotation>
+                    <xs:documentation>сортовых семян лесных растений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="videoSurveillanceOfTheFi2Ga">
+                <xs:annotation>
+                    <xs:documentation>Видеонаблюдение за пожарной обстановкой в лесах</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="whenDoneVisually2Ga">
+                <xs:annotation>
+                    <xs:documentation>При выполнении визуальным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="whenPerformedInstrumenta3Ga">
+                <xs:annotation>
+                    <xs:documentation>При выполнении инструментальным способом</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="youngGrowthsWereIntroduc96Ga">
+                <xs:annotation>
+                    <xs:documentation>Введено молодняков в категорию хозяйственно-ценных древесных насаждений</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,2516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/subject/types/2.2.9"
+    xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/subject/types/2.2.9"
+    xmlns:st="http://rosleshoz.gov.ru/fgis-lk/common/simple/types/2.2.2"
+    xmlns:addr="http://rosleshoz.gov.ru/fgis-lk/common/address/types/2.1.3"
+    xmlns:country="http://rosleshoz.gov.ru/fgis-lk/common/enums/country/types/2.0.1"
+    xmlns:cmplx="http://rosleshoz.gov.ru/fgis-lk/common/complex/types/2.1.3"
+    xmlns:subjrf="http://rosleshoz.gov.ru/fgis-lk/common/enums/constituentEntity/types/2.1.1"
+    xmlns:doc="http://rosleshoz.gov.ru/fgis-lk/common/document/types/2.2.8">
+
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/simple/types/2.2.2"
+        schemaLocation="simpleTypes-2.2.2.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/address/types/2.1.3"
+        schemaLocation="addressTypes-2.1.3.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/document/types/2.2.8"
+        schemaLocation="documentTypes-2.2.8.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/country/types/2.0.1"
+        schemaLocation="dCountryKindTypes-2.0.1.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/complex/types/2.1.3"
+        schemaLocation="complexTypes-2.1.3.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/constituentEntity/types/2.1.1"
+        schemaLocation="dConstituentEntityKindTypes-2.1.1.xsd"/>
+
+    <xs:complexType name="GovernmentType">
+        <xs:annotation>
+            <xs:documentation>
+                Орган государственной власти, орган местного самоуправления, иной орган
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Полное наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:RFGarAddressType">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignOrganizationAddressType">
+        <xs:annotation>
+            <xs:documentation>Тип Адрес иностранного юридического лица</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="countryName" type="st:String60SType">
+                <xs:annotation>
+                    <xs:documentation>Наименование страны</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="addressRus" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес буквами русского алфавита</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="addressLat" type="st:String255SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес буквами латинского алфавита</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonType">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения о физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Person2Type">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения о физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:Attorney2Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignPersonType">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения об иностранном физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignPerson2Type">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения об иностранном физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:Attorney2Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="BusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе индивидуального предпринимателя</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Businessman2Type">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:Attorney2Type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе индивидуального предпринимателя</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="OrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата государственной регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты, содержащийся в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Organization2Type">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата государственной регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты, содержащийся в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:Attorney2Type">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="AttorneyType">
+        <xs:annotation>
+            <xs:documentation>Тип Сведения о представителе юридического лица
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="documentCredentials" type="doc:AttorneyDocumentCredentialsType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Документ, подтверждающий полномочия представителя
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Attorney2Type">
+        <xs:annotation>
+            <xs:documentation>Тип Сведения о представителе юридического лица
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="documentCredentials" type="doc:AttorneyDocumentCredentialsType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Документ, подтверждающий полномочия представителя
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="phone" type="st:PhoneNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kio" type="st:ForeignOrganizationKioSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Код иностранной организации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:AttorneyType">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignOrganization2Type">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kio" type="st:ForeignOrganizationKioSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Код иностранной организации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:Attorney2Type">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ApplicantType">
+        <xs:annotation>
+            <xs:documentation>Тип Заявитель</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:PersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:BusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organization" type="tns:OrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="foreignOrganization" type="tns:ForeignOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="foreignPrivatePerson" type="tns:ForeignPersonType">
+                <xs:annotation>
+                    <xs:documentation>Иностранное физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="PlacementApplicantType">
+        <xs:annotation>
+            <xs:documentation>Тип Заявитель</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:PersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:BusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organization" type="tns:OrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="government" type="tns:GovernmentType">
+                <xs:annotation>
+                    <xs:documentation>Орган государственной власти, орган местного самоуправления, иной орган</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="foreignOrganization" type="tns:ForeignOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="foreignPrivatePerson" type="tns:ForeignPersonType">
+                <xs:annotation>
+                    <xs:documentation>Иностранное физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+        <!--================================ Типы для заявителей возврата платежа-->
+    <xs:complexType name="RefundPaymentPersonIdentityType">
+        <xs:annotation>
+            <xs:documentation>Удостоверение личности</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="RefundPaymentPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места жительства или места пребывания</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personIdentity" type="tns:RefundPaymentPersonIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Удостоверение личности</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:RefundPaymentAttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="RefundPaymentForeignPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения об иностранном физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места жительства или места пребывания</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:RefundPaymentAttorneyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе физического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="RefundPaymentOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты, содержащийся в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:RefundPaymentAttorneyType">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="RefundPaymentForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kio" type="st:ForeignOrganizationKioSType">
+                <xs:annotation>
+                    <xs:documentation>Код иностранной организации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="attorney" type="tns:RefundPaymentAttorneyType">
+                <xs:annotation>
+                    <xs:documentation>Сведения о представителе иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="RefundPaymentAttorneyType">
+        <xs:annotation>
+            <xs:documentation>Сведения о представителе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:AddressLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места жительства или места пребывания</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personIdentity" type="tns:RefundPaymentPersonIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Удостоверение личности</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="documentCredentials" type="doc:AttorneyDocumentCredentialsType">
+                <xs:annotation>
+                    <xs:documentation>Документ, подтверждающий полномочия представителя
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PayerPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PayerForeignPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения об иностранном физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PayerOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PayerForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kio" type="st:ForeignOrganizationKioSType">
+                <xs:annotation>
+                    <xs:documentation>Код иностранной организации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!--================================ Типы для выписки из государственного лесного реестра-->
+    <xs:complexType name="TypeiOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameShort" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Сокращенное название юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiPrivatePersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="legalAddress" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Юридический адрес</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Место нахождения/Фактический адрес</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="country" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Страна регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regName" type="st:String1000SType">
+                <xs:annotation>
+                    <xs:documentation>Наименование регистрирующего органа</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:ForeignAddressType">
+                <xs:annotation>
+                    <xs:documentation>Адрес (местонахождение) в стране регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiiPrivatePersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiiiBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeivPrivatePersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeivBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TranslationNotarizedType">
+        <xs:annotation>
+            <xs:documentation>Верность перевода нотариально удостоверена</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="notarizeDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата нотариального удостоверения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="notaryName" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия и инициалы нотариуса</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="notaryActionNum" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Номер в реестре регистрации нотариальных действий</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PrivatePersonTranslationRussianType">
+        <xs:annotation>
+            <xs:documentation>Перевод на русский языка</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translationNotarized" type="tns:TranslationNotarizedType">
+                <xs:annotation>
+                    <xs:documentation>Верность перевода нотариально удостоверена</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeivForeignPrivatePersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице, являющимся гражданином иностранного государства
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translationRussian" type="tns:PrivatePersonTranslationRussianType">
+                <xs:annotation>
+                    <xs:documentation>Перевод на русский язык</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeivForeignBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе, являющимся гражданином иностранного
+                государства
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translationRussian" type="tns:PrivatePersonTranslationRussianType">
+                <xs:annotation>
+                    <xs:documentation>Перевод на русский язык</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ForeignOrganizationTranslationRussianType">
+        <xs:annotation>
+            <xs:documentation>Перевод на русский языка</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regName" type="st:String1000SType">
+                <xs:annotation>
+                    <xs:documentation>Наименование регистрирующего органа</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:ForeignAddressType">
+                <xs:annotation>
+                    <xs:documentation>Адрес (местонахождение) в стране регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translationNotarized" type="tns:TranslationNotarizedType">
+                <xs:annotation>
+                    <xs:documentation>Верность перевода нотариально удостоверена</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeivForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="country" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Страна регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regName" type="st:String1000SType">
+                <xs:annotation>
+                    <xs:documentation>Наименование регистрирующего органа</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:ForeignAddressType">
+                <xs:annotation>
+                    <xs:documentation>Адрес (местонахождение) в стране регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translationRussian"
+                type="tns:ForeignOrganizationTranslationRussianType">
+                <xs:annotation>
+                    <xs:documentation>Перевод на русский язык</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TypeiPersonsType">
+        <xs:annotation>
+            <xs:documentation>Сведения о лицах</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:TypeiiPrivatePersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organization" type="tns:TypeiOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="TypeiiPersonsType">
+        <xs:annotation>
+            <xs:documentation>Сведения о лицах</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:TypeiiPrivatePersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:TypeiiBusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organization" type="tns:TypeiiOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="TypeiiiPersonsType">
+        <xs:annotation>
+            <xs:documentation>Сведения о лицах</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:TypeiiiPrivatePersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:TypeiiiBusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="TypeivPersonsType">
+        <xs:annotation>
+            <xs:documentation>Сведения о лицах</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:TypeiiPrivatePersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:TypeiiBusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organization" type="tns:TypeiiOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="foreignOrganization" type="tns:TypeiiForeignOrganizationType">
+                <xs:annotation>
+                    <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="TypevPersonsType">
+        <xs:annotation>
+            <xs:documentation>Сведения о лицах</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="privatePerson" type="tns:TypeivPrivatePersonType">
+                <xs:annotation>
+                    <xs:documentation>Физическое лицо</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="businessman" type="tns:TypeivBusinessmanType">
+                <xs:annotation>
+                    <xs:documentation>Индивидуальный предприниматель</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="PersonRussianFederationType">
+        <xs:annotation>
+            <xs:documentation>Российская Федерация</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="st:String1000SType" fixed="Российская Федерация">
+                <xs:annotation>
+                    <xs:documentation>Российская Федерация</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonSubjectRussianFederationType">
+        <xs:annotation>
+            <xs:documentation>Субъект Российской Федерации</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="subjrf:ConstituentEntityKindEType">
+                <xs:annotation>
+                    <xs:documentation>Полное наименование субъекта Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonMunicipalityType">
+        <xs:annotation>
+            <xs:documentation>Муниципальное образование</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Полное наименование муниципального образования (согласно уставу муниципального
+                        образования)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonUnionStateType">
+        <xs:annotation>
+            <xs:documentation>Союзное государство</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="st:String1000SType" fixed="Союзное государство">
+                <xs:annotation>
+                    <xs:documentation>Союзное государство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonForeignStateType">
+        <xs:annotation>
+            <xs:documentation>Иностранное государство</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Полное наименование иностранного государства</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyPersonType">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения о физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyForeignPersonType">
+        <xs:annotation>
+            <xs:documentation>
+                Сведения об иностранном физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Документ, удостоверяющий личность
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="registrationAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="livingAddress" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Адрес места жительства или места пребывания
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="phone" type="st:PhoneNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Контактный телефон</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата государственной регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты, содержащийся в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="addr:RFGarAddressType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kio" type="st:ForeignOrganizationKioSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Код иностранной организации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="email" type="st:EmailSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес электронной почты</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ProxyAttorneyType">
+        <xs:annotation>
+            <xs:documentation>Тип Представитель</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="FullName" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>ФИО</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="DateOfBirth" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="IdentityDocument" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Snils" type="st:PrivatePersonSnilsSType">
+                <xs:annotation>
+                    <xs:documentation>Страховой номер индивидуального лицевого счета (СНИЛС)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>Идентификационный номер налогоплательщика (ИНН)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Authority" type="tns:AuthorityType" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Перечень полномочий</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="AuthorityType">
+        <xs:annotation>
+            <xs:documentation>Тип Полномочия</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="AuthorityName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Наименование полномочия</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="AuthorityId" type="tns:AuthorityDescType">
+                <xs:annotation>
+                    <xs:documentation>Описание полномочий</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="AuthorityDescType">
+        <xs:annotation>
+            <xs:documentation>Тип Описание полномочий</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="Id" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Идентификатор полномочий
+                        (идентификаторы полномочий) из классификатора полномочий, предусмотренного в соответствии с частью 2 статьи 17.1 Федерального закона от 6 апреля 2011 г. N 63-ФЗ "Об электронной подписи" (Собрание законодательства Российской Федерации, 2011, N 15, ст. 2036; 2019, N 52, ст. 7794</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="AuthorityDesc" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Описание полномочий
+                        При отсутствии идентификаторов полномочий в классификаторе полномочий, указанном в подпункте 9 пункта 2 настоящих Требований, в машиночитаемой доверенности используется иное описание полномочий в виде текста (в соответствующем текстовом поле) и (или) идентификаторов</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+
+
+    <!--================================ Тип "Собственник древесины" для ОБД, ОПП-->
+
+    <xs:complexType name="ReportBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:sequence>
+                <xs:element name="name" type="cmplx:PersonNameType">
+                    <xs:annotation>
+                        <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                    <xs:annotation>
+                        <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                    <xs:annotation>
+                        <xs:documentation>ОГРНИП</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="inn" type="st:PrivatePersonInnSType">
+                    <xs:annotation>
+                        <xs:documentation>ИНН</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ReportOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Сведения о юридическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование и организационно-правовая форма</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ReportPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения о физическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Дата рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="birthPlace" type="st:String255SType">
+                <xs:annotation>
+                    <xs:documentation>Место рождения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="snils" type="st:PrivatePersonSnilsSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>СНИЛС</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="personDocumentIdentity" type="doc:PersonDocumentIdentityType">
+                <xs:annotation>
+                    <xs:documentation>Документ, удостоверяющий личность</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!--================================ Тип "Собственник древесины" для ЭСД-->
+
+    <xs:complexType name="DocSubjectBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в
+                        ЕГРИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DocSubjectOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Сведения о юридическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование и организационно-правовая форма</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DocSubjectForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Сведения об иностранном юридическом лице</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="nameFull" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование и организационно-правовая форма</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+
+
+
+    <!--================================ Тип "Лицо" для сделок-->
+
+    <xs:complexType name="TimberDealBusinessmanType">
+        <xs:annotation>
+            <xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrnip" type="st:SoleProprietorOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРНИП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес регистрации по месту жительства
+                        (пребывания)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="citizenship" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Гражданство</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TimberDealOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование, указанное в ЕГРЮЛ, и организационно-правовая форма
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="shortName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Сокращенное наименование юридического
+                        лица
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:OrganizationInnSType">
+                <xs:annotation>
+                    <xs:documentation>ИНН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="kpp" type="st:OrganizationKppSType">
+                <xs:annotation>
+                    <xs:documentation>КПП</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ogrn" type="st:OrganizationOgrnSType">
+                <xs:annotation>
+                    <xs:documentation>ОГРН - для российского юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес места нахождения, указанный в ЕГРЮЛ</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TimberDealForeignOrganizationType">
+        <xs:annotation>
+            <xs:documentation>Иностранное юридическое лицо</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="fullName" type="st:OrganizationNameFullSType">
+                <xs:annotation>
+                    <xs:documentation>Наименование</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного юридического лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regName" type="st:String1000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Наименование регистрирующего органа</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес фактического места нахождения в стране регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:ForeignOrganizationInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН иностранного юридического лица</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TimberDealForeignPersonType">
+        <xs:annotation>
+            <xs:documentation>Сведения об иностранном физическом лице
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="cmplx:PersonNameType">
+                <xs:annotation>
+                    <xs:documentation>Фамилия, имя, отчество (при наличии)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="countryCode" type="country:CountryKindEType">
+                <xs:annotation>
+                    <xs:documentation>Код страны регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regNumber" type="st:ForeignOrganizationRegNumberSType">
+                <xs:annotation>
+                    <xs:documentation>Регистрационный номер иностранного лица в стране его регистрации
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regDate" type="st:DateSType">
+                <xs:annotation>
+                    <xs:documentation>Дата регистрации</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="regName" type="st:String1000SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Наименование регистрирующего органа</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="address" type="st:String4000SType">
+                <xs:annotation>
+                    <xs:documentation>Адрес фактического места нахождения в стране регистрации (инкорпорации)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inn" type="st:PrivatePersonInnSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>ИНН</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

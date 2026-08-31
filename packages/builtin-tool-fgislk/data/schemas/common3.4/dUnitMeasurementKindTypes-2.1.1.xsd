@@ -1,0 +1,2985 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/unitMeasurement/types/2.1.1" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/unitMeasurement/types/2.1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--created: 2026-01-23T14:04:06+0300-->
+    <xs:simpleType name="UnitMeasurementKindEType">
+        <xs:annotation>
+            <xs:documentation>Единицы измерения</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="003">
+                <xs:annotation>
+                    <xs:documentation>["Миллиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="004">
+                <xs:annotation>
+                    <xs:documentation>["Сантиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="005">
+                <xs:annotation>
+                    <xs:documentation>["Дециметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="006">
+                <xs:annotation>
+                    <xs:documentation>["Метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="008">
+                <xs:annotation>
+                    <xs:documentation>["Километр","тысяча метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="009">
+                <xs:annotation>
+                    <xs:documentation>["Мегаметр","миллион метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="017">
+                <xs:annotation>
+                    <xs:documentation>["Гектометр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="018">
+                <xs:annotation>
+                    <xs:documentation>["Погонный метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="019">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча погонных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="020">
+                <xs:annotation>
+                    <xs:documentation>["Условный метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="039">
+                <xs:annotation>
+                    <xs:documentation>["Дюйм (25,4 мм)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="041">
+                <xs:annotation>
+                    <xs:documentation>["Фут (0,3048 м)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="043">
+                <xs:annotation>
+                    <xs:documentation>["Ярд (0,9144 м)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="045">
+                <xs:annotation>
+                    <xs:documentation>["Миля (уставная) (1609,344 м)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="047">
+                <xs:annotation>
+                    <xs:documentation>["Морская миля (1852 м)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="048">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="049">
+                <xs:annotation>
+                    <xs:documentation>["Километр условных труб"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="050">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный миллиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="051">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный сантиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="053">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный дециметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="054">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квадратных дециметров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="055">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="056">
+                <xs:annotation>
+                    <xs:documentation>["Миллион квадратных дециметров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="057">
+                <xs:annotation>
+                    <xs:documentation>["Миллион квадратных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="058">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квадратных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="059">
+                <xs:annotation>
+                    <xs:documentation>["Гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="060">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча гектаров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="061">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="062">
+                <xs:annotation>
+                    <xs:documentation>["Условный квадратный метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="063">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных квадратных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="064">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных квадратных метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="071">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный дюйм (645,16 мм^2)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="073">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный фут (0,092903 м^2)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="075">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный ярд (0,8361274 м^2)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="077">
+                <xs:annotation>
+                    <xs:documentation>["Акр (4840 квадратных ярдов)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="079">
+                <xs:annotation>
+                    <xs:documentation>["Квадратная миля"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="081">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный метр общей площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="082">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квадратных метров общей площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="083">
+                <xs:annotation>
+                    <xs:documentation>["Миллион квадратных метров общей площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="084">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный метр жилой площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="085">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квадратных метров жилой площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="086">
+                <xs:annotation>
+                    <xs:documentation>["Миллион квадратных метров жилой площади"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="087">
+                <xs:annotation>
+                    <xs:documentation>["Квадратный метр учебно-лабораторных зданий"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="088">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квадратных метров учебно-лабораторных зданий"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="089">
+                <xs:annotation>
+                    <xs:documentation>["Миллион квадратных метров в двухмиллиметровом исчислении"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="109">
+                <xs:annotation>
+                    <xs:documentation>["Ар (100 м^2)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="110">
+                <xs:annotation>
+                    <xs:documentation>["Кубический миллиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="111">
+                <xs:annotation>
+                    <xs:documentation>["Кубический сантиметр","миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="111.1">
+                <xs:annotation>
+                    <xs:documentation>["Кубический сантиметр","миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="112">
+                <xs:annotation>
+                    <xs:documentation>["Литр","кубический дециметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="113">
+                <xs:annotation>
+                    <xs:documentation>["Кубический метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="114">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча кубических метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="115">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард кубических метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="116">
+                <xs:annotation>
+                    <xs:documentation>["Декалитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="118">
+                <xs:annotation>
+                    <xs:documentation>["Децилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="119">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча декалитров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="120">
+                <xs:annotation>
+                    <xs:documentation>["Миллион декалитров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="121">
+                <xs:annotation>
+                    <xs:documentation>["Плотный кубический метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="122">
+                <xs:annotation>
+                    <xs:documentation>["Гектолитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="123">
+                <xs:annotation>
+                    <xs:documentation>["Условный кубический метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="124">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных кубических метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="125">
+                <xs:annotation>
+                    <xs:documentation>["Миллион кубических метров переработки газа"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="126">
+                <xs:annotation>
+                    <xs:documentation>["Мегалитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="127">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча плотных кубических метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="128">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча полулитров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="129">
+                <xs:annotation>
+                    <xs:documentation>["Миллион полулитров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="130">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча литров","1000 литров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="131">
+                <xs:annotation>
+                    <xs:documentation>["Кубический дюйм (16387,1 мм^3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="132">
+                <xs:annotation>
+                    <xs:documentation>["Кубический фут (0,02831685 м^3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="133">
+                <xs:annotation>
+                    <xs:documentation>["Кубический ярд (0,764555 м^3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="135">
+                <xs:annotation>
+                    <xs:documentation>["Жидкостная унция СК (28,413 см3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="136">
+                <xs:annotation>
+                    <xs:documentation>["Джилл СК (0,142065 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="137">
+                <xs:annotation>
+                    <xs:documentation>["Пинта СК (0,568262 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="138">
+                <xs:annotation>
+                    <xs:documentation>["Кварта СК (1,136523 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="139">
+                <xs:annotation>
+                    <xs:documentation>["Галлон СК (4,546092 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="140">
+                <xs:annotation>
+                    <xs:documentation>["Бушель СК (36,36874 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="141">
+                <xs:annotation>
+                    <xs:documentation>["Жидкостная унция США (29,5735 см3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="142">
+                <xs:annotation>
+                    <xs:documentation>["Джилл США (11,8294 см3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="143">
+                <xs:annotation>
+                    <xs:documentation>["Жидкостная пинта США (0,473176 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="144">
+                <xs:annotation>
+                    <xs:documentation>["Жидкостная кварта США (0,946353 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="145">
+                <xs:annotation>
+                    <xs:documentation>["Жидкостный галлон США (3,78541 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="146">
+                <xs:annotation>
+                    <xs:documentation>["Баррель (нефтяной) США (158,987 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="147">
+                <xs:annotation>
+                    <xs:documentation>["Сухая пинта США (0,55061 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="148">
+                <xs:annotation>
+                    <xs:documentation>["Сухая кварта США (1,101221 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="149">
+                <xs:annotation>
+                    <xs:documentation>["Сухой галлон США (4,404884 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="150">
+                <xs:annotation>
+                    <xs:documentation>["Бушель США (35,2391 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="151">
+                <xs:annotation>
+                    <xs:documentation>["Сухой баррель США (115,627 дм3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="152">
+                <xs:annotation>
+                    <xs:documentation>["Стандарт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="153">
+                <xs:annotation>
+                    <xs:documentation>["Корд (3,63 м3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="154">
+                <xs:annotation>
+                    <xs:documentation>["Тысячи бордфутов (2,36 м3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="159">
+                <xs:annotation>
+                    <xs:documentation>["Миллион кубических метров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="160">
+                <xs:annotation>
+                    <xs:documentation>["Гектограмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="161">
+                <xs:annotation>
+                    <xs:documentation>["Миллиграмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="162">
+                <xs:annotation>
+                    <xs:documentation>["Метрический карат"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="163">
+                <xs:annotation>
+                    <xs:documentation>["Грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="164">
+                <xs:annotation>
+                    <xs:documentation>["Микрограмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="165">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча каратов метрических"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="166">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="167">
+                <xs:annotation>
+                    <xs:documentation>["Миллион каратов метрических"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="168">
+                <xs:annotation>
+                    <xs:documentation>["Тонна","метрическая тонна (1000 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="169">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="170">
+                <xs:annotation>
+                    <xs:documentation>["Килотонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="171">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонн"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="172">
+                <xs:annotation>
+                    <xs:documentation>["Тонна условного топлива"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="173">
+                <xs:annotation>
+                    <xs:documentation>["Сантиграмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="175">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн условного топлива"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="176">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонн условного топлива"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="177">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн единовременного хранения"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="178">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн переработки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="179">
+                <xs:annotation>
+                    <xs:documentation>["Условная тонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="181">
+                <xs:annotation>
+                    <xs:documentation>["Брутто-регистровая тонна (2,8316 м^3)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="182">
+                <xs:annotation>
+                    <xs:documentation>["Нетто-регистровая тонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="183">
+                <xs:annotation>
+                    <xs:documentation>["Обмерная (фрахтовая) тонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="184">
+                <xs:annotation>
+                    <xs:documentation>["Водоизмещение"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="185">
+                <xs:annotation>
+                    <xs:documentation>["Грузоподъемность в метрических тоннах"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="186">
+                <xs:annotation>
+                    <xs:documentation>["Фунт СК, США (0,45359237 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="187">
+                <xs:annotation>
+                    <xs:documentation>["Унция СК, США (28,349523 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="188">
+                <xs:annotation>
+                    <xs:documentation>["Драхма СК (1,771745 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="189">
+                <xs:annotation>
+                    <xs:documentation>["Гран СК, США (64,798910 мг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="190">
+                <xs:annotation>
+                    <xs:documentation>["Стоун СК (6,350293 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="191">
+                <xs:annotation>
+                    <xs:documentation>["Квартер СК (12,700586 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="192">
+                <xs:annotation>
+                    <xs:documentation>["Центал СК (45,359237 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="193">
+                <xs:annotation>
+                    <xs:documentation>["Центнер США (45,3592 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="194">
+                <xs:annotation>
+                    <xs:documentation>["Длинный центнер СК (50,802345 кг)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="195">
+                <xs:annotation>
+                    <xs:documentation>["Короткая тонна СК, США (0,90718474 т) [2*]"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="196">
+                <xs:annotation>
+                    <xs:documentation>["Длинная тонна СК, США (1,0160469 т) [2*]"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="197">
+                <xs:annotation>
+                    <xs:documentation>["Скрупул СК, США (1,295982 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="198">
+                <xs:annotation>
+                    <xs:documentation>["Пеннивейт СК, США (1,555174 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="199">
+                <xs:annotation>
+                    <xs:documentation>["Драхма СК (3,887935 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="200">
+                <xs:annotation>
+                    <xs:documentation>["Драхма США (3,887935 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="201">
+                <xs:annotation>
+                    <xs:documentation>["Унция СК, США (31,10348 г)","тройская унция"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="202">
+                <xs:annotation>
+                    <xs:documentation>["Тройский фунт США (373,242 г)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="206">
+                <xs:annotation>
+                    <xs:documentation>["Центнер (метрический) (100 кг)","гектокилограмм","квинтал (метрический)","децитонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="207">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча центнеров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="212">
+                <xs:annotation>
+                    <xs:documentation>["Ватт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="213">
+                <xs:annotation>
+                    <xs:documentation>["Эффективная мощность (245,7 ватт)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="214">
+                <xs:annotation>
+                    <xs:documentation>["Киловатт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="215">
+                <xs:annotation>
+                    <xs:documentation>["Мегаватт","тысяча киловатт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="222">
+                <xs:annotation>
+                    <xs:documentation>["Вольт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="223">
+                <xs:annotation>
+                    <xs:documentation>["Киловольт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="226">
+                <xs:annotation>
+                    <xs:documentation>["Вольт-ампер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="227">
+                <xs:annotation>
+                    <xs:documentation>["Киловольт-ампер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="228">
+                <xs:annotation>
+                    <xs:documentation>["Мегавольт-ампер (тысяча киловольт-ампер)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="230">
+                <xs:annotation>
+                    <xs:documentation>["Киловар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="231">
+                <xs:annotation>
+                    <xs:documentation>["Метр в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2311">
+                <xs:annotation>
+                    <xs:documentation>["Грей в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2312">
+                <xs:annotation>
+                    <xs:documentation>["Грей в минуту"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2313">
+                <xs:annotation>
+                    <xs:documentation>["Грей в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2314">
+                <xs:annotation>
+                    <xs:documentation>["Микрогрей в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2315">
+                <xs:annotation>
+                    <xs:documentation>["Микрогрей в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2316">
+                <xs:annotation>
+                    <xs:documentation>["Миллигрей в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="232">
+                <xs:annotation>
+                    <xs:documentation>["Килокалория"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="233">
+                <xs:annotation>
+                    <xs:documentation>["Гигакалория"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="234">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча гигакалорий"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="235">
+                <xs:annotation>
+                    <xs:documentation>["Миллион гигакалорий"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2351">
+                <xs:annotation>
+                    <xs:documentation>["Зиверт в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2352">
+                <xs:annotation>
+                    <xs:documentation>["Микрозиверт в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2353">
+                <xs:annotation>
+                    <xs:documentation>["Микрозиверт в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2354">
+                <xs:annotation>
+                    <xs:documentation>["Миллизиверт в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2355">
+                <xs:annotation>
+                    <xs:documentation>["Градус (плоского угла)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2356">
+                <xs:annotation>
+                    <xs:documentation>["Минута (плоского угла)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2357">
+                <xs:annotation>
+                    <xs:documentation>["Секунда (плоского угла)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="236">
+                <xs:annotation>
+                    <xs:documentation>["Калория в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="237">
+                <xs:annotation>
+                    <xs:documentation>["Килокалория в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="238">
+                <xs:annotation>
+                    <xs:documentation>["Гигакалория в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="239">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча гигакалорий в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="241">
+                <xs:annotation>
+                    <xs:documentation>["Миллион ампер-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="242">
+                <xs:annotation>
+                    <xs:documentation>["Миллион киловольт-ампер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="243">
+                <xs:annotation>
+                    <xs:documentation>["Ватт-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="245">
+                <xs:annotation>
+                    <xs:documentation>["Киловатт-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="246">
+                <xs:annotation>
+                    <xs:documentation>["Мегаватт-час","1000 киловатт-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="247">
+                <xs:annotation>
+                    <xs:documentation>["Гигаватт-час (миллион киловатт-часов)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="248">
+                <xs:annotation>
+                    <xs:documentation>["Киловольт-ампер реактивный"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="249">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард киловатт-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="250">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча киловольт-ампер реактивных"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="251">
+                <xs:annotation>
+                    <xs:documentation>["Лошадиная сила"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="252">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча лошадиных сил"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="253">
+                <xs:annotation>
+                    <xs:documentation>["Миллион лошадиных сил"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="254">
+                <xs:annotation>
+                    <xs:documentation>["Бит"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2541">
+                <xs:annotation>
+                    <xs:documentation>["Бит в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2543">
+                <xs:annotation>
+                    <xs:documentation>["Килобит в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2545">
+                <xs:annotation>
+                    <xs:documentation>["Мегабит в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2547">
+                <xs:annotation>
+                    <xs:documentation>["Гигабит в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="255">
+                <xs:annotation>
+                    <xs:documentation>["Байт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2551">
+                <xs:annotation>
+                    <xs:documentation>["Байт в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2552">
+                <xs:annotation>
+                    <xs:documentation>["Гигабайт в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2553">
+                <xs:annotation>
+                    <xs:documentation>["Гигабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2554">
+                <xs:annotation>
+                    <xs:documentation>["Терабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2555">
+                <xs:annotation>
+                    <xs:documentation>["Петабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2556">
+                <xs:annotation>
+                    <xs:documentation>["Эксабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2557">
+                <xs:annotation>
+                    <xs:documentation>["Зеттабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2558">
+                <xs:annotation>
+                    <xs:documentation>["Йоттабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="256">
+                <xs:annotation>
+                    <xs:documentation>["Килобайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2561">
+                <xs:annotation>
+                    <xs:documentation>["Килобайт в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="257">
+                <xs:annotation>
+                    <xs:documentation>["Мегабайт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2571">
+                <xs:annotation>
+                    <xs:documentation>["Мегабайт в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="258">
+                <xs:annotation>
+                    <xs:documentation>["Бод"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="2581">
+                <xs:annotation>
+                    <xs:documentation>["Эрланг"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="260">
+                <xs:annotation>
+                    <xs:documentation>["Ампер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="263">
+                <xs:annotation>
+                    <xs:documentation>["Ампер-час (3,6 кКл)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="264">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча ампер-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="270">
+                <xs:annotation>
+                    <xs:documentation>["Кулон"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="271">
+                <xs:annotation>
+                    <xs:documentation>["Джоуль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="273">
+                <xs:annotation>
+                    <xs:documentation>["Килоджоуль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="274">
+                <xs:annotation>
+                    <xs:documentation>["Ом"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="275">
+                <xs:annotation>
+                    <xs:documentation>["Британская тепловая единица (1,055 кДж)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="276">
+                <xs:annotation>
+                    <xs:documentation>["Грей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="277">
+                <xs:annotation>
+                    <xs:documentation>["Микрогрей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="278">
+                <xs:annotation>
+                    <xs:documentation>["Миллигрей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="279">
+                <xs:annotation>
+                    <xs:documentation>["Килогрей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="280">
+                <xs:annotation>
+                    <xs:documentation>["Градус Цельсия"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="281">
+                <xs:annotation>
+                    <xs:documentation>["Градус Фаренгейта"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="282">
+                <xs:annotation>
+                    <xs:documentation>["Кандела"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="283">
+                <xs:annotation>
+                    <xs:documentation>["Люкс"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="284">
+                <xs:annotation>
+                    <xs:documentation>["Люмен"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="287">
+                <xs:annotation>
+                    <xs:documentation>["Генри"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="288">
+                <xs:annotation>
+                    <xs:documentation>["Кельвин"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="289">
+                <xs:annotation>
+                    <xs:documentation>["Ньютон"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="290">
+                <xs:annotation>
+                    <xs:documentation>["Герц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="291">
+                <xs:annotation>
+                    <xs:documentation>["Килогерц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="292">
+                <xs:annotation>
+                    <xs:documentation>["Мегагерц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="293">
+                <xs:annotation>
+                    <xs:documentation>["Гигагерц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="294">
+                <xs:annotation>
+                    <xs:documentation>["Паскаль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="295">
+                <xs:annotation>
+                    <xs:documentation>["Терагерц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="296">
+                <xs:annotation>
+                    <xs:documentation>["Сименс"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="297">
+                <xs:annotation>
+                    <xs:documentation>["Килопаскаль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="298">
+                <xs:annotation>
+                    <xs:documentation>["Мегапаскаль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="300">
+                <xs:annotation>
+                    <xs:documentation>["Физическая атмосфера (101325 Па)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="301">
+                <xs:annotation>
+                    <xs:documentation>["Техническая атмосфера (98066,5 Па)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="302">
+                <xs:annotation>
+                    <xs:documentation>["Гигабеккерель"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="303">
+                <xs:annotation>
+                    <xs:documentation>["Килобеккерель"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="304">
+                <xs:annotation>
+                    <xs:documentation>["Милликюри"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="305">
+                <xs:annotation>
+                    <xs:documentation>["Кюри"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="306">
+                <xs:annotation>
+                    <xs:documentation>["Грамм делящихся изотопов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="307">
+                <xs:annotation>
+                    <xs:documentation>["Мегабеккерель"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="308">
+                <xs:annotation>
+                    <xs:documentation>["Миллибар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="309">
+                <xs:annotation>
+                    <xs:documentation>["Бар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="310">
+                <xs:annotation>
+                    <xs:documentation>["Гектобар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="312">
+                <xs:annotation>
+                    <xs:documentation>["Килобар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="313">
+                <xs:annotation>
+                    <xs:documentation>["Тесла"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3135">
+                <xs:annotation>
+                    <xs:documentation>["Децибел"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="314">
+                <xs:annotation>
+                    <xs:documentation>["Фарад"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="316">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм на кубический метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="317">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм на квадратный сантиметр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="318">
+                <xs:annotation>
+                    <xs:documentation>["Зиверт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="319">
+                <xs:annotation>
+                    <xs:documentation>["Микрозиверт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="320">
+                <xs:annotation>
+                    <xs:documentation>["Моль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="321">
+                <xs:annotation>
+                    <xs:documentation>["Миллизиверт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="323">
+                <xs:annotation>
+                    <xs:documentation>["Беккерель"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="324">
+                <xs:annotation>
+                    <xs:documentation>["Вебер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="327">
+                <xs:annotation>
+                    <xs:documentation>["Узел (миля/ч)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="328">
+                <xs:annotation>
+                    <xs:documentation>["Метр в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="330">
+                <xs:annotation>
+                    <xs:documentation>["Оборот в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="331">
+                <xs:annotation>
+                    <xs:documentation>["Оборот в минуту"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="333">
+                <xs:annotation>
+                    <xs:documentation>["Километр в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="335">
+                <xs:annotation>
+                    <xs:documentation>["Метр на секунду в квадрате"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="337">
+                <xs:annotation>
+                    <xs:documentation>["Миллиметр водяного столба"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="338">
+                <xs:annotation>
+                    <xs:documentation>["Миллиметр ртутного столба"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="339">
+                <xs:annotation>
+                    <xs:documentation>["Сантиметр водяного столба"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="340">
+                <xs:annotation>
+                    <xs:documentation>["Грамм условного топлива на киловатт-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="341">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм условного топлива на гигакалорию"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="348">
+                <xs:annotation>
+                    <xs:documentation>["Фемтосекунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="349">
+                <xs:annotation>
+                    <xs:documentation>["Кулон на килограмм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="350">
+                <xs:annotation>
+                    <xs:documentation>["Пикосекунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="351">
+                <xs:annotation>
+                    <xs:documentation>["Наносекунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="352">
+                <xs:annotation>
+                    <xs:documentation>["Микросекунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="353">
+                <xs:annotation>
+                    <xs:documentation>["Миллисекунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="354">
+                <xs:annotation>
+                    <xs:documentation>["Секунда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="355">
+                <xs:annotation>
+                    <xs:documentation>["Минута"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="356">
+                <xs:annotation>
+                    <xs:documentation>["Час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="359">
+                <xs:annotation>
+                    <xs:documentation>["Сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="360">
+                <xs:annotation>
+                    <xs:documentation>["Неделя"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="361">
+                <xs:annotation>
+                    <xs:documentation>["Декада"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="362">
+                <xs:annotation>
+                    <xs:documentation>["Месяц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="364">
+                <xs:annotation>
+                    <xs:documentation>["Квартал"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="365">
+                <xs:annotation>
+                    <xs:documentation>["Полугодие"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="366">
+                <xs:annotation>
+                    <xs:documentation>["Год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="368">
+                <xs:annotation>
+                    <xs:documentation>["Десятилетие"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="383">
+                <xs:annotation>
+                    <xs:documentation>["Рубль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3831">
+                <xs:annotation>
+                    <xs:documentation>["Рубль тонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="384">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча рублей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="385">
+                <xs:annotation>
+                    <xs:documentation>["Миллион рублей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="386">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард рублей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="387">
+                <xs:annotation>
+                    <xs:documentation>["Триллион рублей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="388">
+                <xs:annotation>
+                    <xs:documentation>["Квадрильон рублей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="414">
+                <xs:annotation>
+                    <xs:documentation>["Пассажиро-километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="421">
+                <xs:annotation>
+                    <xs:documentation>["Пассажирское место (пассажирских мест)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="423">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пассажиро-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="424">
+                <xs:annotation>
+                    <xs:documentation>["Миллион пассажиро-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="426">
+                <xs:annotation>
+                    <xs:documentation>["Пар грузовых поездов в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="427">
+                <xs:annotation>
+                    <xs:documentation>["Пассажиропоток"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="444">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн углерода в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="449">
+                <xs:annotation>
+                    <xs:documentation>["Тонно-километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="450">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонно-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="451">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонно-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="479">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча наборов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="499">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="508">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча метров кубических в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="509">
+                <xs:annotation>
+                    <xs:documentation>["Километр в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="510">
+                <xs:annotation>
+                    <xs:documentation>["Грамм на киловатт-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="511">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм на гигакалорию"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="512">
+                <xs:annotation>
+                    <xs:documentation>["Тонно-номер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="513">
+                <xs:annotation>
+                    <xs:documentation>["Автотонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="514">
+                <xs:annotation>
+                    <xs:documentation>["Тонна тяги"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="515">
+                <xs:annotation>
+                    <xs:documentation>["Дедвейт-тонна"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="516">
+                <xs:annotation>
+                    <xs:documentation>["Тонно-танид"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="521">
+                <xs:annotation>
+                    <xs:documentation>["Человек на квадратный метр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="522">
+                <xs:annotation>
+                    <xs:documentation>["Человек на квадратный километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="533">
+                <xs:annotation>
+                    <xs:documentation>["Тонна пара в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="534">
+                <xs:annotation>
+                    <xs:documentation>["Тонна в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="535">
+                <xs:annotation>
+                    <xs:documentation>["Тонна в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="536">
+                <xs:annotation>
+                    <xs:documentation>["Тонна в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="537">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн в сезон"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="538">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="539">
+                <xs:annotation>
+                    <xs:documentation>["Человеко-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="540">
+                <xs:annotation>
+                    <xs:documentation>["Человеко-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="5401">
+                <xs:annotation>
+                    <xs:documentation>["Дето-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="541">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча человеко-дней"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="542">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча человеко-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="5423">
+                <xs:annotation>
+                    <xs:documentation>["Человек в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="543">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных банок в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="544">
+                <xs:annotation>
+                    <xs:documentation>["Миллион единиц в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="545">
+                <xs:annotation>
+                    <xs:documentation>["Посещение в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="5451">
+                <xs:annotation>
+                    <xs:documentation>["Посещение"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="546">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча посещений в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="547">
+                <xs:annotation>
+                    <xs:documentation>["Пара в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="548">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пар в смену"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="550">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонн в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="552">
+                <xs:annotation>
+                    <xs:documentation>["Тонна переработки в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="553">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн переработки в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="554">
+                <xs:annotation>
+                    <xs:documentation>["Центнер переработки в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="555">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча центнеров переработки в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="556">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча голов в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="5562">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча гнезд"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="557">
+                <xs:annotation>
+                    <xs:documentation>["Миллион голов в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="558">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча птицемест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="559">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча кур-несушек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="561">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн пара в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="562">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча прядильных веретен"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="563">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча прядильных мест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="596">
+                <xs:annotation>
+                    <xs:documentation>["Кубический метр в секунду"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="598">
+                <xs:annotation>
+                    <xs:documentation>["Кубический метр в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="599">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча кубических метров в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="616">
+                <xs:annotation>
+                    <xs:documentation>["Бобина"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="625">
+                <xs:annotation>
+                    <xs:documentation>["Лист"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="626">
+                <xs:annotation>
+                    <xs:documentation>["Сто листов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="630">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча стандартных условных кирпичей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="638">
+                <xs:annotation>
+                    <xs:documentation>["Гросс (144 шт.)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="639">
+                <xs:annotation>
+                    <xs:documentation>["Доза"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="640">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча доз"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="641">
+                <xs:annotation>
+                    <xs:documentation>["Дюжина (12 шт.)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="642">
+                <xs:annotation>
+                    <xs:documentation>["Единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="6421">
+                <xs:annotation>
+                    <xs:documentation>["Единиц в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="6422">
+                <xs:annotation>
+                    <xs:documentation>["Вызов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="6423">
+                <xs:annotation>
+                    <xs:documentation>["Посевная единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="6424">
+                <xs:annotation>
+                    <xs:documentation>["Штамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="643">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="644">
+                <xs:annotation>
+                    <xs:documentation>["Миллион единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="657">
+                <xs:annotation>
+                    <xs:documentation>["Изделие"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="661">
+                <xs:annotation>
+                    <xs:documentation>["Канал"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="673">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча комплектов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="683">
+                <xs:annotation>
+                    <xs:documentation>["Сто ящиков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="698">
+                <xs:annotation>
+                    <xs:documentation>["Место"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="699">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча мест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="704">
+                <xs:annotation>
+                    <xs:documentation>["Набор"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="709">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча номеров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="710">
+                <xs:annotation>
+                    <xs:documentation>["десятая доля единицы"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="715">
+                <xs:annotation>
+                    <xs:documentation>["Пара (2 шт.)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="724">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча гектаров порций"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="728">
+                <xs:annotation>
+                    <xs:documentation>["Пачка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="729">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пачек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="730">
+                <xs:annotation>
+                    <xs:documentation>["Два десятка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="731">
+                <xs:annotation>
+                    <xs:documentation>["Большой гросс (12 гроссов)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="732">
+                <xs:annotation>
+                    <xs:documentation>["Десять пар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="733">
+                <xs:annotation>
+                    <xs:documentation>["Дюжина пар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="734">
+                <xs:annotation>
+                    <xs:documentation>["Посылка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="735">
+                <xs:annotation>
+                    <xs:documentation>["Часть"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="736">
+                <xs:annotation>
+                    <xs:documentation>["Рулон"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="737">
+                <xs:annotation>
+                    <xs:documentation>["Дюжина рулонов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="738">
+                <xs:annotation>
+                    <xs:documentation>["Короткий стандарт (7200 единиц)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="740">
+                <xs:annotation>
+                    <xs:documentation>["Дюжина штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="744">
+                <xs:annotation>
+                    <xs:documentation>["Процент"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="745">
+                <xs:annotation>
+                    <xs:documentation>["Элемент"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="746">
+                <xs:annotation>
+                    <xs:documentation>["Промилле (0,1 процента)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="747">
+                <xs:annotation>
+                    <xs:documentation>["Базисный пункт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="751">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча рулонов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="761">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча станов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="762">
+                <xs:annotation>
+                    <xs:documentation>["Станция"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="775">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тюбиков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="776">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных тубов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="778">
+                <xs:annotation>
+                    <xs:documentation>["Упаковка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="779">
+                <xs:annotation>
+                    <xs:documentation>["Миллион упаковок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="780">
+                <xs:annotation>
+                    <xs:documentation>["Дюжина упаковок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="781">
+                <xs:annotation>
+                    <xs:documentation>["Сто упаковок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="782">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча упаковок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="792">
+                <xs:annotation>
+                    <xs:documentation>["Человек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="7923">
+                <xs:annotation>
+                    <xs:documentation>["Абонент"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="793">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча человек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="794">
+                <xs:annotation>
+                    <xs:documentation>["Миллион человек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="796">
+                <xs:annotation>
+                    <xs:documentation>["Штука"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="797">
+                <xs:annotation>
+                    <xs:documentation>["Сто штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="798">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="799">
+                <xs:annotation>
+                    <xs:documentation>["Миллион штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="800">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="801">
+                <xs:annotation>
+                    <xs:documentation>["Биллион штук (Европа)","триллион штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="802">
+                <xs:annotation>
+                    <xs:documentation>["Квинтильон штук (Европа)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="808">
+                <xs:annotation>
+                    <xs:documentation>["Миллион экземпляров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="810">
+                <xs:annotation>
+                    <xs:documentation>["Ячейка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="812">
+                <xs:annotation>
+                    <xs:documentation>["Ящик"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="820">
+                <xs:annotation>
+                    <xs:documentation>["Крепость спирта по массе"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="821">
+                <xs:annotation>
+                    <xs:documentation>["Крепость спирта по объему"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="831">
+                <xs:annotation>
+                    <xs:documentation>["Литр чистого (100%) спирта"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="833">
+                <xs:annotation>
+                    <xs:documentation>["Гектолитр чистого (100%) спирта"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="835">
+                <xs:annotation>
+                    <xs:documentation>["Галлон спирта установленной крепости"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="836">
+                <xs:annotation>
+                    <xs:documentation>["Голова"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="8361">
+                <xs:annotation>
+                    <xs:documentation>["Особь"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="837">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="838">
+                <xs:annotation>
+                    <xs:documentation>["Миллион пар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="839">
+                <xs:annotation>
+                    <xs:documentation>["Комплект"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="840">
+                <xs:annotation>
+                    <xs:documentation>["Секция"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="841">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм пероксида водорода"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="845">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм 90%-го сухого вещества"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="847">
+                <xs:annotation>
+                    <xs:documentation>["Тонна 90%-го сухого вещества"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="851">
+                <xs:annotation>
+                    <xs:documentation>["Международная единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="852">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм оксида калия"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="853">
+                <xs:annotation>
+                    <xs:documentation>["Сто международных единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="859">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм гидроксида калия"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="861">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм азота"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="863">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм гидроксида натрия"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="865">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм пятиокиси фосфора"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="867">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм урана"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="868">
+                <xs:annotation>
+                    <xs:documentation>["Бутылка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="869">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча бутылок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="870">
+                <xs:annotation>
+                    <xs:documentation>["Ампула"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="871">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча ампул"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="872">
+                <xs:annotation>
+                    <xs:documentation>["Флакон"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="873">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча флаконов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="874">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тубов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="875">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча коробок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="8751">
+                <xs:annotation>
+                    <xs:documentation>["Коробка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="876">
+                <xs:annotation>
+                    <xs:documentation>["Условная единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="877">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="878">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="879">
+                <xs:annotation>
+                    <xs:documentation>["Условная штука"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="880">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных штук"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="881">
+                <xs:annotation>
+                    <xs:documentation>["Условная банка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="882">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных банок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="883">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных банок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="884">
+                <xs:annotation>
+                    <xs:documentation>["Условный кусок"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="885">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных кусков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="886">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных кусков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="887">
+                <xs:annotation>
+                    <xs:documentation>["Условный ящик"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="888">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных ящиков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="889">
+                <xs:annotation>
+                    <xs:documentation>["Условная катушка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="890">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных катушек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="891">
+                <xs:annotation>
+                    <xs:documentation>["Условная плитка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="892">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных плиток"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="893">
+                <xs:annotation>
+                    <xs:documentation>["Условный кирпич"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="894">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча условных кирпичей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="895">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных кирпичей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="896">
+                <xs:annotation>
+                    <xs:documentation>["Семья"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="897">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча семей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="898">
+                <xs:annotation>
+                    <xs:documentation>["Миллион семей"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="899">
+                <xs:annotation>
+                    <xs:documentation>["Домохозяйство"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="900">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча домохозяйств"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="901">
+                <xs:annotation>
+                    <xs:documentation>["Миллион домохозяйств"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="902">
+                <xs:annotation>
+                    <xs:documentation>["Ученическое место"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="903">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча ученических мест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="904">
+                <xs:annotation>
+                    <xs:documentation>["Рабочее место"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="905">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча рабочих мест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="906">
+                <xs:annotation>
+                    <xs:documentation>["Посадочное место"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9061">
+                <xs:annotation>
+                    <xs:documentation>["Миллион гектаров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9062">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард гектаров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="907">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча посадочных мест"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="908">
+                <xs:annotation>
+                    <xs:documentation>["Номер"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="909">
+                <xs:annotation>
+                    <xs:documentation>["Квартира"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="910">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча квартир"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="911">
+                <xs:annotation>
+                    <xs:documentation>["Койка"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9111">
+                <xs:annotation>
+                    <xs:documentation>["Койко-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9113">
+                <xs:annotation>
+                    <xs:documentation>["Пациенто-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="912">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча коек"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="913">
+                <xs:annotation>
+                    <xs:documentation>["Том книжного фонда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="914">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча томов книжного фонда"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="915">
+                <xs:annotation>
+                    <xs:documentation>["Условный ремонт"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="916">
+                <xs:annotation>
+                    <xs:documentation>["Условный ремонт в год"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="917">
+                <xs:annotation>
+                    <xs:documentation>["Смена"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="918">
+                <xs:annotation>
+                    <xs:documentation>["Лист авторский"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="920">
+                <xs:annotation>
+                    <xs:documentation>["Лист печатный"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="921">
+                <xs:annotation>
+                    <xs:documentation>["Лист учетно-издательский"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="922">
+                <xs:annotation>
+                    <xs:documentation>["Знак"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="923">
+                <xs:annotation>
+                    <xs:documentation>["Слово"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="924">
+                <xs:annotation>
+                    <xs:documentation>["Символ"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9245">
+                <xs:annotation>
+                    <xs:documentation>["Запись"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9246">
+                <xs:annotation>
+                    <xs:documentation>["Документ"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="925">
+                <xs:annotation>
+                    <xs:documentation>["Условная труба"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="930">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пластин"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="937">
+                <xs:annotation>
+                    <xs:documentation>["Миллион доз"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="949">
+                <xs:annotation>
+                    <xs:documentation>["Миллион листов-оттисков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9491">
+                <xs:annotation>
+                    <xs:documentation>["Лист-оттиск"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="950">
+                <xs:annotation>
+                    <xs:documentation>["Вагоно(машино)-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9501">
+                <xs:annotation>
+                    <xs:documentation>["Вагоно (машино)-час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="951">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча вагоно-(машино)-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="952">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча вагоно-(машино)-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="953">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча место-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="954">
+                <xs:annotation>
+                    <xs:documentation>["Вагоно-сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="955">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча поездо-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9557">
+                <xs:annotation>
+                    <xs:documentation>["Миллион голов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="956">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча поездо-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="957">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонно-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="958">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча пассажиро-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="959">
+                <xs:annotation>
+                    <xs:documentation>["Автомобиле-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="960">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча автомобиле-тонно-дней"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="961">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча автомобиле-часов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="962">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча автомобиле-место-дней"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="963">
+                <xs:annotation>
+                    <xs:documentation>["Приведенный час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="964">
+                <xs:annotation>
+                    <xs:documentation>["Самолето-километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9641">
+                <xs:annotation>
+                    <xs:documentation>["Летный час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9642">
+                <xs:annotation>
+                    <xs:documentation>["Балл"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="965">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="966">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тоннаже-рейсов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="967">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонно-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="968">
+                <xs:annotation>
+                    <xs:documentation>["Миллион пассажиро-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="969">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тоннаже-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="970">
+                <xs:annotation>
+                    <xs:documentation>["Миллион пассажиро-место-миль"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="971">
+                <xs:annotation>
+                    <xs:documentation>["Кормо-день"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="972">
+                <xs:annotation>
+                    <xs:documentation>["Центнер кормовых единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="973">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча автомобиле-километров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="974">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тоннаже-сут"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="975">
+                <xs:annotation>
+                    <xs:documentation>["Суго-сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="976">
+                <xs:annotation>
+                    <xs:documentation>["Штук в 20-футовом эквиваленте (ДФЭ)"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="977">
+                <xs:annotation>
+                    <xs:documentation>["Канало-километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="978">
+                <xs:annotation>
+                    <xs:documentation>["Канало-концы"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="979">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча экземпляров"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="980">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча долларов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9802">
+                <xs:annotation>
+                    <xs:documentation>["Миллион долларов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9803">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард долларов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9805">
+                <xs:annotation>
+                    <xs:documentation>["Доллар за тонну"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="981">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча тонн кормовых единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="982">
+                <xs:annotation>
+                    <xs:documentation>["Миллион тонн кормовых единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9822">
+                <xs:annotation>
+                    <xs:documentation>["Миллион евро"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9823">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард евро"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="983">
+                <xs:annotation>
+                    <xs:documentation>["Судо-сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="984">
+                <xs:annotation>
+                    <xs:documentation>["Центнеров с гектара"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="985">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча голов"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="986">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча краско-оттисков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="987">
+                <xs:annotation>
+                    <xs:documentation>["Миллион краско-оттисков"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="988">
+                <xs:annotation>
+                    <xs:documentation>["Миллион условных плиток"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="989">
+                <xs:annotation>
+                    <xs:documentation>["Человек в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="990">
+                <xs:annotation>
+                    <xs:documentation>["Пассажиров в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="991">
+                <xs:annotation>
+                    <xs:documentation>["Пассажиро-миля"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9910">
+                <xs:annotation>
+                    <xs:documentation>["Международная единица биологической активности"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9911">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча международных единиц биологической активности"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9912">
+                <xs:annotation>
+                    <xs:documentation>["Миллион международных единиц биологической активности"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9913">
+                <xs:annotation>
+                    <xs:documentation>["Международная единица биологической активности на грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9914">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча международных единиц биологической активности на грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9915">
+                <xs:annotation>
+                    <xs:documentation>["Миллион международных единиц биологической активности на грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9916">
+                <xs:annotation>
+                    <xs:documentation>["Международная единица биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9917">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча международных единиц биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9918">
+                <xs:annotation>
+                    <xs:documentation>["Миллион международных единиц биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="992">
+                <xs:annotation>
+                    <xs:documentation>["Километр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9920">
+                <xs:annotation>
+                    <xs:documentation>["Единица действия биологической активности"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9921">
+                <xs:annotation>
+                    <xs:documentation>["Единица биологической активности на грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9922">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча единиц действия биологической активности на грамм"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9923">
+                <xs:annotation>
+                    <xs:documentation>["Единица действия биологической активности на микролитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9924">
+                <xs:annotation>
+                    <xs:documentation>["Единица действия биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9925">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча единиц действия биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9926">
+                <xs:annotation>
+                    <xs:documentation>["Миллион единиц действия биологической активности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9927">
+                <xs:annotation>
+                    <xs:documentation>["Единица действия биологической активности в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9930">
+                <xs:annotation>
+                    <xs:documentation>["Антитоксическая единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9931">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча антитоксических единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9940">
+                <xs:annotation>
+                    <xs:documentation>["Антитрипсиновая единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9941">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча антитрипсиновых единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9950">
+                <xs:annotation>
+                    <xs:documentation>["Индекс Реактивности"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9951">
+                <xs:annotation>
+                    <xs:documentation>["Индекс Реактивности на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9960">
+                <xs:annotation>
+                    <xs:documentation>["Килобеккерель на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9961">
+                <xs:annotation>
+                    <xs:documentation>["Мегабеккерель на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9962">
+                <xs:annotation>
+                    <xs:documentation>["Мегабеккерель на метр квадратный"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9970">
+                <xs:annotation>
+                    <xs:documentation>["Калликреиновая ингибирующая единица на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9971">
+                <xs:annotation>
+                    <xs:documentation>["Тысяча калликреиновых ингибирующих единиц на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9980">
+                <xs:annotation>
+                    <xs:documentation>["Миллион колониеобразующих единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9981">
+                <xs:annotation>
+                    <xs:documentation>["Миллион колониеобразующих единиц на пакет"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9982">
+                <xs:annotation>
+                    <xs:documentation>["Миллиард колониеобразующих единиц"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9983">
+                <xs:annotation>
+                    <xs:documentation>["Протеолитическая единица"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9985">
+                <xs:annotation>
+                    <xs:documentation>["Микрограмм на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9986">
+                <xs:annotation>
+                    <xs:documentation>["Микрограмм в сутки"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9987">
+                <xs:annotation>
+                    <xs:documentation>["Микрограмм в час"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9988">
+                <xs:annotation>
+                    <xs:documentation>["Микрограмм на дозу"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9990">
+                <xs:annotation>
+                    <xs:documentation>["Миллимоль на миллилитр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9991">
+                <xs:annotation>
+                    <xs:documentation>["Миллимоль на литр"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9992">
+                <xs:annotation>
+                    <xs:documentation>["Килограмм на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="9993">
+                <xs:annotation>
+                    <xs:documentation>["Тонна на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="cubicMeterPerHectare">
+                <xs:annotation>
+                    <xs:documentation>["Метр кубический на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="hundrPiecesPerHectare">
+                <xs:annotation>
+                    <xs:documentation>["Cотни штук на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="piecesPerHectare">
+                <xs:annotation>
+                    <xs:documentation>["Штук на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="thousandsPerHectare">
+                <xs:annotation>
+                    <xs:documentation>["Тысяч штук на гектар"]</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

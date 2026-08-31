@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/objectSource/types/0.3.7"
+    xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/objectSource/types/0.3.7"
+    xmlns:section="http://rosleshoz.gov.ru/fgis-lk/common/enums/sectionGlr/types/2.1.4"
+    xmlns:dType="http://rosleshoz.gov.ru/fgis-lk/common/enums/documentType/types/2.1.9"
+    xmlns:st="http://rosleshoz.gov.ru/fgis-lk/common/simple/types/2.2.2"
+    xmlns:docFoundationType="http://rosleshoz.gov.ru/fgis-lk/common/document/types/2.2.8">
+
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/sectionGlr/types/2.1.4"
+        schemaLocation="dSectionGlrKindTypes-2.1.4.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/documentType/types/2.1.9"
+        schemaLocation="dDocumentTypeKindTypes-2.1.9.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/simple/types/2.2.2"
+        schemaLocation="simpleTypes-2.2.2.xsd"/>
+    <xs:import namespace="http://rosleshoz.gov.ru/fgis-lk/common/document/types/2.2.8"
+        schemaLocation="documentTypes-2.2.8.xsd"/>
+
+    <xs:complexType name="glrObjectsInfoType">
+        <xs:annotation>
+            <xs:documentation>
+                Информация об объектах включенных в документ
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="object" type="tns:objectInfoType" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Информация об объекте ГЛР
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="objectInfoType">
+        <xs:annotation>
+            <xs:documentation>
+                Информация об объекте
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="objectNo" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        Номер объекта ГЛР
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="objectType" type="section:SectionGlrKindEType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Тип объекта ГЛР
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="docType" type="dType:DocumentTypeKindEType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Тип подаваемого документа
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="BasisAttrType">
+        <xs:annotation>
+            <xs:documentation>
+            Базовые атрибуты документа (ПУД)
+        </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="basisDocNumber" type="st:String128SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Номер документа основания
+                </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="basisDocKind" type="docFoundationType:FoundationDocumentType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Вид документа основания
+                </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="docBasisAuthor" type="st:String255SType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Автор документа
+                </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="docBasisDate" type="st:DateSType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                    Дата оформления документа основания
+                </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

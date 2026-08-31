@@ -1,0 +1,2485 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/subordinateAuthority/types/2.1.4" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/subordinateAuthority/types/2.1.4" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--created: 2026-03-19T11:30:08+0300-->
+    <xs:simpleType name="SubordinateAuthorityKindEType">
+        <xs:annotation>
+            <xs:documentation>Государственные (муниципальные ) учреждения, подведомственные ОГВ субъектов РФ</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="fgu301">
+                <xs:annotation>
+                    <xs:documentation>Муниципальное бюджетное учреждение "Трехгорное лесничество"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu302">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «КОСТЕРЕВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» ГЛАВНОГО КВАРТИРНО-ЭКСПЛУАТАЦИОННОГО УПРАВЛЕНИЯ МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu303">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «155 ВОЕННОЕ ЛЕСНИЧЕСТВО» ГЛАВНОГО КВАРТИРНО-ЭКСПЛУАТАЦИОННОГО УПРАВЛЕНИЯ МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu304">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "Брянское военное лесничество" Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu305">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu306">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "Гороховецкое военное лесничество" Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu307">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «МОСКОВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu308">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «МИЧУРИНСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu309">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «МОРОЗОВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu310">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «ТОПОЛЕВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu311">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «ХВОЙНОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu312">
+                <xs:annotation>
+                    <xs:documentation>ФГУ ИНГОДИНСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО СИБИРСКОГО ВОЕННОГО ОКРУГА</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu313">
+                <xs:annotation>
+                    <xs:documentation>ПАРТИЗАНСКОЕ ЛЕСНИЧЕСТВО МИНОБОРОНЫ РОССИИ - ФИЛИАЛ ФГУ "УЭИР МИНОБОРОНЫ РОССИИ"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu314">
+                <xs:annotation>
+                    <xs:documentation>НИЖНЕТАГИЛЬСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu315">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "Красноярское военное лесничество"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu316">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "Территориальное управление лесного хозяйства" Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu317">
+                <xs:annotation>
+                    <xs:documentation>ПЕНЗЕНСКОЕ ЛЕСНИЧЕСТВО МИНОБОРОНЫ РОССИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu318">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Нижнеудинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu319">
+                <xs:annotation>
+                    <xs:documentation>ФГУ УССУРИЙСКОЕ ЛЕСНИЧЕСТВО МИНИСТЕРСТВА ОБОРОНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu320">
+                <xs:annotation>
+                    <xs:documentation>Пермское военное лесничество</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu321">
+                <xs:annotation>
+                    <xs:documentation>НОВОСИБИРСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu322">
+                <xs:annotation>
+                    <xs:documentation>Хабаровское лесничество Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu323">
+                <xs:annotation>
+                    <xs:documentation>Полярное лесничество Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu324">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «УЛАН-УДЭНСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО» СИБИРСКОГО ВОЕННОГО ОКРУГА</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu325">
+                <xs:annotation>
+                    <xs:documentation>247 лесничество Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu326">
+                <xs:annotation>
+                    <xs:documentation>Свердловское военное лесничество</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu327">
+                <xs:annotation>
+                    <xs:documentation>ГУ ЧИТИНСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО СИБИРСКОГО КВАРТИРНО-ЭКСПЛУАТАЦИОННОГО УПРАВЛЕНИЯ (ТЕРРИТОРИАЛЬНОГО)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu328">
+                <xs:annotation>
+                    <xs:documentation>102 лесничество Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu329">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «СУСЛОНГЕРСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu331">
+                <xs:annotation>
+                    <xs:documentation>Алкинское лесничество Министерства обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu332">
+                <xs:annotation>
+                    <xs:documentation>Тоцкое военное лесничество</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu333">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "ЯРОСЛАВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu334">
+                <xs:annotation>
+                    <xs:documentation>БОГАНДИНСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu335">
+                <xs:annotation>
+                    <xs:documentation>Чебаркульское лесничество Минобороны России</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu336">
+                <xs:annotation>
+                    <xs:documentation>ФГУ «САРАТОВСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu337">
+                <xs:annotation>
+                    <xs:documentation>Камышловское лесничество Министерства обороны Россиийской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu338">
+                <xs:annotation>
+                    <xs:documentation>ФГУ АЛТАЙСКОЕ ВОЕННОЕ ЛЕСНИЧЕСТВО СИБИРСКОГО ВОЕННОГО ОКРУГА</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu339">
+                <xs:annotation>
+                    <xs:documentation>ГУ АМУРСКОЙ ОБЛАСТИ "ЗАВИТИНСКОЕ ЛЕСНИЧЕСТВО"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu340">
+                <xs:annotation>
+                    <xs:documentation>ФГУ "Карелинское военное лесничество"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu341">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Камчатское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu342">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Архангельское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu343">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Владивостокское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu344">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Башкирское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu345">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Алтайское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu346">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Тюменское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu347">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu348">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Гороховецкое лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu349">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Амурское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu350">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ингодинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu351">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Камышловское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu352">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Карелинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu353">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Костеревское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu354">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Красноярское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu355">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Лужское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu356">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Морозовское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu357">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Нижнетагильское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu358">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Новосибирское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu359">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Партизанское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu360">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Пензенское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu361">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Пермское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu362">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Кировское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu363">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Саратовское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu364">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Свердловское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu365">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Марийское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu366">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Тверское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu367">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Оренбурское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu368">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Улан-Удэнское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu369">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Уссурийское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu370">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Хабаровское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu371">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Хвойное лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu372">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Челябинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu373">
+                <xs:annotation>
+                    <xs:documentation>Читинское лесничество – филиал ФГКУ "УЛХИП" Минобороны России</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu374">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Шелеховское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu375">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Южно-Сахалинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu376">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ярославское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu377">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Крымское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu379">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Заповедник "Олекминский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu380">
+                <xs:annotation>
+                    <xs:documentation>Государственное казенное учреждение Тюменской области «Тюменское управление лесами»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu381">
+                <xs:annotation>
+                    <xs:documentation>Краевое государственное казенное учреждение "Лесная охрана"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu383">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение "Национальный парк "Нечкинский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu384">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение "Национальный парк "Бузулукский бор"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu394">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение "Национальный парк "Бузулукский бор"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu398">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение "Национальный парк "Нижняя Кама"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu399">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение "Лапландский государственный природный биосферный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu402">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Хвалынский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu403">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк" Марий чодра"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu404">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк" Чаваш вармане"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu406">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ Государственный природный заповедник  "Норский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu407">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Хинганский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu408">
+                <xs:annotation>
+                    <xs:documentation>Федеральное государственное бюджетное учреждение «Государственный заповедник «Бастак»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu409">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Кроноцкий государственный природный биосферный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu410">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Магаданский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu411">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Земля леопарда"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu412">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Объединенная дирекция Лазовского государственного заповедника имени Л.Г. Капланова и национального парка "Зов тигра"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu413">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Сихотэ-Алинский государственный природный биосферный заповедник им.К.Г.Абрамова"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu414">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "ГОСУДАРСТВЕННЫЙ ЗАПОВЕДНИК "ХАНКАЙСКИЙ"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu415">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Курильский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu416">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный  природный заповедник "Поронайский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu417">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Заповедное Приамурье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu418">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный  природный заповедник "Ботчинский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu419">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный  природный заповедник "Буреинский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu420">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный  природный заповедник "Джугджурский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu421">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Сохондинский государственный  природный биосферный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu422">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Заповедное Прибакалье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu423">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный  природный заповедник "Витимcкий"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu424">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный заповедник "Кузнецкий Алатау"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu427">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Национальный парк «Нижняя Кама»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu428">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Южно-Уральский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu429">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк" Самарская Лука"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu430">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Заповедное подлеморье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu432">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Тункинский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu434">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "ШОРСКИЙ НАЦИОНАЛЬНЫЙ ПАРК"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu435">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Южно-Уральский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu438">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Объединенная дирекция заповедников Таймыра"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu439">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный биосферный заповедник "Центральносибирский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu440">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "ПРИПЫШМИНСКИЕ БОРЫ"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu441">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Тунгусский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu442">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Столбы"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu443">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Государственный природный заповедник "Саяно-Шушенский"»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu444">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Алтайский государственный заповедник»)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu445">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Государственный природный биосферный заповедник «Катунский»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu446">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Байкальский государственный природный биосферный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu448">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Государственный заповедник «Джергинский»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu449">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Авас"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu450">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный биосферный заповедник "Убсунурская котловина"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu451">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Хакасский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu452">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Шушенский бор"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu453">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Белогорье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu454">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ Государственный природный биосферный заповедник "Брянский лес"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu455">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Воронежский государственный природный биосферный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu456">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Хоперский государственный природный  заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu457">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Калужские засеки"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu458">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Кологривский лес"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu459">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Центрально-черноземный государственный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu461">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Приокско-террасный государственный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu462">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Окский государственный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu463">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный заповедник "Воронинский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu464">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Центрально-Лесной государственный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu465">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Мещёра"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu466">
+                <xs:annotation>
+                    <xs:documentation>Национальный парк "Угра"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu467">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Лосиный остров"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu468">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Орловское полесье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu469">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Смоленское поозерье"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu470">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Плещеево озеро"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu471">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Нургуш"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu472">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Керженский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu473">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Приволжская лесостепь"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu474">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Басеги"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu475">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Вишерский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu476">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Башкирский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu477">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Шульган-Таш"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu478">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Большая Кокшага"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu479">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Мордовский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu480">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Волжско-Камский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu481">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Жигулевский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu482">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Присурский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu483">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Башкирия"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu484">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Смольный"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu486">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Валдайский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu487">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Денежкин камень"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu488">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Зораткуль"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu489">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Таганай"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu490">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Пинежский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu491">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Дарвинский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu492">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Нижне-Свирский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu493">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Кандалакшский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu494">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Пасвик"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu495">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Рдейский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu496">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Полистовский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu497">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Костомукшский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu498">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Печоро-Илычский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu499">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Водлозерский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu500">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Кенозерский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu501">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Русский Север"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu502">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Куршская коса"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu503">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Себежский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu504">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Паанаярви"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu505">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Югыд Ва"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu506">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Кавказский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu507">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Государственный природный заповедник "Эрзи"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu508">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Северо-Осетинский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu509">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Тебердинский государственный природный заповедник"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu510">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Сочинский национальный парк"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu517">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Мещера"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu520">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ "Национальный парк "Алханай"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu522">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Хвойное лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu523">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Хвойное лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu529">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Объединенная дирекция Мордовского государственного природного заповедника имени П.Г. Смидовича и национального парка «Смольный»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu530">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Гороховецкое лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu531">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Гороховецкое лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu532">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Гороховецкое лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu533">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Гороховецкое лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu535">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Калужской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu536">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тульской области”</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu537">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тверской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu538">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Смоленской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu539">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Владимирской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu540">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Рязанской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu541">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тюменской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu542">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Мордовия»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu543">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Бурятия»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu544">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Красноярского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu545">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Калининградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu546">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Тыва»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu547">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Челябинской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu548">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Чувашской Республики»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu549">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Приморского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu550">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Саратовской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu551">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Алтайского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu552">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ульяновской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu553">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Томской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu554">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Иркутской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu555">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Курганской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu556">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Пермского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu557">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Новосибирской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu558">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Забайкальского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu559">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Марий Эл»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu560">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Волгоградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu561">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Нижегородской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu562">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Оренбургской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu563.1">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Дагестан»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu564">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Краснодарского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu565">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ставропольского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu566">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Новгородской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu567">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Башкортостан»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu568">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и экологии Республики Башкортостан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu568.1">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Воронежской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu569">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Архангельской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu570">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Татарстан»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu571">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ленинградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu572">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Хабаровского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu573.1">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Пензенской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu574.1">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Адыгея»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu575.1">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Коми»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu576">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Чеченской Республики»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu577">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Калужской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu578">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тульской области”</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu579">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тульской области”</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu580">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тверской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu581">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Владимирской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu582">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Владимирской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu583">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Рязанской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu584">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тюменской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu585">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Тюменской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu586">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Красноярского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu587">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Челябинской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu588">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Приморского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu589">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Алтайского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu590">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Томской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu591">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Пермского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu592">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Новосибирской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu593">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Забайкальского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu594">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Волгоградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu595">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Волгоградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu596">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Волгоградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu597">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Нижегородской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu598">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Оренбургской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu599">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ставропольского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu600">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ставропольского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu601">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ставропольского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu602">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Новгородской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu603">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Воронежской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu604">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Архангельской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu605">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Архангельской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu606">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ленинградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu607">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Ленинградской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu608">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Хабаровского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu609">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Хабаровского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu610">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Хабаровского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu611">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Хабаровского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu612">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Чеченской Республики»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu613">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Республики Бурятия»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu614">
+                <xs:annotation>
+                    <xs:documentation>Филиал ФБУ «Рослесозащита» «ЦЗЛ Воронежской области»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu621">
+                <xs:annotation>
+                    <xs:documentation>ФГБУ «Национальный парк «Онежское Поморье»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu663">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Пензенское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu664">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Пензенское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu668">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Архангельское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu669">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu670">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu671">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu672">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu673">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu674">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu675">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu676">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Костеревское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu677">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Костеревское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu678">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Лужское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu679">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Морозовское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu680">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu681">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu682">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu683">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu684">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Новосибирское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu685">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Пермское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu686">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Свердловское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu687">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Тверское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu688">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ярославское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu689">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Брянское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu690">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Хвойное лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu691">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Новосибирское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu692">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Новосибирское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu693">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Алтайское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu694">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Камышловское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu696">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Московское лесничество Минобороны России</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu697">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Улан-Удэнское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu698">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Читинское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu699">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ярославское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu700">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ярославское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu701">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Ярославское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fgu704">
+                <xs:annotation>
+                    <xs:documentation>ФГКУ "УПРАВЛЕНИЕ ЛЕСНОГО ХОЗЯЙСТВА И ПРИРОДОПОЛЬЗОВАНИЯ" МО РФ (филиал - Марийское лесничество Минобороны России)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fov651">
+                <xs:annotation>
+                    <xs:documentation>Войсковая часть 28178</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fov662">
+                <xs:annotation>
+                    <xs:documentation>Государственная компания "Российские автомобильные дороги"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fov999">
+                <xs:annotation>
+                    <xs:documentation>Федеральное агентство лесного хозяйства</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fovA01">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fovA02">
+                <xs:annotation>
+                    <xs:documentation>Министерство обороны Российской Федерации</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="fovA03.1">
+                <xs:annotation>
+                    <xs:documentation>ГОСУДАРСТВЕННЫЙ КОМПЛЕКС "ЗАВИДОВО" ФЕДЕРАЛЬНОЙ СЛУЖБЫ ОХРАНЫ РОССИЙСКОЙ ФЕДЕРАЦИИ</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov200">
+                <xs:annotation>
+                    <xs:documentation>Управление имущественных отношений Администрации ЗАТО Северск</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov202">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Сельцо Брянской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov203">
+                <xs:annotation>
+                    <xs:documentation>Комитет экологической безопасности и природопользования города Курска Администрации города Курска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov204">
+                <xs:annotation>
+                    <xs:documentation>Комитет по управлению муниципальным имуществом Администрации города Щадринска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov205">
+                <xs:annotation>
+                    <xs:documentation>Администрация рабочего поселка Сузун Сузунского района Новосибирской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov206">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Бердска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov300">
+                <xs:annotation>
+                    <xs:documentation>Комитет дорожного хозяйства, благоустройства и охраны окружающей среды администрации Волгограда</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov330">
+                <xs:annotation>
+                    <xs:documentation>МУНИЦИПАЛЬНОЕ ОБРАЗОВАНИЕ ГОРОД УСТЬ-ИЛИМСК</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov382">
+                <xs:annotation>
+                    <xs:documentation>Администрация ЗАТО г. Железногорск</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov385">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Березники</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov388">
+                <xs:annotation>
+                    <xs:documentation>Администрация муниципального образования "Город Десногорск" Смоленской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov390">
+                <xs:annotation>
+                    <xs:documentation>Орган местного самоуправления Комитет по управлению имуществом города Каменска-Уральского</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov391">
+                <xs:annotation>
+                    <xs:documentation>Администрация Артемовского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov393">
+                <xs:annotation>
+                    <xs:documentation>Администрации городского округа  Первоуральск</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov395">
+                <xs:annotation>
+                    <xs:documentation>Администрация Ивдельского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov396">
+                <xs:annotation>
+                    <xs:documentation>Администрации Чайковского городского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov397">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Таганрога</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov401">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Мурманска, комитет по развитию городского хозяйства</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov425">
+                <xs:annotation>
+                    <xs:documentation>Администрация Миасского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov426">
+                <xs:annotation>
+                    <xs:documentation>Администрация муниципального района "Прилузский"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov431">
+                <xs:annotation>
+                    <xs:documentation>Администрация Снежинского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov432">
+                <xs:annotation>
+                    <xs:documentation>Администрация Шабалинского района Кировской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov433">
+                <xs:annotation>
+                    <xs:documentation>Администрация Орлинского сельского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov437">
+                <xs:annotation>
+                    <xs:documentation>Администрации городского округа  Ревда</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov447">
+                <xs:annotation>
+                    <xs:documentation>Администрация г. Воткинска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov460">
+                <xs:annotation>
+                    <xs:documentation>Администрации Сретенского сельского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov485">
+                <xs:annotation>
+                    <xs:documentation>Администрация г. Нижний Тагил</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov511">
+                <xs:annotation>
+                    <xs:documentation>Администрация городского округа Город Октябрьский</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov524">
+                <xs:annotation>
+                    <xs:documentation>Комитет городского обустройства администрации города Иркутска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov525">
+                <xs:annotation>
+                    <xs:documentation>Администрация Шаманского сельского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov526">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Омска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov527">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Бийска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov528">
+                <xs:annotation>
+                    <xs:documentation>Администрация Кологривского муниципального района</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov534">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Кургана</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov615">
+                <xs:annotation>
+                    <xs:documentation>Администрация Ореховского сельского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov618">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Екатеринбурга</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov620">
+                <xs:annotation>
+                    <xs:documentation>Администрация г. Дзержинска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov622">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Братска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov623">
+                <xs:annotation>
+                    <xs:documentation>Администрация г. Нижнего Новгорода</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov624">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Соликамска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov625">
+                <xs:annotation>
+                    <xs:documentation>Администрация Тайгинского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov631">
+                <xs:annotation>
+                    <xs:documentation>Администрация Севского муниципального района Брянской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov632">
+                <xs:annotation>
+                    <xs:documentation>Администрация Североуральского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov634">
+                <xs:annotation>
+                    <xs:documentation>Администрация Камышловского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov636">
+                <xs:annotation>
+                    <xs:documentation>Администрация Верхнекамского района</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov637">
+                <xs:annotation>
+                    <xs:documentation>Прибайкальская районная администрация</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov639">
+                <xs:annotation>
+                    <xs:documentation>Администрация городского округа города Кулебаки</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov640">
+                <xs:annotation>
+                    <xs:documentation>Администрации городского округа "город Калининград"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov641">
+                <xs:annotation>
+                    <xs:documentation>Администрация Малиновского сельского поселения</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov642">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Обнинска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov643">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Барнаула</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov644">
+                <xs:annotation>
+                    <xs:documentation>Муниципальное образование "Ленский район"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov645">
+                <xs:annotation>
+                    <xs:documentation>Администрация муниципального образования "Котлас"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov646">
+                <xs:annotation>
+                    <xs:documentation>Администрация ЗАТО города Зеленогорска Красноярского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov649">
+                <xs:annotation>
+                    <xs:documentation>Комитет по управлению муниципальным имуществом Качканарского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov652">
+                <xs:annotation>
+                    <xs:documentation>Комитет по управлению муниципальным имуществом Администрации Устьянского муниципального района Архангельской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov654">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Льгова Курской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov655">
+                <xs:annotation>
+                    <xs:documentation>Управление по экологии и природопользованию администрации города Перми</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov657">
+                <xs:annotation>
+                    <xs:documentation>Администрации Александровского муниципального района</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov658">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Сарова</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov659">
+                <xs:annotation>
+                    <xs:documentation>Комитет городского хозяйства города Курска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov660">
+                <xs:annotation>
+                    <xs:documentation>Администрация города Ростова-на-Дону</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov665">
+                <xs:annotation>
+                    <xs:documentation>Администрацию Карагайского Муниципального округа Пермского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov697">
+                <xs:annotation>
+                    <xs:documentation>Aдминистрация Саянского района Красноярского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov700">
+                <xs:annotation>
+                    <xs:documentation>Администрация муниципального образования "Муниципальный округ Ярский район Удмуртской Республики"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov705">
+                <xs:annotation>
+                    <xs:documentation>Администрация Ленинского городского поселения Шабалинского района Кировской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mov706">
+                <xs:annotation>
+                    <xs:documentation>Комитет инфраструктуры, ЖКХ, земельных и имущественных отношений администрации Большесосновского муниципального округа Пермского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="movA662">
+                <xs:annotation>
+                    <xs:documentation>Юргинский муниципальный район</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="movA663">
+                <xs:annotation>
+                    <xs:documentation>Администрация Заводоуковского городского округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mu616">
+                <xs:annotation>
+                    <xs:documentation>МАУ "Администрация рекреационной местности Северо-Байкальская"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mu617">
+                <xs:annotation>
+                    <xs:documentation>МКУ «Озерское лесничество»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mu626">
+                <xs:annotation>
+                    <xs:documentation>МАУ "ГОРОДСКОЕ ЛЕСНИЧЕСТВО"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="mu638">
+                <xs:annotation>
+                    <xs:documentation>МУ "Комитет городского хозяйства Администрации г. Улан-Удэ"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu386">
+                <xs:annotation>
+                    <xs:documentation>Кировское областное государственное казенное учреждение "Кировский центр лесного хозяйства"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu653">
+                <xs:annotation>
+                    <xs:documentation>ГКУ Республики Хакасия "Дирекция по особо охраняемым природным территориям Республики Хакасия"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu901">
+                <xs:annotation>
+                    <xs:documentation>ГАУ МО «Центрлесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu902">
+                <xs:annotation>
+                    <xs:documentation>ГКУ МО «Мособллес»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu903">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Дирекция особо охраняемых природных территорий Пермского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu904">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Кизеловский лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu905">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Кишертский лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu906">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Кудымкарский лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu908">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Чайковский лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu909">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Сивинский лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu909.1">
+                <xs:annotation>
+                    <xs:documentation>Государственное бюджетное учреждение Пермского края «Чусовской лесхоз»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu910">
+                <xs:annotation>
+                    <xs:documentation>Государственное казенное учреждение Пермского края «Управление лесничествами Пермского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu911">
+                <xs:annotation>
+                    <xs:documentation>Краевое государственное казённое учреждение «Дирекция по особо охраняемым природным территориям Красноярского края»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu912">
+                <xs:annotation>
+                    <xs:documentation>Краевое государственное казенное учреждение «Лесная охрана»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rgu913">
+                <xs:annotation>
+                    <xs:documentation>Специализированное государственное бюджетное учреждение Пермского края «Пермский лесопожарный центр»</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rguA49">
+                <xs:annotation>
+                    <xs:documentation>МОГКУ "Лесничества Магаданской области"</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov1">
+                <xs:annotation>
+                    <xs:documentation>Управление лесами Республики Адыгея</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov10">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Республики Карелия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov12">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов, экологии и охраны окружающей среды Республики Марий Эл</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov13">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного, охотничьего хозяйства и природопользования Республики Мордовия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov16">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Республики Татарстан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov17">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и природопользования Республики Тыва</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov18">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и охраны окружающей среды Удмуртской Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov184">
+                <xs:annotation>
+                    <xs:documentation>Департамент недропользования и природных ресурсов Ханты-Мансийского автономного округа – Югры</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov19">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Республики Хакасия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov2">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Республики Башкортостан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov20">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и охраны окружающей среды Чеченской Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov21">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Чувашской Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov22">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Алтайского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov23">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов Краснодарского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov25">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства, охраны окружающей среды, животного мира и природных ресурсов Приморского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov26">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и охраны окружающей среды Ставропольского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov27">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и лесопереработки Хабаровского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov28">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и пожарной безопасности Амурской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov29">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и лесопромышленного комплекса Архангельской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov3">
+                <xs:annotation>
+                    <xs:documentation>Республиканское агентство лесного хозяйства Республики Бурятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov30">
+                <xs:annotation>
+                    <xs:documentation>Служба природопользования и охраны окружающей среды Астраханской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov31">
+                <xs:annotation>
+                    <xs:documentation>Министерство природопользования Белгородской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov32">
+                <xs:annotation>
+                    <xs:documentation>Управление лесами Брянской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov33">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Владимирской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov34">
+                <xs:annotation>
+                    <xs:documentation>Комитет природных ресурсов, лесного хозяйства и экологии Волгоградской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov35">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного комплекса Вологодской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov36">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Воронежской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov37">
+                <xs:annotation>
+                    <xs:documentation>Комитет Ивановской области по лесному хозяйству</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov378">
+                <xs:annotation>
+                    <xs:documentation>Комитет по благоустройству Санкт-Петербурга</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov38">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного комплекса Иркутской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov389">
+                <xs:annotation>
+                    <xs:documentation>Комитет государственного экологического надзора Ленинградской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov4">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Республики Алтай</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov40">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Калужской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov400">
+                <xs:annotation>
+                    <xs:documentation>Управление Федеральной службы по ветеринарному и фитосанитарному надзору по Иркутской области и Республике Бурятия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov41">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного и охотничьего хозяйства Камчатского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov42">
+                <xs:annotation>
+                    <xs:documentation>Департамент лесного комплекса Кузбасса</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov43">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Кировской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov436">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и лесного комплекса Красноярского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov44">
+                <xs:annotation>
+                    <xs:documentation>Департамент лесного хозяйства Костромской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov45">
+                <xs:annotation>
+                    <xs:documentation>Департамент гражданской защиты, охраны окружающей среды и природных ресурсов Курганской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov46">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов Курской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov47">
+                <xs:annotation>
+                    <xs:documentation>Комитет по природным ресурсам Ленинградской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov48">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства Липецкой области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov49">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Магаданской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov5">
+                <xs:annotation>
+                    <xs:documentation>Комитет по лесному хозяйству Республики Дагестан</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov50">
+                <xs:annotation>
+                    <xs:documentation>Комитет лесного хозяйства Московской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov51">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Мурманской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov513">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Республики Северная Осетия – Алания</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov514">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Новосибирской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov515">
+                <xs:annotation>
+                    <xs:documentation>Министерство экологии и природных ресурсов Республики Крым</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov518">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов Забайкальского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov55">
+                <xs:annotation>
+                    <xs:documentation>Главное управление лесного хозяйства Омской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov56">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов, экологии и имущественных отношений Оренбургской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov57">
+                <xs:annotation>
+                    <xs:documentation>Управление лесами Орловской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov58">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного, охотничьего хозяйства и природопользования Пензенской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov59">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов, лесного хозяйства и экологии Пермского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov6">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Республики Ингушетия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov61">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Ростовской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov619">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов, лесного хозяйства и экологии Новгородской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov62">
+                <xs:annotation>
+                    <xs:documentation>Министерство природопользования Рязанской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov627">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Калининградской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov63">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Самарской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov633">
+                <xs:annotation>
+                    <xs:documentation>Министерство экологии, природопользования и лесного хозяйства Республики Саха (Якутия)</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov64">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Саратовской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov648">
+                <xs:annotation>
+                    <xs:documentation>Департамент энергетики, жилищного и коммунального хозяйства города Новосибирска</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov650">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Псковской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov656">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Республики Коми</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov66">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Свердловской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov661">
+                <xs:annotation>
+                    <xs:documentation>Агентство лесного и охотничьего хозяйства Сахалинской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov666">
+                <xs:annotation>
+                    <xs:documentation>Управление Федеральной службы по ветеринарному и фитосанитарному надзору по Республике Карелия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov667">
+                <xs:annotation>
+                    <xs:documentation>Управление Федеральной службы по ветеринарному и фитосанитарному надзору по Архангельской области и Ненецкому автономному округу</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov67">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и охраны объектов животного мира Смоленской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov68">
+                <xs:annotation>
+                    <xs:documentation>Департамент лесного хозяйства Тамбовской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov69">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного комплекса Тверской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov695">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и охраны объектов животного мира Нижегородской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov7">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Кабардино-Балкарской Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov70">
+                <xs:annotation>
+                    <xs:documentation>Департамент лесного хозяйства Томской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov702">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и пожарной безопасности Забайкальского края</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov71">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Тульской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov72">
+                <xs:annotation>
+                    <xs:documentation>Департамент лесного комплекса Тюменской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov73">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Ульяновской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov74">
+                <xs:annotation>
+                    <xs:documentation>Главное управление лесами Челябинской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov76">
+                <xs:annotation>
+                    <xs:documentation>Министерство лесного хозяйства и природопользования Ярославской области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov79">
+                <xs:annotation>
+                    <xs:documentation>Департамент управления лесами Правительства Еврейской автономной области</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov8">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и охраны окружающей среды Республики Калмыкия</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov83a">
+                <xs:annotation>
+                    <xs:documentation>Департамент природных ресурсов, экологии и агропромышленного комплекса Ненецкого автономного округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov87">
+                <xs:annotation>
+                    <xs:documentation>Департамент природных ресурсов и экологии Чукотского автономного округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov89">
+                <xs:annotation>
+                    <xs:documentation>Департамент природных ресурсов и экологии Ямало-Ненецкого автономного округа</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov9">
+                <xs:annotation>
+                    <xs:documentation>Министерство природных ресурсов и экологии Карачаево-Черкесской Республики</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="rov92">
+                <xs:annotation>
+                    <xs:documentation>Департамент природных ресурсов и экологии города Севастополя</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

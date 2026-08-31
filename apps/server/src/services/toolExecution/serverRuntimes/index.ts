@@ -22,6 +22,7 @@ import { browserRuntime } from './browser';
 import { calculatorRuntime } from './calculator';
 import { cloudSandboxRuntime } from './cloudSandbox';
 import { credsRuntime } from './creds';
+import { fgisLkRuntime } from './fgislk';
 import { groupAgentBuilderRuntime } from './groupAgentBuilder';
 import { groupManagementRuntime } from './groupManagement';
 import { imageGenerationRuntime } from './imageGeneration';
@@ -74,6 +75,7 @@ registerRuntimes([
   webBrowsingRuntime,
   cloudSandboxRuntime,
   calculatorRuntime,
+  fgisLkRuntime,
   agentDocumentsRuntime,
   agentManagementRuntime,
   skillManagementRuntime,

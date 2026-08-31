@@ -1,0 +1,21 @@
+{
+  "name": "@lobechat/builtin-tool-fgislk",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client/index.ts",
+    "./engine": "./src/engine/index.ts",
+    "./executionRuntime": "./src/ExecutionRuntime/index.ts",
+    "./manifest": "./src/manifest.ts"
+  },
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest --coverage --silent='passed-only'",
+    "test:update": "vitest -u"
+  },
+  "devDependencies": {
+    "@lobechat/types": "workspace:*"
+  }
+}

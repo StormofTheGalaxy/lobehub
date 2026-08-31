@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    НЕ МЕНЯТЬ!
+    опубликовано на портале СМЭВ 21.11.2023
+    https://lkuv.gosuslugi.ru/paip-portal/#/schemes/card/f4df6f3c-89e2-42db-8def-de72b9b13270
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://rosleshoz.gov.ru/fgis-lk/common/enums/sellDocType/types/2.1.0" elementFormDefault="qualified" targetNamespace="http://rosleshoz.gov.ru/fgis-lk/common/enums/sellDocType/types/2.1.0">
+    <xs:simpleType name="SellDocTypeKindEType">
+        <xs:annotation>
+            <xs:documentation>Типы договоров купли-продажи</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="47100001">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины для собственных нужд</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100002">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины на основании контрактов на выполнение работ по сохранению лесов и лесоустройству</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100003">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки елей и (или) деревьев других хвойных пород   для новогодних праздников</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100004">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины при выполнении мероприятий по сохранению лесов и лесоустройству государственными учреждениями</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100005">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины для обеспечения государственных нужд</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100006">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины для   обеспечения муниципальных нужд</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="47100007">
+                <xs:annotation>
+                    <xs:documentation>Договор купли-продажи лесных насаждений для заготовки древесины субъектами малого и среднего бизнеса</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
