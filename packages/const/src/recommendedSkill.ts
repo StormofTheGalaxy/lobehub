@@ -19,6 +19,11 @@ export const RECOMMENDED_SKILLS: RecommendedSkillItem[] = [
   { id: 'lobe-message', type: RecommendedSkillType.Builtin },
   // Opt-in chat image generation: default-installed so Tools can pin it without Skill Store first.
   { id: 'lobe-image-generation', type: RecommendedSkillType.Builtin },
+  // ФГИС ЛК: отраслевой инструмент отчётности. Установлен по умолчанию по той же
+  // причине, что и генерация изображений: иначе его можно включить только через
+  // магазин навыков, а тот требует авторизации в облаке LobeHub. Установка не
+  // включает инструмент в каждом диалоге — он лишь появляется в списке Tools.
+  { id: 'lobe-fgislk', type: RecommendedSkillType.Builtin },
   // LobeHub skills
   { id: 'notion', type: RecommendedSkillType.Lobehub },
   { id: 'posthog', type: RecommendedSkillType.Lobehub },

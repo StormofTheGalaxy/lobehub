@@ -56,9 +56,9 @@ const photoSchema = {
       items: {
         additionalProperties: false,
         properties: {
-          lat: { description: 'Широта', type: ['number', 'string'] },
-          lon: { description: 'Долгота', type: ['number', 'string'] },
-          n: { description: 'Номер точки', type: ['number', 'string'] },
+          lat: { description: 'Широта, например 48.17667', type: 'string' },
+          lon: { description: 'Долгота, например 136.15182', type: 'string' },
+          n: { description: 'Номер точки', type: 'string' },
         },
         required: ['n', 'lon', 'lat'],
         type: 'object',
@@ -100,10 +100,13 @@ const rowSchema = {
       type: 'string',
     },
     value: {
-      description: 'Объём выполненного мероприятия. Площадь — до 4 знаков после запятой.',
-      type: ['number', 'string'],
+      description:
+        'Объём выполненного мероприятия строкой, например "0.0228". Именно строкой: ' +
+        'у числа теряются незначащие нули и появляется погрешность, а форма требует ' +
+        'ровно 4 знака после запятой для площади и 1 знак для массы и количества.',
+      type: 'string',
     },
-    year: { description: 'Год выполнения мероприятия', type: ['number', 'string'] },
+    year: { description: 'Год выполнения мероприятия, например "2025"', type: 'string' },
   },
   required: ['measure', 'location', 'value'],
   type: 'object',
@@ -162,9 +165,18 @@ const reportSchema = {
       type: 'string',
     },
     organization: {
-      description:
-        'Реквизиты лесопользователя: nameFull, ogrn, inn, address, email, phone. ' +
-        'Заполняется по данным пользователя, не по памяти.',
+      additionalProperties: false,
+      description: 'Реквизиты лесопользователя. Заполняются по данным пользователя, не по памяти.',
+      properties: {
+        address: { description: 'Фактический адрес', type: 'string' },
+        email: { description: 'Адрес электронной почты', type: 'string' },
+        inn: { description: 'ИНН организации', type: 'string' },
+        legalAddress: { description: 'Юридический адрес', type: 'string' },
+        nameFull: { description: 'Полное наименование организации', type: 'string' },
+        ogrn: { description: 'ОГРН организации', type: 'string' },
+        phone: { description: 'Телефон', type: 'string' },
+      },
+      required: ['nameFull', 'ogrn', 'inn'],
       type: 'object',
     },
     period: {
@@ -187,9 +199,39 @@ const reportSchema = {
       type: 'array',
     },
     signer: {
-      description:
-        'Подписант: { employee: { fullName: { last, first, middle }, post, basisAuthority, ' +
-        'number, date, phone }, date }',
+      additionalProperties: false,
+      description: 'Подписант документа и основание его полномочий.',
+      properties: {
+        date: { description: 'Дата подписания, ГГГГ-ММ-ДД', type: 'string' },
+        employee: {
+          additionalProperties: false,
+          properties: {
+            basisAuthority: {
+              description: 'Основание полномочий, например «доверенность»',
+              type: 'string',
+            },
+            date: { description: 'Дата документа-основания, ГГГГ-ММ-ДД', type: 'string' },
+            fullName: {
+              additionalProperties: false,
+              properties: {
+                first: { description: 'Имя', type: 'string' },
+                last: { description: 'Фамилия', type: 'string' },
+                middle: { description: 'Отчество', type: 'string' },
+              },
+              required: ['last', 'first'],
+              type: 'object',
+            },
+            number: { description: 'Номер документа-основания', type: 'string' },
+            phone: { description: 'Телефон', type: 'string' },
+            post: { description: 'Должность', type: 'string' },
+          },
+          required: ['fullName'],
+          type: 'object',
+        },
+        organization: { description: 'Организация подписанта', type: 'string' },
+        registerNumber: { description: 'Номер в реестре специалистов', type: 'string' },
+      },
+      required: ['employee'],
       type: 'object',
     },
     subject: { description: 'Код субъекта РФ, например 27, или его наименование', type: 'string' },
