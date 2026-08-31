@@ -1,4 +1,4 @@
-export { environment, type Finding, type ReportInput } from './engine';
+export type { Finding, ReportInput } from './engine';
 export { FgisLkManifest } from './manifest';
 export { systemPrompt } from './systemRole';
 export {
@@ -9,6 +9,7 @@ export {
   type BuildReportState,
   type CheckReportParams,
   type CheckReportState,
+  type DescribeEnvironmentParams,
   type DescribeEnvironmentState,
   type FindReportLineParams,
   type FindReportLineState,

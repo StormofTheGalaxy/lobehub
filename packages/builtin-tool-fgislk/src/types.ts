@@ -98,7 +98,7 @@ export interface MigrateReportState extends VerificationState {
 
 // ── describeEnvironment ──────────────────────────────────────────────────────
 
-export interface DescribeEnvironmentParams {}
+export type DescribeEnvironmentParams = Record<string, never>;
 
 export interface DescribeEnvironmentState {
   commonVersion?: string;
