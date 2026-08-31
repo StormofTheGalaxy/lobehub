@@ -6,24 +6,17 @@ import type { ToolExecutionContext } from '../types';
 
 const mocks = vi.hoisted(() => ({
   apiHandler: vi.fn(),
-  executeLobehubSkill: vi.fn(),
 }));
 const mockApiHandler = mocks.apiHandler;
 
 vi.mock('../serverRuntimes', () => ({
-  hasServerRuntime: vi.fn().mockReturnValue(true),
+  hasServerRuntime: vi.fn((identifier: string) => identifier.startsWith('lobe-')),
   getServerRuntime: vi.fn(async () => ({ createDocument: mocks.apiHandler })),
 }));
 
 vi.mock('@/server/services/composio', () => ({
   ComposioService: vi.fn().mockImplementation(() => ({})),
 }));
-vi.mock('@/server/services/market', () => ({
-  MarketService: vi.fn().mockImplementation(() => ({
-    executeLobehubSkill: mocks.executeLobehubSkill,
-  })),
-}));
-
 // The runtime mock above only exposes `createDocument`, but the manifest is the
 // authoritative source of declared APIs — it also lists `listDocuments`, so an
 // UNKNOWN_API hint sourced from the manifest must surface both.
@@ -65,7 +58,6 @@ describe('BuiltinToolsExecutor truncated arguments', () => {
 
   beforeEach(() => {
     mockApiHandler.mockReset();
-    mocks.executeLobehubSkill.mockReset();
   });
 
   it('short-circuits with TRUNCATED_ARGUMENTS when JSON is cut mid-object', async () => {
@@ -157,6 +149,49 @@ describe('BuiltinToolsExecutor truncated arguments', () => {
     expect(result.success).toBe(true);
   });
 
+  it('uses a registered builtin runtime despite a stale LobeHub Skill source', async () => {
+    const { getServerRuntime } = await import('../serverRuntimes');
+    const searchDictionary = vi.fn().mockResolvedValue({
+      content: '26:13 — Александровское',
+      success: true,
+    });
+    vi.mocked(getServerRuntime).mockResolvedValueOnce({ searchDictionary } as any);
+
+    const result = await executor.execute(
+      {
+        apiName: 'searchDictionary',
+        arguments: '{"dictionary":"forestry","query":"Александровское"}',
+        id: 'tool-call-fgislk',
+        identifier: 'lobe-fgislk',
+        source: 'lobehubSkill',
+        type: 'builtin',
+      },
+      context,
+    );
+
+    expect(searchDictionary).toHaveBeenCalledWith(
+      { dictionary: 'forestry', query: 'Александровское' },
+      context,
+    );
+    expect(result).toMatchObject({ content: '26:13 — Александровское', success: true });
+  });
+
+  it('does not route an unregistered LobeHub Skill through the market', async () => {
+    await expect(
+      executor.execute(
+        {
+          apiName: 'save_issue',
+          arguments: '{}',
+          id: 'tool-call-external-skill',
+          identifier: 'linear',
+          source: 'lobehubSkill',
+          type: 'default' as any,
+        },
+        context,
+      ),
+    ).rejects.toThrow('Builtin tool "linear" is not implemented');
+  });
+
   it('returns a recoverable UNKNOWN_API error for a hallucinated apiName', async () => {
     // The runtime mock only exposes `createDocument`; calling a non-existent
     // API (e.g. a model hallucinating `viewTopic`) must NOT throw a hard error
@@ -197,110 +232,6 @@ describe('BuiltinToolsExecutor truncated arguments', () => {
     expect(result.content).toContain('barApi');
   });
 
-  it('emits a Linear skill Work intent after a successful server-side LobeHub Skill tool call', async () => {
-    mocks.executeLobehubSkill.mockResolvedValueOnce({
-      content: JSON.stringify({
-        id: 'LINEAR-10966',
-        status: 'In Progress',
-        title: 'Linear Work issue',
-        url: 'https://linear.app/lobehub/issue/LINEAR-10966/linear-work-issue',
-      }),
-      success: true,
-    });
-
-    const result = await executor.execute(
-      {
-        apiName: 'save_issue',
-        arguments: '{"id":"LINEAR-10966","state":"In Progress"}',
-        id: 'tool-call-linear',
-        identifier: 'linear',
-        source: 'lobehubSkill',
-        type: 'default' as any,
-      },
-      { ...context, executionTimeoutMs: 45_000, topicId: 'topic-1' },
-    );
-
-    expect(result.success).toBe(true);
-    expect(mocks.executeLobehubSkill).toHaveBeenCalledWith({
-      args: { id: 'LINEAR-10966', state: 'In Progress' },
-      context: { topicId: 'topic-1' },
-      provider: 'linear',
-      timeoutMs: 45_000,
-      toolName: 'save_issue',
-    });
-    // The executor no longer writes the Work — it hands the runtime an intent
-    // carrying the UNTRUNCATED payload; provenance + cost are stamped by the
-    // agent runtime at persist time.
-    expect(result.workRegistration).toEqual({
-      args: { id: 'LINEAR-10966', state: 'In Progress' },
-      data: {
-        id: 'LINEAR-10966',
-        status: 'In Progress',
-        title: 'Linear Work issue',
-        url: 'https://linear.app/lobehub/issue/LINEAR-10966/linear-work-issue',
-      },
-      provider: 'linear',
-      toolName: 'save_issue',
-      type: 'skill',
-    });
-  });
-
-  it('emits a GitHub skill Work intent after a successful server-side LobeHub Skill tool call', async () => {
-    mocks.executeLobehubSkill.mockResolvedValueOnce({
-      content: JSON.stringify({
-        html_url: 'https://github.com/lobehub/lobehub/issues/123',
-        node_id: 'I_kwDOJj1234',
-        number: 123,
-        state: 'open',
-        title: 'GitHub Work issue',
-      }),
-      success: true,
-    });
-
-    const result = await executor.execute(
-      {
-        apiName: 'create_issue',
-        arguments: '{"owner":"lobehub","repo":"lobehub","title":"GitHub Work issue"}',
-        id: 'tool-call-github',
-        identifier: 'github',
-        source: 'lobehubSkill',
-        type: 'default' as any,
-      },
-      { ...context, topicId: 'topic-1' },
-    );
-
-    expect(result.success).toBe(true);
-    expect(result.workRegistration).toEqual(
-      expect.objectContaining({
-        data: expect.objectContaining({ number: 123 }),
-        provider: 'github',
-        toolName: 'create_issue',
-        type: 'skill',
-      }),
-    );
-  });
-
-  it('emits no Work intent for non-adapted skill providers', async () => {
-    mocks.executeLobehubSkill.mockResolvedValueOnce({
-      content: JSON.stringify({ id: 'msg-1' }),
-      success: true,
-    });
-
-    const result = await executor.execute(
-      {
-        apiName: 'send_message',
-        arguments: '{}',
-        id: 'tool-call-ms',
-        identifier: 'microsoft',
-        source: 'lobehubSkill',
-        type: 'default' as any,
-      },
-      { ...context, topicId: 'topic-1' },
-    );
-
-    expect(result.success).toBe(true);
-    expect(result.workRegistration).toBeUndefined();
-  });
 });
 
 describe('BuiltinToolsExecutor manifest-driven Work registration', () => {
