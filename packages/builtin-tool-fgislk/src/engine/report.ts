@@ -15,11 +15,11 @@
  * берутся из формы, MD5 считается по файлу, ссылки проверяются на существование.
  */
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { type DocumentData } from './build';
-import { md5Base64 } from './files';
+import { type AttachmentFacts, factsOf } from './files';
 import { type Measures, type MeasureRow } from './measures';
 
 export class InputError extends Error {}
@@ -96,9 +96,20 @@ export interface ReportRowInput {
 
 export interface AttachmentInput {
   desc?: string;
-  /** Путь к файлу относительно каталога вложений либо абсолютный. */
+  /**
+   * Имя файла. Ищется сначала в каталоге вложений на диске, затем среди файлов,
+   * загруженных пользователем в переписку.
+   */
   file: string;
 }
+
+/**
+ * Источник байтов вложения помимо диска — файлы, загруженные пользователем.
+ *
+ * Вынесен интерфейсом, потому что движок не должен знать про хранилище
+ * приложения: сервер передаёт сюда реализацию, а в тестах её нет вовсе.
+ */
+export type AttachmentSource = (name: string) => Promise<Buffer | undefined>;
 
 export interface ReportInput {
   attachments?: AttachmentInput[];
@@ -118,8 +129,8 @@ export interface ReportInput {
 
 export interface ExpandResult {
   document: DocumentData;
-  /** Имя файла в документе -> фактический путь, по которому посчитан MD5. */
-  files: Map<string, string>;
+  /** Имя файла в документе -> сведения, посчитанные по его байтам. */
+  facts: Map<string, AttachmentFacts>;
   log: string[];
 }
 
@@ -167,11 +178,12 @@ const pickMeasure = (row: ReportRowInput, index: number, measures: Measures): Me
 };
 
 /** Разворачивает прикладной ввод в структуру документа по схеме. */
-export const expand = (
+export const expand = async (
   source: ReportInput,
   measures: Measures,
   filesDir: string,
-): ExpandResult => {
+  attachmentSource?: AttachmentSource,
+): Promise<ExpandResult> => {
   assertKeys(source, REPORT_KEYS, 'отчёт');
   const log: string[] = [];
   const guid = source.guid ?? randomUUID();
@@ -179,22 +191,45 @@ export const expand = (
   // ── вложения: идентификатор + MD5 по файлу ─────────────────────────────────
   const attachments: DocumentData[] = [];
   const byFileName = new Map<string, string>();
-  const files = new Map<string, string>();
+  const facts = new Map<string, AttachmentFacts>();
   for (const [i, item] of (source.attachments ?? []).entries()) {
     assertKeys(item, ATTACHMENT_KEYS, `вложение ${i + 1}`);
-    const file = path.isAbsolute(item.file) ? item.file : path.resolve(filesDir, item.file);
-    if (!existsSync(file)) throw new InputError(`вложение не найдено: ${file}`);
+    const name = path.basename(item.file);
+    const onDisk = path.isAbsolute(item.file) ? item.file : path.resolve(filesDir, item.file);
+
+    // сначала диск сервера, затем файлы, загруженные пользователем в переписку
+    let content: Buffer | undefined;
+    let origin = '';
+    if (existsSync(onDisk)) {
+      content = readFileSync(onDisk);
+      origin = onDisk;
+    } else if (attachmentSource) {
+      content = await attachmentSource(name);
+      origin = 'загружен в переписку';
+    }
+    if (!content)
+      throw new InputError(
+        `вложение «${item.file}» не найдено: его нет ни на диске (${onDisk}), ` +
+          `ни среди файлов, загруженных в переписку. Приложите файл к сообщению ` +
+          `или укажите верное имя.`,
+      );
+
     const id = `ID_${randomUUID()}`;
-    const name = path.basename(file);
     byFileName.set(name, id);
-    files.set(name, file);
-    const md5 = md5Base64(file);
+    const attachmentFacts = factsOf(name, content);
+    facts.set(name, attachmentFacts);
     attachments.push({
       desc: item.desc ?? name.replace(path.extname(name), ''),
-      file: { fileURI: name, md5sum: md5 },
+      file: { fileURI: name, md5sum: attachmentFacts.md5 },
       id,
     });
-    log.push(`вложение ${name}: id=${id}, md5=${md5}`);
+    log.push(
+      `вложение ${name} (${origin}): id=${id}, md5=${attachmentFacts.md5}, ` +
+        `${attachmentFacts.size} байт` +
+        (attachmentFacts.image
+          ? `, ${attachmentFacts.image.width}x${attachmentFacts.image.height}`
+          : ''),
+    );
   }
 
   // ── строки мероприятий ─────────────────────────────────────────────────────
@@ -250,7 +285,7 @@ export const expand = (
     serviceInfo: { guid, provider: source.provider ?? null },
   };
 
-  return { document, files, log };
+  return { document, facts, log };
 };
 
 const buildNotes = (
@@ -261,7 +296,18 @@ const buildNotes = (
 ): DocumentData | undefined => {
   const photo = row.photoFixation;
   if (!row.comment && !photo) return undefined;
-  const notes: DocumentData = { comment: row.comment ?? null };
+  // По схеме comment в блоке примечаний обязателен, поэтому фотофиксация без
+  // примечания собраться не может. Говорим об этом прямо: иначе наружу уйдёт
+  // «обязательный элемент не заполнен» с путём по XSD, из которого не понять,
+  // что требуется от человека. Придумывать текст за пользователя нельзя —
+  // примечание попадает в государственный отчёт.
+  if (!row.comment)
+    throw new InputError(
+      `строка ${index}: к фотофиксации нужно примечание — по схеме элемент comment ` +
+        `обязателен, если у строки есть примечания. Заполните поле comment: обычно там ` +
+        `номер и дата документа о качестве семян или о происхождении посадочного материала.`,
+    );
+  const notes: DocumentData = { comment: row.comment };
   if (!photo) return notes;
 
   const ids: string[] = [];

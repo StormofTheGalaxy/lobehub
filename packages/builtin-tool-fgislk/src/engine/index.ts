@@ -6,11 +6,12 @@
  * Сборка идёт во временный файл, и только успешная валидация переносит его в
  * целевой путь. Невалидный документ не может «утечь» дальше по процессу.
  */
-import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { BuildError, Builder } from './build';
+import { type AttachmentFacts, factsOf } from './files';
 import { ERROR, type FileResolver, type Finding, Linter } from './lint';
 import { measures } from './measures';
 import {
@@ -21,15 +22,16 @@ import {
   type Entry,
 } from './nsi';
 import { COMMON_VERSION, mainXsd, SCHEMA_VERSION } from './paths';
-import { expand, InputError, type ReportInput } from './report';
+import { type AttachmentSource, expand, InputError, type ReportInput } from './report';
 import { Schema } from './schema';
-import { parseXml, stripBom } from './xml';
+import { findAll, parseXml, stripBom, type XmlNode } from './xml';
 
 export { BuildError } from './build';
+export { type AttachmentFacts, factsOf } from './files';
 export { ERROR, type Finding, INFO, WARN } from './lint';
 export { type MeasureRow } from './measures';
 export { DICTIONARIES, type DictionaryName, DICTIONARY_NAMES } from './nsi';
-export { InputError, type ReportInput, type ReportRowInput } from './report';
+export { type AttachmentSource, InputError, type ReportInput, type ReportRowInput } from './report';
 
 let cachedSchema: Schema | undefined;
 
@@ -48,11 +50,19 @@ export interface Verification {
 }
 
 export interface BuildResult extends Verification {
-  /** Путь к записанному файлу; отсутствует, если документ не прошёл проверку. */
+  /** Путь к записанному файлу; отсутствует, если путь не задан или документ не валиден. */
   file?: string;
   log: string[];
-  /** Размер файла в байтах. */
+  /** Размер документа в байтах. */
   size?: number;
+  /**
+   * Текст готового документа — только если он прошёл проверку по XSD.
+   *
+   * Возвращается, чтобы вызывающий слой мог отдать файл пользователю на
+   * скачивание, не завися от файловой системы сервера. Невалидный документ
+   * сюда не попадает: наружу не должно уходить ничего непроверенного.
+   */
+  xml?: string;
 }
 
 const UTF8_BOM = '﻿';
@@ -83,12 +93,22 @@ const verify = async (
  * шагом, поэтому невалидного файла не существует ни секунды.
  */
 export const buildReport = async (options: {
+  /** Источник байтов вложений помимо диска: файлы из переписки. */
+  attachmentSource?: AttachmentSource;
   filesDir?: string;
-  outputPath: string;
+  /** Куда записать файл. Необязателен: документ всегда возвращается и текстом. */
+  outputPath?: string;
   report: ReportInput;
 }): Promise<BuildResult> => {
-  const filesDir = options.filesDir ?? path.dirname(path.resolve(options.outputPath));
-  const { document, files, log } = expand(options.report, measures(), filesDir);
+  const filesDir =
+    options.filesDir ??
+    (options.outputPath ? path.dirname(path.resolve(options.outputPath)) : process.cwd());
+  const { document, facts, log } = await expand(
+    options.report,
+    measures(),
+    filesDir,
+    options.attachmentSource,
+  );
 
   const builder = new Builder(schema());
   const xml = builder.build('forestReproduction', document);
@@ -102,20 +122,26 @@ export const buildReport = async (options: {
   );
   writeFileSync(staging, text, 'utf8');
   try {
-    // проверяются ровно те файлы, по которым посчитан MD5 при сборке
-    const result = await verify(staging, text, (uri) => files.get(uri));
+    // проверяются ровно те байты, по которым посчитан MD5 при сборке
+    const result = await verify(staging, text, (uri) => facts.get(uri));
     if (!result.xsd.valid) {
       rmSync(staging, { force: true });
       return { ...result, log: full };
     }
-    const target = path.resolve(options.outputPath);
-    mkdirSync(path.dirname(target), { recursive: true });
-    renameSync(staging, target);
+    let target: string | undefined;
+    if (options.outputPath) {
+      target = path.resolve(options.outputPath);
+      mkdirSync(path.dirname(target), { recursive: true });
+      renameSync(staging, target);
+    } else {
+      rmSync(staging, { force: true });
+    }
     return {
       ...result,
       file: target,
       log: full,
       size: Buffer.byteLength(text, 'utf8'),
+      xml: text,
     };
   } catch (error) {
     rmSync(staging, { force: true });
@@ -123,15 +149,42 @@ export const buildReport = async (options: {
   }
 };
 
+/**
+ * Собирает сведения о вложениях для проверки готового документа: сначала диск,
+ * затем файлы из переписки. Читается один раз, байты не удерживаются в памяти.
+ */
+const collectFacts = async (
+  root: XmlNode,
+  filesDir: string | undefined,
+  source: AttachmentSource | undefined,
+): Promise<FileResolver | undefined> => {
+  if (!filesDir && !source) return undefined;
+  const facts = new Map<string, AttachmentFacts>();
+  for (const node of findAll(root, 'fileURI')) {
+    const name = node.text.trim();
+    if (!name || facts.has(name)) continue;
+    const onDisk = filesDir ? path.join(filesDir, name) : undefined;
+    const content =
+      onDisk && existsSync(onDisk) ? readFileSync(onDisk) : await source?.(name);
+    if (content) facts.set(name, factsOf(name, content));
+  }
+  return (uri) => facts.get(uri);
+};
+
 /** Проверка любого готового XML — в том числе выгруженного из портала. */
 export const checkReport = async (options: {
+  attachmentSource?: AttachmentSource;
   filesDir?: string;
   xmlPath: string;
 }): Promise<Verification & { documentNamespace: string; file: string }> => {
   const file = path.resolve(options.xmlPath);
   const text = readFileSync(file, 'utf8');
-  const filesDir = options.filesDir;
-  const result = await verify(file, text, filesDir ? (uri) => path.join(filesDir, uri) : undefined);
+  const resolver = await collectFacts(
+    parseXml(stripBom(text)),
+    options.filesDir,
+    options.attachmentSource,
+  );
+  const result = await verify(file, text, resolver);
   let documentNamespace = '';
   try {
     documentNamespace = parseXml(stripBom(text)).ns;
@@ -143,6 +196,7 @@ export const checkReport = async (options: {
 
 /** Перевод документа на актуальные версии пространств имён. */
 export const migrateReport = async (options: {
+  attachmentSource?: AttachmentSource;
   filesDir?: string;
   outputPath: string;
   xmlPath: string;
@@ -154,8 +208,12 @@ export const migrateReport = async (options: {
   const target = path.resolve(options.outputPath);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, output, 'utf8');
-  const dir = options.filesDir;
-  const result = await verify(target, output, dir ? (uri) => path.join(dir, uri) : undefined);
+  const resolver = await collectFacts(
+    parseXml(stripBom(output)),
+    options.filesDir,
+    options.attachmentSource,
+  );
+  const result = await verify(target, output, resolver);
   if (!result.xsd.valid) rmSync(target, { force: true });
   return {
     ...result,

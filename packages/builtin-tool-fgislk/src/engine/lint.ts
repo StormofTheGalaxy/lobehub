@@ -17,8 +17,6 @@
  *   структура учётных номеров ГЛР:
  *     27 -> 27:19 -> 27:19:4 -> 27:19:4:19 -> 27:19:4:19:17.
  */
-import { existsSync } from 'node:fs';
-
 import {
   addDecimal,
   compareDecimal,
@@ -27,7 +25,7 @@ import {
   parseDecimal,
   ZERO,
 } from './decimal';
-import { jpegSize, md5Base64 } from './files';
+import { type AttachmentFacts } from './files';
 import { type Measures, parentItem } from './measures';
 import { child, children, findAll, textOf, type XmlNode } from './xml';
 
@@ -56,14 +54,13 @@ const DECIMALS: Record<string, number> = {
 };
 
 /**
- * Как найти файл вложения по его имени в документе.
+ * Сведения о вложении по его имени в документе.
  *
- * При сборке отчёта карта строится из фактически прочитанных путей, поэтому
- * проверяются ровно те файлы, по которым посчитан MD5. При проверке чужого XML
- * функция ищет файл в указанном каталоге. Если файлов нет — проверка вложений
- * не выполняется и об этом честно сообщается, а не «молча проходит».
+ * Проверяются ровно те байты, по которым посчитан MD5, откуда бы файл ни
+ * пришёл — с диска сервера или из переписки. Если сведений нет, проверка
+ * вложений не выполняется и об этом сообщается, а не «молча проходит».
  */
-export type FileResolver = (fileUri: string) => string | undefined;
+export type FileResolver = (fileUri: string) => AttachmentFacts | undefined;
 
 interface RowFacts {
   code?: string;
@@ -133,29 +130,28 @@ export class Linter {
         if (!fileNode) continue;
         const uri = textOf(fileNode, 'fileURI');
         const declared = textOf(fileNode, 'md5sum');
-        const file = this.resolveFile(uri);
-        if (!file || !existsSync(file)) {
+        const facts = this.resolveFile(uri);
+        if (!facts) {
           this.add(ERROR, 'attachments', `файл не найден: ${uri}`);
           continue;
         }
-        const actual = md5Base64(file);
-        if (declared && actual !== declared)
+        if (declared && facts.md5 !== declared)
           this.add(
             ERROR,
             'attachments',
-            `${uri}: MD5 в описи ${declared}, фактический ${actual}`,
+            `${uri}: MD5 в описи ${declared}, фактический ${facts.md5}`,
           );
-        if (/\.jpe?g$/i.test(uri)) {
-          const size = jpegSize(file);
-          if (!size) this.add(ERROR, 'attachments', `${uri}: файл не является JPEG`);
+        if (facts.isJpeg) {
+          if (!facts.image) this.add(ERROR, 'attachments', `${uri}: файл не является JPEG`);
           else {
-            const megapixels = (size.width * size.height) / 1e6;
+            const megapixels = (facts.image.width * facts.image.height) / 1e6;
             if (megapixels < MIN_MEGAPIXELS)
               this.add(
                 ERROR,
                 'attachments',
-                `${uri}: ${size.width}x${size.height} = ${megapixels.toFixed(1)} Мпикс, ` +
-                  `требуется не менее ${MIN_MEGAPIXELS} (п. 7 Порядка, приказ № 112)`,
+                `${uri}: ${facts.image.width}x${facts.image.height} = ` +
+                  `${megapixels.toFixed(1)} Мпикс, требуется не менее ${MIN_MEGAPIXELS} ` +
+                  `(п. 7 Порядка, приказ № 112)`,
               );
           }
         }

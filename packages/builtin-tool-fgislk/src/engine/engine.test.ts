@@ -198,7 +198,7 @@ describe('сборка отчёта', () => {
         outputPath: path.join(workdir, 'missing.xml'),
         report: missing,
       }),
-    ).rejects.toThrow(/вложение не найдено/);
+    ).rejects.toThrow(/не найдено: его нет ни на диске/);
   });
 });
 
@@ -231,6 +231,94 @@ describe('смысловые проверки готового документ�
     writeFileSync(path.join(workdir, 'akt.pdf'), 'файл подменили после сборки');
     const result = await checkReport({ filesDir: workdir, xmlPath: output });
     expect(result.findings.some((f) => f.level === ERROR && f.text.includes('MD5'))).toBe(true);
+  });
+});
+
+describe('вложения из переписки', () => {
+  /** Минимальный JPEG: только маркер SOF с нужным разрешением. */
+  const jpeg = (width: number, height: number): Buffer => {
+    const b = Buffer.alloc(200, 0);
+    b[0] = 0xff;
+    b[1] = 0xd8;
+    b[2] = 0xff;
+    b[3] = 0xc0;
+    b.writeUInt16BE(17, 4);
+    b[6] = 8;
+    b.writeUInt16BE(height, 7);
+    b.writeUInt16BE(width, 9);
+    return b;
+  };
+
+  const withPhoto = (name: string): ReportInput => {
+    const report = fixture();
+    report.attachments = [{ desc: 'Фотофиксация', file: name }];
+    report.rows[0].comment = 'Паспорт на посадочный материал № 45 от 12.05.2025';
+    report.rows[0].photoFixation = {
+      datetime: '2025-09-29T18:02:00',
+      files: [name],
+      name: 'Поворотная точка',
+      points: [{ lat: '48.17667', lon: '136.15182', n: '1' }],
+    };
+    return report;
+  };
+
+  const chat = new Map([
+    ['IMG_BIG.jpg', jpeg(2600, 2000)],
+    ['IMG_SMALL.jpg', jpeg(640, 480)],
+  ]);
+  const attachmentSource = async (name: string) => chat.get(name);
+
+  it('собирает отчёт с файлом, которого нет на диске', async () => {
+    if (!xmllintAvailable) return;
+    const result = await buildReport({
+      attachmentSource,
+      filesDir: workdir,
+      report: withPhoto('IMG_BIG.jpg'),
+    });
+    expect(result.ready).toBe(true);
+    // MD5 посчитан по байтам из переписки, а не по файлу на диске
+    expect(result.xml).toContain('IMG_BIG.jpg');
+  });
+
+  it('отклоняет фото меньше 5 Мпикс', async () => {
+    if (!xmllintAvailable) return;
+    const result = await buildReport({
+      attachmentSource,
+      filesDir: workdir,
+      report: withPhoto('IMG_SMALL.jpg'),
+    });
+    expect(result.ready).toBe(false);
+    expect(result.findings.some((f) => f.level === ERROR && f.text.includes('Мпикс'))).toBe(true);
+  });
+
+  it('фотофиксация без примечания даёт понятную ошибку, а не путь по XSD', async () => {
+    const report = withPhoto('IMG_BIG.jpg');
+    delete report.rows[0].comment;
+    await expect(
+      buildReport({ attachmentSource, filesDir: workdir, report }),
+    ).rejects.toThrow(/нужно примечание/);
+  });
+});
+
+describe('отдача документа файлом', () => {
+  it('валидный документ возвращается текстом для выгрузки', async () => {
+    if (!xmllintAvailable) return;
+    // без outputPath файл на диск не пишется, но текст доступен для отправки в хранилище
+    const result = await buildReport({ filesDir: workdir, report: fixture() });
+    expect(result.ready).toBe(true);
+    expect(result.file).toBeUndefined();
+    expect(result.xml?.codePointAt(0)).toBe(0xfe_ff);
+    expect(result.xml).toContain('<codeLine>270</codeLine>');
+  });
+
+  it('невалидный документ наружу не отдаётся', async () => {
+    if (!xmllintAvailable) return;
+    const broken = fixture();
+    broken.period = { begin: '', end: '' };
+    const result = await buildReport({ filesDir: workdir, report: broken });
+    expect(result.xsd.valid).toBe(false);
+    expect(result.xml).toBeUndefined();
+    expect(result.file).toBeUndefined();
   });
 });
 

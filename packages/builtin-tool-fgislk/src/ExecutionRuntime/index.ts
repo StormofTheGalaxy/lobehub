@@ -22,6 +22,7 @@ import {
   type Verification,
   WARN,
 } from '../engine';
+import { type ReportFileSink, type UploadedFile } from '../fileSink';
 import {
   type BuildReportParams,
   type BuildReportState,
@@ -93,6 +94,13 @@ const verdict = (result: Verification, file: string | undefined): string => {
   return lines.join('\n');
 };
 
+/**
+ * Имя файла в пакете документов ФГИС ЛК фиксировано: техническая опись
+ * (package.xml) ссылается на вложение по имени, и приёмка сверяет его.
+ * Поэтому имя не «украшаем» датами — иначе пользователю придётся переименовывать.
+ */
+const REPORT_FILENAME = 'forestReproduction.xml';
+
 const HUMAN_CHECKLIST = [
   '',
   'Проверить перед подписанием (инструмент этого проверить не может):',
@@ -105,23 +113,75 @@ const HUMAN_CHECKLIST = [
 ].join('\n');
 
 export class FgisLkExecutionRuntime {
+  private readonly sink: ReportFileSink | undefined;
+
+  constructor(options: { sink?: ReportFileSink } = {}) {
+    this.sink = options.sink;
+  }
+
+  /**
+   * Отдаёт готовый документ файлом.
+   *
+   * Возвращать XML текстом в сообщение нельзя: это несколько килобайт разметки,
+   * которую человек всё равно должен сохранить как файл, а модель, пересказывая
+   * её, рискует «поправить» разметку по дороге. Поэтому валидный документ
+   * уходит в хранилище, а в ответ идёт ссылка на скачивание.
+   */
+  /** Файлы, загруженные пользователем в переписку, как источник вложений. */
+  private get attachments() {
+    const sink = this.sink;
+    if (!sink?.read) return undefined;
+    return (name: string) => sink.read!(name);
+  }
+
+  private async publish(xml: string): Promise<UploadedFile | undefined> {
+    if (!this.sink || !xml) return undefined;
+    return this.sink.upload({
+      content: Buffer.from(xml, 'utf8'),
+      filename: REPORT_FILENAME,
+      mimeType: 'application/xml',
+    });
+  }
+
+  private static fileLines(uploaded: UploadedFile | undefined, written?: string): string[] {
+    const lines: string[] = [];
+    if (uploaded)
+      lines.push(
+        `Файл готов к скачиванию: ${uploaded.filename} (${uploaded.size} байт) — ${uploaded.url}`,
+        'Имя файла менять нельзя: техническая опись пакета ссылается на вложение по имени.',
+      );
+    if (written) lines.push(`Также записан на диск: ${written}`);
+    if (!uploaded && !written)
+      lines.push(
+        'Файл не сохранён: хранилище недоступно, а путь для записи не задан. ' +
+          'Укажите outputPath или обратитесь к администратору.',
+      );
+    return lines;
+  }
+
   async buildReport(params: BuildReportParams): Promise<BuiltinServerRuntimeOutput> {
     try {
       const result = await buildReport({
+        attachmentSource: this.attachments,
         filesDir: params.filesDir,
         outputPath: params.outputPath,
         report: params.report,
       });
+      const uploaded = result.ready ? await this.publish(result.xml ?? '') : undefined;
       const state: BuildReportState = {
         ...verificationState(result),
+        downloadUrl: uploaded?.url,
         file: result.file,
+        fileId: uploaded?.fileId,
+        filename: uploaded?.filename,
         log: result.log,
         rows: params.report?.rows?.length ?? 0,
         size: result.size,
       };
       const content = [
-        verdict(result, result.file),
+        verdict(result, undefined),
         result.size ? `Размер: ${result.size} байт, UTF-8 с BOM.` : '',
+        ...(result.ready ? FgisLkExecutionRuntime.fileLines(uploaded, result.file) : []),
         '',
         'Как собран документ:',
         ...result.log.map((line) => `  ${line}`),
@@ -138,6 +198,7 @@ export class FgisLkExecutionRuntime {
   async checkReport(params: CheckReportParams): Promise<BuiltinServerRuntimeOutput> {
     try {
       const result = await checkReport({
+        attachmentSource: this.attachments,
         filesDir: params.filesDir,
         xmlPath: params.xmlPath,
       });
@@ -158,7 +219,9 @@ export class FgisLkExecutionRuntime {
           ? 'Документ составлен по другой версии схемы. Попробуйте migrateReport — ' +
             'часто достаточно замены пространств имён.'
           : '',
-        params.filesDir ? '' : 'Каталог вложений не указан: MD5 и фотоматериалы не проверялись.',
+        params.filesDir || this.attachments
+          ? ''
+          : 'Вложения не проверялись: нет ни каталога на диске, ни файлов в переписке.',
       ]
         .filter(Boolean)
         .join('\n');
@@ -171,18 +234,24 @@ export class FgisLkExecutionRuntime {
   async migrateReport(params: MigrateReportParams): Promise<BuiltinServerRuntimeOutput> {
     try {
       const result = await migrateReport({
+        attachmentSource: this.attachments,
         filesDir: params.filesDir,
         outputPath: params.outputPath,
         xmlPath: params.xmlPath,
       });
+      const uploaded = result.ready ? await this.publish(result.xml ?? '') : undefined;
       const state: MigrateReportState = {
         ...verificationState(result),
         documentNamespace: result.documentNamespace,
+        downloadUrl: uploaded?.url,
         file: result.file,
+        fileId: uploaded?.fileId,
+        filename: uploaded?.filename,
         log: result.log,
       };
       const content = [
-        verdict(result, result.file),
+        verdict(result, undefined),
+        ...(result.ready ? FgisLkExecutionRuntime.fileLines(uploaded, result.file) : []),
         '',
         'Замены пространств имён:',
         ...result.log.map((line) => `  ${line}`),

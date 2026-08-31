@@ -46,10 +46,13 @@ export interface FindReportLineState {
 // ── buildReport ──────────────────────────────────────────────────────────────
 
 export interface BuildReportParams {
-  /** Каталог с файлами вложений. По умолчанию — каталог итогового файла. */
+  /** Каталог с файлами вложений. */
   filesDir?: string;
-  /** Куда записать XML. Файл появится только если документ прошёл проверку. */
-  outputPath: string;
+  /**
+   * Необязательный путь для записи на диск сервера. Обычно не нужен: готовый
+   * документ отдаётся ссылкой на скачивание.
+   */
+  outputPath?: string;
   report: ReportInput;
 }
 
@@ -63,7 +66,16 @@ export interface VerificationState {
   xsdValid?: boolean;
 }
 
-export interface BuildReportState extends VerificationState {
+/** Ссылка на скачивание готового документа. */
+export interface DownloadState {
+  /** Постоянная ссылка вида /f/:id. */
+  downloadUrl?: string;
+  fileId?: string;
+  filename?: string;
+}
+
+export interface BuildReportState extends VerificationState, DownloadState {
+  /** Путь на диске сервера, если он был задан явно. */
   file?: string;
   log?: string[];
   rows?: number;
@@ -90,7 +102,7 @@ export interface MigrateReportParams {
   xmlPath: string;
 }
 
-export interface MigrateReportState extends VerificationState {
+export interface MigrateReportState extends VerificationState, DownloadState {
   documentNamespace?: string;
   file?: string;
   log?: string[];

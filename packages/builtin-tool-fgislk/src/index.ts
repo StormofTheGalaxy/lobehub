@@ -1,4 +1,5 @@
 export type { Finding, ReportInput } from './engine';
+export { type ReportFileSink, type UploadedFile } from './fileSink';
 export { FgisLkManifest } from './manifest';
 export { systemPrompt } from './systemRole';
 export {
