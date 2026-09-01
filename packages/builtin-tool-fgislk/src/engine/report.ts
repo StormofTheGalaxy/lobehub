@@ -128,6 +128,8 @@ export interface ReportInput {
 }
 
 export interface ExpandResult {
+  /** Точные байты вложений, которые описаны в XML. */
+  attachmentFiles: Map<string, Buffer>;
   document: DocumentData;
   /** Имя файла в документе -> сведения, посчитанные по его байтам. */
   facts: Map<string, AttachmentFacts>;
@@ -190,11 +192,16 @@ export const expand = async (
 
   // ── вложения: идентификатор + MD5 по файлу ─────────────────────────────────
   const attachments: DocumentData[] = [];
+  const attachmentFiles = new Map<string, Buffer>();
   const byFileName = new Map<string, string>();
   const facts = new Map<string, AttachmentFacts>();
   for (const [i, item] of (source.attachments ?? []).entries()) {
     assertKeys(item, ATTACHMENT_KEYS, `вложение ${i + 1}`);
     const name = path.basename(item.file);
+    if (name.toLowerCase() === 'forestreproduction.xml')
+      throw new InputError(
+        'имя вложения «forestReproduction.xml» зарезервировано для самого отчёта. Переименуйте вложение.',
+      );
     const onDisk = path.isAbsolute(item.file) ? item.file : path.resolve(filesDir, item.file);
 
     // сначала диск сервера, затем файлы, загруженные пользователем в переписку
@@ -215,7 +222,12 @@ export const expand = async (
       );
 
     const id = `ID_${randomUUID()}`;
+    if (attachmentFiles.has(name))
+      throw new InputError(
+        `вложение «${name}» указано несколько раз. Имена файлов в пакете должны быть уникальными.`,
+      );
     byFileName.set(name, id);
+    attachmentFiles.set(name, content);
     const attachmentFacts = factsOf(name, content);
     facts.set(name, attachmentFacts);
     attachments.push({
@@ -285,7 +297,7 @@ export const expand = async (
     serviceInfo: { guid, provider: source.provider ?? null },
   };
 
-  return { document, facts, log };
+  return { attachmentFiles, document, facts, log };
 };
 
 const buildNotes = (

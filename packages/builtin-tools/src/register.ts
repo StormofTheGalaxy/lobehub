@@ -37,6 +37,7 @@ import {
   CloudSandboxRenders,
   CloudSandboxStreamings,
 } from '@lobechat/builtin-tool-cloud-sandbox/client';
+import { FgisLkManifest, FgisLkRenders } from '@lobechat/builtin-tool-fgislk/client';
 import {
   GoalInspectors,
   GoalInterventions,
@@ -230,6 +231,7 @@ export const registerBuiltinToolSurfaces = (): void => {
     >,
     [GroupManagementManifest.identifier]: GroupManagementRenders as Record<string, BuiltinRender>,
     [GoalManifest.identifier]: GoalRenders as Record<string, BuiltinRender>,
+    [FgisLkManifest.identifier]: FgisLkRenders as Record<string, BuiltinRender>,
     [ImageGenerationManifest.identifier]: ImageGenerationRenders as Record<string, BuiltinRender>,
     [KnowledgeBaseManifest.identifier]: KnowledgeBaseRenders as Record<string, BuiltinRender>,
     [LobeAgentManifest.identifier]: LobeAgentRenders as Record<string, BuiltinRender>,
