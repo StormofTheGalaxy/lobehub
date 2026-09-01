@@ -203,6 +203,7 @@
   "builtins.lobe-cloud-sandbox.apiName.writeLocalFile": "写入文件",
   "builtins.lobe-cloud-sandbox.inspector.noResults": "无结果",
   "builtins.lobe-cloud-sandbox.title": "云端沙盒",
+  "builtins.lobe-fgislk.download": "下载报告包",
   "builtins.lobe-delivery-checker.apiName.generateVerifyPlan": "创建自动化检查",
   "builtins.lobe-delivery-checker.verifyPlan.optional": "可选",
   "builtins.lobe-delivery-checker.verifyPlan.portal.fields.description": "检查说明",

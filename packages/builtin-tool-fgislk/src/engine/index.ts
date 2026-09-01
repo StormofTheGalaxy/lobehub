@@ -50,6 +50,8 @@ export interface Verification {
 }
 
 export interface BuildResult extends Verification {
+  /** Вложения, прошедшие проверку и подлежащие выдаче вместе с XML. */
+  attachmentFiles?: Map<string, Buffer>;
   /** Путь к записанному файлу; отсутствует, если путь не задан или документ не валиден. */
   file?: string;
   log: string[];
@@ -103,7 +105,7 @@ export const buildReport = async (options: {
   const filesDir =
     options.filesDir ??
     (options.outputPath ? path.dirname(path.resolve(options.outputPath)) : process.cwd());
-  const { document, facts, log } = await expand(
+  const { attachmentFiles, document, facts, log } = await expand(
     options.report,
     measures(),
     filesDir,
@@ -138,6 +140,7 @@ export const buildReport = async (options: {
     }
     return {
       ...result,
+      attachmentFiles,
       file: target,
       log: full,
       size: Buffer.byteLength(text, 'utf8'),

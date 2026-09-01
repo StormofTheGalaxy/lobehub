@@ -278,6 +278,7 @@ describe('вложения из переписки', () => {
     expect(result.ready).toBe(true);
     // MD5 посчитан по байтам из переписки, а не по файлу на диске
     expect(result.xml).toContain('IMG_BIG.jpg');
+    expect(result.attachmentFiles?.get('IMG_BIG.jpg')).toEqual(chat.get('IMG_BIG.jpg'));
   });
 
   it('отклоняет фото меньше 5 Мпикс', async () => {

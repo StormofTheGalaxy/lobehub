@@ -15,7 +15,15 @@
     "test:coverage": "vitest --coverage --silent='passed-only'",
     "test:update": "vitest -u"
   },
+  "dependencies": {
+    "fflate": "^0.8.3"
+  },
   "devDependencies": {
     "@lobechat/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "@lobehub/ui": "^5",
+    "react": "*",
+    "react-i18next": "*"
   }
 }

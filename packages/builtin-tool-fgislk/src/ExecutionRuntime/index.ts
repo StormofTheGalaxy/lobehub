@@ -7,6 +7,7 @@
  * записан — об этом сказано прямо.
  */
 import { type BuiltinServerRuntimeOutput } from '@lobechat/types';
+import { strToU8, zipSync } from 'fflate';
 
 import {
   buildReport,
@@ -100,6 +101,19 @@ const verdict = (result: Verification, file: string | undefined): string => {
  * Поэтому имя не «украшаем» датами — иначе пользователю придётся переименовывать.
  */
 const REPORT_FILENAME = 'forestReproduction.xml';
+const PACKAGE_FILENAME = 'forestReproduction.zip';
+
+/** Собирает единый пакет, который пользователь скачивает и передаёт на подпись. */
+export const createReportPackage = (
+  xml: string,
+  attachmentFiles: Map<string, Buffer> = new Map(),
+): Buffer => {
+  const entries = Object.fromEntries(
+    [...attachmentFiles].map(([filename, content]) => [filename, new Uint8Array(content)]),
+  );
+  entries[REPORT_FILENAME] = strToU8(xml);
+  return Buffer.from(zipSync(entries, { level: 6 }));
+};
 
 const HUMAN_CHECKLIST = [
   '',
@@ -134,12 +148,16 @@ export class FgisLkExecutionRuntime {
     return (name: string) => sink.read!(name);
   }
 
-  private async publish(xml: string): Promise<UploadedFile | undefined> {
+  private async publish(
+    xml: string,
+    attachmentFiles: Map<string, Buffer> = new Map(),
+  ): Promise<UploadedFile | undefined> {
     if (!this.sink || !xml) return undefined;
+    const archive = createReportPackage(xml, attachmentFiles);
     return this.sink.upload({
-      content: Buffer.from(xml, 'utf8'),
-      filename: REPORT_FILENAME,
-      mimeType: 'application/xml',
+      content: archive,
+      filename: PACKAGE_FILENAME,
+      mimeType: 'application/zip',
     });
   }
 
@@ -148,7 +166,7 @@ export class FgisLkExecutionRuntime {
     if (uploaded)
       lines.push(
         `Файл готов к скачиванию: ${uploaded.filename} (${uploaded.size} байт) — ${uploaded.url}`,
-        'Имя файла менять нельзя: техническая опись пакета ссылается на вложение по имени.',
+        'Готовый XML выдаётся в ZIP-архиве; при сборке отчёта туда же включаются все вложения с их исходными именами.',
       );
     if (written) lines.push(`Также записан на диск: ${written}`);
     if (!uploaded && !written)
@@ -167,7 +185,9 @@ export class FgisLkExecutionRuntime {
         outputPath: params.outputPath,
         report: params.report,
       });
-      const uploaded = result.ready ? await this.publish(result.xml ?? '') : undefined;
+      const uploaded = result.ready
+        ? await this.publish(result.xml ?? '', result.attachmentFiles)
+        : undefined;
       const state: BuildReportState = {
         ...verificationState(result),
         downloadUrl: uploaded?.url,
